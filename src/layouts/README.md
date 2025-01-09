@@ -1,0 +1,1 @@
+Houses layout components like headers, sidebars, and footers that are reused across multiple pages.

@@ -1,0 +1,1 @@
+Organizes images, fonts, icons, and other static assets for the app
