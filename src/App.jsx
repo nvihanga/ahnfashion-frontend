@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState,createContext } from 'react'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './App.css'
+import Header from './components/header/header'
+import Sidebar from './components/sidebar/sidebar'
+import Dashboard from './pages/dashboard/index'
 
+const MyContext = createContext();
 function App() {
-  const [count, setCount] = useState(0)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      exact: true,
+      element: (
+        <>
+          <section className='main'>
+            <Header />
+            <div className='mainContent flex'>
+              <div className={`sidebarWrapper overflow-hidden ${isSidebarOpen === true ? 'w-[22%]' : 'w-[0px] opacity-0'} transition-all`}>
+                <Sidebar />
+              </div>
+              <div className={`contentRight py-4 px-5 ${isSidebarOpen === false ? 'w-[100%]' : 'w-[78%]'} transition-all`}>
+                <Dashboard />
+              </div>
+            </div>
+          </section>
+        </>
+      ),
+
+    },
+  ]);
+
+  const values = {
+    isSidebarOpen,
+    setIsSidebarOpen
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <MyContext.Provider value={values}>
+        <RouterProvider router={router} />
+      </MyContext.Provider>
     </>
   )
 }
 
 export default App
+export {MyContext};
