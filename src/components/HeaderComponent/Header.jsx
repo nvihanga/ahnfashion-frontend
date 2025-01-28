@@ -1,4 +1,5 @@
 import React, { useState,useContext } from 'react'
+import { Routes, useNavigate,Navigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Badge from '@mui/material/Badge';
 import IconButton from '@mui/material/IconButton';
@@ -9,12 +10,15 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
 import { IoMdLogOut } from "react-icons/io";
-import { MyContext } from '../../App';
-
+import { AppContext } from '../../context/AppProvider';
+import { ROUTES } from '../../config/routes';
+import { useAuth } from '../../hooks/useAuth';
 
 const Header = () => {
     const [anchorMyAcc, setAnchorMyAcc] = React.useState(null);
     const openMyAcc = Boolean(anchorMyAcc);
+    const {logout} = useAuth();
+    const navigate = useNavigate();
     const handleClickMyAcc = (event) => {
         setAnchorMyAcc(event.currentTarget);
     };
@@ -22,7 +26,14 @@ const Header = () => {
         setAnchorMyAcc(null);
     };
 
-    const context = useContext(MyContext);
+    const context = useContext(AppContext);
+
+    const handleSignOut = () => {
+        logout();
+        //navigate(ROUTES.PUBLIC.LOGIN);
+    };
+
+    
 
     return (
         <>
@@ -31,6 +42,7 @@ const Header = () => {
           .MuiBadge-badge {
             background: red !important;
           }
+            
         `}
             </style>
             <header className={`w-full h-[auto] py-2 ${context.isSidebarOpen===true?'pl-64' : 'pl-5'} pr-10 shadow-md bg-white flex items-center justify-between transition-all`}>
@@ -103,7 +115,7 @@ const Header = () => {
                                 </div>
                             </MenuItem>
                             <Divider />
-                            <MenuItem onClick={handleCloseMyAcc} className='flex items-center gap-3'>
+                            <MenuItem onClick={handleSignOut} className='flex items-center gap-3'>
                                 <IoMdLogOut />
                                 <span className='text-[12px]'>Sign Out</span>
                             </MenuItem>
