@@ -15,7 +15,7 @@ import {
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import EditDrawer from "./editDrawer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const rawMaterials = [
   {
@@ -69,15 +69,42 @@ const RawMaterialList = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [supplier, setSupplier] = useState("");
   const [rawMaterialType, setRawMaterialType] = useState("");
+  const [newRawMaterial, setNewRawMaterial] = useState(rawMaterials);
 
   const handleEditClick = (item) => {
     setSelectedItem(item);
     setDrawerOpen(true);
   };
 
+  const handleDeleteClick = (raw) => {
+    const updatedRawMaterials = newRawMaterial.filter(
+      (material) => material.id !== raw.id
+    );
+    setNewRawMaterial(updatedRawMaterials);
+    console.log("Updated Raw Materials:", updatedRawMaterials);
+  };
+
   const handleDrawerClose = () => {
     setDrawerOpen(false);
     setSelectedItem(null);
+  };
+
+  const filter = (supplier, rawMaterialType) => {
+    let filteredMaterials = newRawMaterial;
+
+    if (supplier) {
+      filteredMaterials = filteredMaterials.filter(
+        (material) => material.supplier === supplier
+      );
+    }
+
+    if (rawMaterialType) {
+      filteredMaterials = filteredMaterials.filter(
+        (material) => material.type === rawMaterialType
+      );
+    }
+
+    setNewRawMaterial(filteredMaterials);
   };
 
   const handleSave = (updatedItem) => {
@@ -86,11 +113,13 @@ const RawMaterialList = () => {
   };
   return (
     <>
-      <div className="w-full border-collapse p-4 flex flex-row">
-        <div className=" w-2/3">
-          <h1 className="text-xl">Filter</h1>
+      <div className="w-full border-collapse p-4 flex flex-col">
+        <div className="">
+          <h1 className="text-xl ">Filter</h1>
+        </div>
+        <div className=" w-full">
           <div className="flex flex-row gap-5 gap-t-5 mt-5">
-            <div className="w-full">
+            <div className="w-1/3">
               <FormControl fullWidth>
                 <InputLabel id="Supplier">Supplier</InputLabel>
                 <Select
@@ -98,7 +127,10 @@ const RawMaterialList = () => {
                   id="Supplier"
                   label="Supplier"
                   value={supplier}
-                  onChange={(e) => setSupplier(e.target.value)}
+                  onChange={(e) => {
+                    setSupplier(e.target.value);
+                    filter(e.target.value, rawMaterialType);
+                  }}
                 >
                   {Suppliers.map((type) => (
                     <MenuItem key={type.id} value={type.name}>
@@ -108,7 +140,7 @@ const RawMaterialList = () => {
                 </Select>
               </FormControl>
             </div>
-            <div className="w-full">
+            <div className="w-1/3">
               <FormControl fullWidth>
                 <InputLabel id="Raw_Material_Type">
                   Raw Material Type
@@ -118,7 +150,10 @@ const RawMaterialList = () => {
                   id="Raw_Material_Type"
                   label="Raw Material Type"
                   value={rawMaterialType}
-                  onChange={(e) => setRawMaterialType(e.target.value)}
+                  onChange={(e) => {
+                    setRawMaterialType(e.target.value);
+                    filter(supplier, e.target.value);
+                  }}
                 >
                   {rawMaterialTypes.map((type) => (
                     <MenuItem key={type.id} value={type.type}>
@@ -129,7 +164,9 @@ const RawMaterialList = () => {
               </FormControl>
             </div>
             <div className="w-1/3">
-              <TextField id="search" label="Search" variant="outlined" />
+              <FormControl fullWidth>
+                <TextField id="search" label="Search" variant="outlined" />
+              </FormControl>
             </div>
           </div>
         </div>
@@ -149,7 +186,7 @@ const RawMaterialList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rawMaterials.map((raw) => (
+            {newRawMaterial.map((raw) => (
               <TableRow key={raw.id}>
                 <TableCell>{raw.id}</TableCell>
                 <TableCell>{raw.productName}</TableCell>
@@ -165,7 +202,11 @@ const RawMaterialList = () => {
                   >
                     <MdEdit />
                   </IconButton>
-                  <IconButton color="error" id="delete">
+                  <IconButton
+                    color="error"
+                    id="delete"
+                    onClick={() => handleDeleteClick(raw)}
+                  >
                     <MdDelete />
                   </IconButton>
                 </TableCell>

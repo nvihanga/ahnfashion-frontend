@@ -19,6 +19,8 @@ const RawMaterialsAdd = lazy(() => import("../pages/RawMaterials/AddList"));
 const RawMaterialStockAdd = lazy(() =>
   import("../pages/RawMaterials/AddStock")
 );
+const PurchaseOrderAdd = lazy(() => import("../pages/purchase-order/Add"));
+const PurchaseOrderList = lazy(() => import("../pages/purchase-order/List"));
 
 const PrivateRoutesWrapper = () => {
   const { user, loading } = useAuth();
@@ -61,6 +63,14 @@ const AppRoutes = () => {
               <Route
                 path={ROUTES.PROTECTED.RAW_MATERIALS.STOCK_ADD}
                 element={<RawMaterialStockAdd />}
+              />
+              <Route
+                path={ROUTES.PROTECTED.PURCHASE_ORDER.ADD}
+                element={<PurchaseOrderAdd />}
+              />
+              <Route
+                path={ROUTES.PROTECTED.PURCHASE_ORDER.LIST}
+                element={<PurchaseOrderList />}
               />
             </Route>
 
