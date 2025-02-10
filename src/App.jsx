@@ -17,7 +17,7 @@ function App() {
         <>
           <section className='main'>
             <Header />
-            <div className='mainContent flex'>
+            <div className='flex mainContent'>
               <div className={`sidebarWrapper overflow-hidden ${isSidebarOpen === true ? 'w-[22%]' : 'w-[0px] opacity-0'} transition-all`}>
                 <Sidebar />
               </div>
