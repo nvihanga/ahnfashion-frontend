@@ -17,7 +17,7 @@ const NewType = () => {
     <div className="w-full mt-10 px-10 py-8">
       <div className="flex flex-row justify-between">
         <div>
-          <h1 className="font-bold">Add New Item</h1>
+          <h1 className="font-bold">Add New Type</h1>
         </div>
         <div className="flex gap-5">
           <Button variant="contained" onClick={handleSubmit}>
