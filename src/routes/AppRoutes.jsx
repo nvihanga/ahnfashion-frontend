@@ -37,7 +37,8 @@ const SuppiersAdd = lazy(() => import("../pages/Suppliers/AddList"));
 const PurchaseOrderAdd = lazy(() => import("../pages/purchase-order/Add"));
 const PurchaseOrderList = lazy(() => import("../pages/purchase-order/List"));
 
-
+const SalesOrderAdd = lazy(() => import("../pages/SalesOrder/AddOrder"));
+const SalesOrderList = lazy(() => import("../pages/SalesOrder/List"));
 
 
 
@@ -118,6 +119,19 @@ const AppRoutes = () => {
                 element={<PurchaseOrderList />}
               />
             </Route>
+
+            <Route
+                path={ROUTES.PROTECTED.SALES_ORDER.ADD}
+                element={<SalesOrderAdd />}
+              />
+              <Route
+                path={ROUTES.PROTECTED.SALES_ORDER.LIST}
+                element={<SalesOrderList />}
+              />
+           
+
+
+
 
             {/* Admin-only Routes */}
             <Route element={<AdminRoute />}>
