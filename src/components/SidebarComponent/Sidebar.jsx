@@ -23,6 +23,12 @@ import { BsCalendar2DayFill } from "react-icons/bs";
 import { FaCalendarAlt } from "react-icons/fa";
 import { BsBank2 } from "react-icons/bs";
 import { HiOutlineBanknotes } from "react-icons/hi2";
+import { BiSolidShare } from "react-icons/bi";
+import { RiShareForwardFill } from "react-icons/ri";
+
+import { TbArrowBigDownLinesFilled } from "react-icons/tb";
+import { TbArrowBigUpLinesFilled } from "react-icons/tb";
+
 import { IoIosSettings } from "react-icons/io";
 import { IoPeople } from "react-icons/io5";
 import { MdPeopleAlt } from "react-icons/md";
@@ -69,9 +75,14 @@ const Sidebar = () => {
             icon: <GrTableAdd className="text-[13px]" />,
           },
           {
-            label: "Stock Add",
-            path: ROUTES.PROTECTED.RAW_MATERIALS.STOCK_ADD,
-            icon: <ImPlus className="text-[13px]" />,
+            label: "Stock In",
+            path: ROUTES.PROTECTED.RAW_MATERIALS.STOCK_IN,
+            icon: <TbArrowBigDownLinesFilled className="text-[13px]" />,
+          },
+          {
+            label: "Stock Out",
+            path: ROUTES.PROTECTED.RAW_MATERIALS.STOCK_OUT,
+            icon: <TbArrowBigUpLinesFilled className="text-[13px]" />,
           },
         ],
       },
@@ -89,7 +100,7 @@ const Sidebar = () => {
           {
             label: "Add Finished Goods",
             path: ROUTES.PROTECTED.FINISHED_GOODS.ADD,
-            icon: <GrTableAdd className="text-[13px]" />,
+            icon: <GrTableAdd className="text-[12px]" />,
           },
           {
             label: "Stock Add",
@@ -262,9 +273,14 @@ const Sidebar = () => {
             icon: <GrTableAdd className="text-[13px]" />,
           },
           {
-            label: "Stock Add",
-            path: ROUTES.PROTECTED.RAW_MATERIALS.STOCK_ADD,
-            icon: <ImPlus className="text-[13px]" />,
+            label: "Stock In",
+            path: ROUTES.PROTECTED.RAW_MATERIALS.STOCK_IN,
+            icon: <TbArrowBigDownLinesFilled className="text-[13px]" />,
+          },
+          {
+            label: "Stock Out",
+            path: ROUTES.PROTECTED.RAW_MATERIALS.STOCK_OUT,
+            icon: <TbArrowBigUpLinesFilled className="text-[13px]" />,
           },
         ],
       },
@@ -470,10 +486,16 @@ const Sidebar = () => {
           .ReactCollapse--collapse {
             transition: height 500ms;
           }
+         
+
+
+
+
+
         `}
       </style>
       <div
-        className={`sidebar fixed top-0 left-0 bg-white h-full border-r border-[rgba(0,0,0,0.1)] py-2 px-4 overflow-y-auto ${
+        className={`sidebar fixed top-0 left-0 z-50 bg-white h-full border-r border-[rgba(0,0,0,0.1)] py-2 px-4 overflow-y-auto ${
           isSidebarOpen ? "w-[22%]" : "w-0"
         }`}
       >

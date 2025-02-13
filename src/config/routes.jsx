@@ -12,7 +12,8 @@ export const ROUTES = {
         RAW_MATERIALS: {
             LIST: '/raw-materials/list',
             ADD: '/raw-materials/add',
-            STOCK_ADD: '/raw-materials/stock-add',
+            STOCK_IN: '/raw-materials/stock-in',
+            STOCK_OUT: '/raw-materials/stock-out',
         },
         FINISHED_GOODS: {
             LIST: '/finished-goods/list',

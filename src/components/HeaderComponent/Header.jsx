@@ -45,7 +45,7 @@ const Header = () => {
             
         `}
             </style>
-            <header className={`w-full h-[auto] py-2 ${context.isSidebarOpen===true?'pl-64' : 'pl-5'} pr-10 shadow-md bg-white flex items-center justify-between transition-all`}>
+            <header className={`fixed top-0 left-0 right-0 z-10 w-full h-[auto] py-1 ${context.isSidebarOpen===true?'pl-64' : 'pl-5'} pr-10 shadow-md bg-white flex items-center justify-between transition-all`}>
                 <div className='part1'>
                     <Button 
                         className='!w-[40px] !h-[40px] !rounded-full !min-w-[40px] !text-[rgba(0,0,0,0.8)]' onClick={() => context.setIsSidebarOpen(!context.isSidebarOpen)}>
