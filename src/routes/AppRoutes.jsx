@@ -39,6 +39,7 @@ const PurchaseOrderList = lazy(() => import("../pages/purchase-order/List"));
 
 const SalesOrderAdd = lazy(() => import("../pages/SalesOrder/AddOrder"));
 const SalesOrderList = lazy(() => import("../pages/SalesOrder/List"));
+const SalesOrderInvoice = lazy(() => import("../pages/SalesOrder/Invoice"))
 
 
 
@@ -128,9 +129,13 @@ const AppRoutes = () => {
                 path={ROUTES.PROTECTED.SALES_ORDER.LIST}
                 element={<SalesOrderList />}
               />
-           
+              <Route
+                path={ROUTES.PROTECTED.SALES_ORDER.INVOICE}
+                element={<SalesOrderInvoice />}
+              />
 
 
+              
 
 
             {/* Admin-only Routes */}

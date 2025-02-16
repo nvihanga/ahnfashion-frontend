@@ -76,16 +76,16 @@ const SalesOrderList = () => {
       (row) => row.customer1 === selectedCustomer || row.customer2 === selectedCustomer
     );
   }
-
+  
   // Filter by date range
   if (dateRange.startDate && dateRange.endDate) {
     filteredData = filteredData.filter(
       (row) =>
-        (row.placeDate1 >= dateRange.startDate && row.placeDate1 <= dateRange.endDate) ||
-        (row.placeDate2 >= dateRange.startDate && row.placeDate2 <= dateRange.endDate)
+        ((row.customer1 === selectedCustomer || row.customer2 === selectedCustomer) && 
+        ((row.placeDate1 >= dateRange.startDate && row.placeDate1 <= dateRange.endDate) || 
+        (row.placeDate2 >= dateRange.startDate && row.placeDate2 <= dateRange.endDate)))
     );
   }
-
   console.log('Filtered Data:', filteredData);
   setFilteredSalesData(filteredData);
   };

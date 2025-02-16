@@ -1,26 +1,30 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../config/routes"
 import {
   Container,
   Paper,
   TextField,
   Button,
-  Typography,
   Box,
+  Typography,
   Autocomplete,
   Table,
   TableBody,
   TableCell,
   TableContainer,
+  Drawer,
   TableHead,
   TableRow,
-  IconButton
+  IconButton,
 } from '@mui/material';
-import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material';
+import { Add as AddIcon, Search as SearchIcon, Close as CloseIcon } from '@mui/icons-material';
+
 
 // Sample customer data
 const customers = [
-  { id: 1, name: 'Customer 1', email: 'Customer1@example.com', phone: '123-456-7890' },
-  { id: 2, name: 'Customer 2', email: 'Customer2@example.com', phone: '234-567-8901' },
+  { id: 1, name: 'Customer 1'},
+  { id: 2, name: 'Customer 2'},
   // Add more customers as needed
 ];
 
@@ -32,14 +36,27 @@ const SalesOrderAdd = () => {
   });
   
   const [items, setItems] = useState([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const navigate = useNavigate();
+  
 
   const handleAddItem = () => {
     setItems([...items, { id: Date.now(), name: '', quantity: 0, price: 0 }]);
+    setDrawerOpen(true);
   };
 
   const handleCustomerChange = (event, newValue) => {
     setInvoiceData({ ...invoiceData, customer: newValue });
   };
+
+  const handlePublish = () => {
+    // Perform any necessary actions before navigating (e.g., save data)
+
+    // Navigate to another page after clicking "Publish"
+     // Replace '/another-page' with the actual route path
+     navigate(ROUTES.PROTECTED.SALES_ORDER.INVOICE);
+  };
+
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -51,11 +68,11 @@ const SalesOrderAdd = () => {
           InputProps={{
             startAdornment: <SearchIcon color="action" />,
           }}
-          sx={{ width: 250, bgcolor: 'grey.100' }}
+          sx={{ width: 250}}
         />
         <Box>
           <Button
-            variant="contained"
+            variant="outlined"
             color="primary"
             sx={{ mr: 2 }}
           >
@@ -64,6 +81,7 @@ const SalesOrderAdd = () => {
           <Button
             variant="contained"
             color="primary"
+            onClick={handlePublish}
           >
             Publish
           </Button>
@@ -78,7 +96,6 @@ const SalesOrderAdd = () => {
           variant="outlined"
           value={invoiceData.invoiceNumber}
           onChange={(e) => setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })}
-          sx={{ bgcolor: 'grey.100' }}
         />
         <TextField
           fullWidth
@@ -86,7 +103,6 @@ const SalesOrderAdd = () => {
           variant="outlined"
           value={invoiceData.date}
           onChange={(e) => setInvoiceData({ ...invoiceData, date: e.target.value })}
-          sx={{ bgcolor: 'grey.100' }}
         />
       </Box>
 
@@ -101,7 +117,7 @@ const SalesOrderAdd = () => {
             {...params}
             placeholder="Select Customer"
             variant="outlined"
-            sx={{ bgcolor: 'grey.100', mb: 4 }}
+            sx={{mb: 4 }}
           />
         )}
         renderOption={(props, option) => (
@@ -129,6 +145,35 @@ const SalesOrderAdd = () => {
       >
         ADD
       </Button>
+
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+          <Box sx={{ p: 3, width: "100%", maxWidth: 500, mx: "auto" }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+            <Typography variant="h6">Add New Item</Typography>
+            <IconButton onClick={() => setDrawerOpen(false)}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <TextField fullWidth label="Style Number" variant="outlined" sx={{ mb: 2, width: '90%'}} />
+          <TextField fullWidth label="Name" variant="outlined" sx={{ mb: 2, width: '90%' }} />
+          <TextField fullWidth type="number" label="Description" variant="outlined" multiline
+  rows={4}  sx={{ mb: 2, width: '90%' }} />
+          <TextField fullWidth type="number" label="Unit Price" variant="outlined" sx={{ mb: 2, width: '90%' }} />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx = {{width: '90%'}}
+            onClick={() => setDrawerOpen(false)}
+          >
+            Add Item
+          </Button>
+        </Box>
+        </Drawer>
         
      {items.length > 0 && (
         <TableContainer component={Paper}>
@@ -180,5 +225,6 @@ const SalesOrderAdd = () => {
     </Container>
   );
 };
+
 
 export default SalesOrderAdd;
