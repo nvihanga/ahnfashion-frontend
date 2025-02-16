@@ -35,6 +35,9 @@ export const ROUTES = {
         PURCHASE_ORDER: {
             LIST: '/purchase-order/list',
             ADD: '/purchase-order/add',
+            GRN_LIST: '/purchase-order/grn-list',
+            CREATE_GRN: '/purchase-order/create-grn',
+            
         },
         REPORTS: {
             DAILY: '/reports/daily',
@@ -44,10 +47,15 @@ export const ROUTES = {
             CASHOUT: '/cash/cashout',
             LIST: '/cash/list',
         },
-        PAYMENT: {
-            CASH: '/payment/cash',
-            CREDIT: '/payment/credit',
-            CHEQUE: '/payment/cheque',
+        PAYMENT_IN: {
+            CASH: '/payment-in/cash',
+            CREDIT: '/payment-in/credit',
+            CHEQUE: '/payment-in/cheque',
+        },
+        PAYMENT_OUT: {
+            CASH: '/payment-out/cash',
+            CREDIT: '/payment-out/credit',
+            CHEQUE: '/payment-out/cheque',
         },
         SETTING: '/setting',
 
