@@ -14,22 +14,25 @@ import {
 } from '@mui/material';
 
 const SalesOrderInvoice = () => {
+  const generateOrderId = () => {
+    return `ORD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  };
+
   const [orders, setOrders] = useState([
-    { id: '#23534D', styleNo: '756', description: 'desc1', rate: '25.00', qty: '2', price: 'Rs. 29.74' },
-    { id: '#12512B', styleNo: '756', description: 'desc1', rate: '23.06', qty: '1', price: 'Rs. 23.06' },
-    { id: '#23534D', styleNo: '748', description: 'desc1', rate: '29.74', qty: '1', price: 'Rs. 29.74' },
-    { id: '#76543E', styleNo: '744', description: 'desc1', rate: '23.06', qty: '1', price: 'Rs. 23.06' },
-    { id: '#51323C', styleNo: '742', description: 'desc1', rate: '23.06', qty: '1', price: 'Rs. 23.06' }
+    { styleNo: '756', description: 'desc1', size: 'L', qty: '2', rate: '25.00', price: 'Rs. 29.74' },
+    { styleNo: '756', description: 'desc1', size: 'XL', qty: '1', rate: '23.06', price: 'Rs. 23.06' },
+    { styleNo: '748', description: 'desc1', size: 'M', qty: '1', rate: '29.74', price: 'Rs. 29.74' }
   ]);
 
   const [formData, setFormData] = useState({
+    orderId: generateOrderId(),
     customerName: 'John Doe',
     date: new Date().toLocaleDateString(),
     styleNo: '',
     description: '',
     qty: '',
     rate: '',
-    paymentMethod: ''
+    size: ''
   });
 
   useEffect(() => {
@@ -51,8 +54,8 @@ const SalesOrderInvoice = () => {
   };
 
   const handleAddToList = () => {
-    if (!formData.qty || !formData.styleNo || !formData.description) {
-      alert('Please enter quantity and style number');
+    if (!formData.qty || !formData.styleNo || !formData.description || !formData.size) {
+      alert('Please fill in all required fields');
       return;
     }
 
@@ -61,29 +64,39 @@ const SalesOrderInvoice = () => {
     const totalPrice = (parseFloat(rate) * quantity).toFixed(2);
 
     const newOrder = {
-      id: `#${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
       styleNo: formData.styleNo,
       description: formData.description === 'desc1' ? 'Description 1' : 'Description 2',
-      rate: rate,
+      size: formData.size,
       qty: formData.qty,
+      rate: rate,
       price: `Rs. ${totalPrice}`
     };
 
     setOrders([newOrder, ...orders]);
     setFormData(prev => ({
       ...prev,
+      orderId: generateOrderId(), // Generate new order ID for next entry
       styleNo: '',
       description: '',
       qty: '',
       rate: '',
-      paymentMethod: ''
+      size: ''
     }));
   };
 
   return (
     <div className="max-w-6xl p-8 mx-auto">
       <div className="space-y-6">
-        <div className="grid items-center grid-cols-3 gap-4">
+        <div className="grid items-center grid-cols-4 gap-4">
+          <TextField
+            label="Order ID"
+            variant="outlined"
+            value={formData.orderId}
+            className="bg-gray-50"
+            InputProps={{
+              readOnly: true,
+            }}
+          />
           <TextField
             label="Customer name"
             variant="outlined"
@@ -105,8 +118,7 @@ const SalesOrderInvoice = () => {
             }}
           />
           <div className="flex justify-end gap-2">
-            <Button variant="outlined"
-            color="primary" className="w-32">
+            <Button variant="outlined" color="primary" className="w-32">
               Discard
             </Button>
             <Button variant="contained" color="primary" className="w-32">
@@ -140,6 +152,23 @@ const SalesOrderInvoice = () => {
             <MenuItem value="desc2">Description 2</MenuItem>
           </Select>
 
+          <Select
+            value={formData.size}
+            onChange={handleInputChange}
+            name="size"
+            displayEmpty
+            className="bg-gray-50"
+          >
+            <MenuItem value="">Size</MenuItem>
+            <MenuItem value="M">M</MenuItem>
+            <MenuItem value="L">L</MenuItem>
+            <MenuItem value="XL">XL</MenuItem>
+            <MenuItem value="2XL">2XL</MenuItem>
+            <MenuItem value="3XL">3XL</MenuItem>
+            <MenuItem value="4XL">4XL</MenuItem>
+            <MenuItem value="5XL">5XL</MenuItem>
+          </Select>
+
           <TextField
             label="Qty"
             variant="outlined"
@@ -150,18 +179,6 @@ const SalesOrderInvoice = () => {
             className="bg-gray-50"
             inputProps={{ min: "1" }}
           />
-
-          <Select
-            value={formData.paymentMethod}
-            onChange={handleInputChange}
-            name="paymentMethod"
-            displayEmpty
-            className="bg-gray-50"
-          >
-            <MenuItem value="">Payment Method</MenuItem>
-            <MenuItem value="card">Card</MenuItem>
-            <MenuItem value="cash">Cash</MenuItem>
-          </Select>
         </div>
 
         <div className="flex justify-end">
@@ -179,22 +196,22 @@ const SalesOrderInvoice = () => {
           <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell>Order Id</TableCell>
                 <TableCell>Style No</TableCell>
                 <TableCell>Description</TableCell>
-                <TableCell>Rate</TableCell>
+                <TableCell>Size</TableCell>
                 <TableCell>Qty</TableCell>
+                <TableCell>Rate</TableCell>
                 <TableCell>Price</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell>{order.id}</TableCell>
+              {orders.map((order, index) => (
+                <TableRow key={index}>
                   <TableCell>{order.styleNo}</TableCell>
                   <TableCell>{order.description}</TableCell>
-                  <TableCell>Rs. {order.rate}</TableCell>
+                  <TableCell>{order.size}</TableCell>
                   <TableCell>{order.qty}</TableCell>
+                  <TableCell>Rs. {order.rate}</TableCell>
                   <TableCell>{order.price}</TableCell>
                 </TableRow>
               ))}
