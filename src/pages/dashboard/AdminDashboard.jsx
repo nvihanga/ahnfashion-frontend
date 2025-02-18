@@ -1,5 +1,5 @@
 import React from 'react'
-// import DashboardBoxes from '../../components/dahboardBoxes'
+import DashboardBoxes from '../../components/dahboardBoxes/dashboarBoxes'
 import { MdWavingHand } from "react-icons/md";
 import image from '../../assets/images/first.jpg'
 
@@ -20,7 +20,7 @@ const AdminDashboard = () => {
             </div>
             {/* <img src={image} className='w-[200px] rounded-full'/> */}
           </div>
-          {/* <DashboardBoxes/> */}
+          <DashboardBoxes/>
         </>
   )
 }
