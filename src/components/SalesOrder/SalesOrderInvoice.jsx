@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../config/routes";
 import PaymentDrawer from "./PaymentDrawer";
+import InvoiceModal from "./InvoiveModal";
 import {
   TextField,
   Select,
@@ -60,6 +61,8 @@ const SalesOrderInvoice = () => {
 
   const [inputValue, setInputValue] = useState('');
   const [open, setOpen] = useState(false);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -71,6 +74,20 @@ const SalesOrderInvoice = () => {
 
     return () => clearInterval(timer);
   }, []);
+
+
+  const handlePublish = () => {
+    if (paymentDetails) {
+      setIsInvoiceModalOpen(true);
+    } else {
+      alert('Please complete the payment first');
+    }
+  };
+
+  const handlePaymentComplete = (details) => {
+    setPaymentDetails(details);
+    setIsPaymentDrawerOpen(false);
+  };
 
   const handleInputChange = (e) => {
     setFormData({
@@ -171,7 +188,7 @@ const SalesOrderInvoice = () => {
             <Button variant="outlined" color="primary" className="w-32" onClick={handleDiscard}>
               Discard
             </Button>
-            <Button variant="contained" color="primary" className="w-32">
+            <Button variant="contained" color="primary" className="w-32" onClick={handlePublish}>
               Publish
             </Button>
           </div>
@@ -262,10 +279,10 @@ const SalesOrderInvoice = () => {
           </Button>
         </div>
 
-        <TableContainer component={Paper} className="mt-8" sx={{ maxHeight: 300 }}>
+        <TableContainer component={Paper} variant="outlined" className="mt-8" sx={{ maxHeight: 300 }}>
           <Table stickyHeader>
             <TableHead>
-              <TableRow>
+              <TableRow style={{ backgroundColor: "#f5f5f5" }}>
                 <TableCell sx={{ fontWeight: 'bold'}}>STYLE NO</TableCell>
                 <TableCell sx={{ fontWeight: 'bold'}}>DESCRIPTION</TableCell>
                 <TableCell sx={{ fontWeight: 'bold'}}>SIZE</TableCell>
@@ -301,9 +318,22 @@ const SalesOrderInvoice = () => {
       <PaymentDrawer
         open={isPaymentDrawerOpen}
         onClose={() => setIsPaymentDrawerOpen(false)}
-        totalAmount={orders.reduce((sum, order) => sum + parseFloat(order.price.replace('Rs. ', '')), 0).toFixed(2)}
+        onPaymentComplete={handlePaymentComplete} // Added payment completion handler
+        totalAmount={orders.reduce((sum, order) => 
+          sum + parseFloat(order.price.replace('Rs. ', '')), 0).toFixed(2)}
         invoiceNumber={formData.orderId}
+
       />
+
+      <InvoiceModal
+        open={isInvoiceModalOpen}
+        onClose={() => setIsInvoiceModalOpen(false)}
+        invoiceData={formData}
+        orders={orders}
+        paymentDetails={paymentDetails}
+      />
+      
+
     
 
         <div className="flex items-center justify-between p-4 mt-6 text-2xl bg-gray-100 rounded-lg">

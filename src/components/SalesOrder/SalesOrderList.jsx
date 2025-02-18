@@ -173,12 +173,12 @@ const SalesOrderList = () => {
       <TableContainer component={Paper} variant="outlined">
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Invoice Number</TableCell>
-              <TableCell>Customer Name</TableCell>
-              <TableCell>Net Total</TableCell>
-              <TableCell>Payment Method</TableCell>
-              <TableCell>Invoice Date</TableCell>
+            <TableRow style={{ backgroundColor: "#f5f5f5" }}>
+              <TableCell sx={{ fontWeight: 'bold'}}>INVOICE NUMBER</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>CUSTOMER NAME</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>NET TOTAL</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>PAYMENT METHOD</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>INVOICE DATE</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
