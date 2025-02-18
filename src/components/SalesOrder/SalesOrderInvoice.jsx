@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ROUTES } from "../../config/routes";
 import PaymentDrawer from "./PaymentDrawer";
 import InvoiceModal from "./InvoiveModal";
@@ -33,6 +33,16 @@ const SalesOrderInvoice = () => {
   
   const navigate = useNavigate();
   const [isPaymentDrawerOpen, setIsPaymentDrawerOpen] = useState(false);
+  const location = useLocation();
+
+  /*const [formData, setFormData] = useState({
+    orderId: location.state?.orderId || generateOrderId(),
+    customerName: location.state?.customerName || 'John Doe',
+    date: location.state?.date || new Date().toLocaleDateString(),
+    // ... rest of your state
+  });
+  */
+
 
   const handleDiscard = () => {
        navigate(ROUTES.PROTECTED.SALES_ORDER.ADD);
@@ -49,9 +59,13 @@ const SalesOrderInvoice = () => {
   ]);
 
   const [formData, setFormData] = useState({
-    orderId: generateOrderId(),
+    /*orderId: generateOrderId(),
     customerName: 'John Doe',
     date: new Date().toLocaleDateString(),
+    */
+    orderId: location.state?.orderId || generateOrderId(),
+    customerName: location.state?.customerName || 'John Doe',
+    date: location.state?.date || new Date().toLocaleDateString(),
     styleNo: null,
     description: '',
     qty: '',
@@ -332,10 +346,6 @@ const SalesOrderInvoice = () => {
         orders={orders}
         paymentDetails={paymentDetails}
       />
-      
-
-    
-
         <div className="flex items-center justify-between p-4 mt-6 text-2xl bg-gray-100 rounded-lg">
           <div className="font-semibold">Total Amount</div>
           <div className="font-semibold text-blue-600">
