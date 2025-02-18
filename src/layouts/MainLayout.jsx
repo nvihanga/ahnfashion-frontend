@@ -14,16 +14,17 @@ const MainLayout = () => {
       <Header />
       <div className='mainContent flex'>
 
-        <div className={`sidebarWrapper overflow-hidden ${isSidebarOpen === true ? 'w-[22%]' : 'w-[0px] opacity-0'} transition-all`}>
+        <div className={`sidebarWrapper overflow-hidden ${isSidebarOpen === true ? 'w-[200px] md:w-[240px] lg:w-[260px]' : 'w-0 opacity-0'} transition-all duration-300`}>
 
           <Sidebar role={user?.role} />
 
         </div>
-        <div className={`contentRight py-4 px-5 ${isSidebarOpen === false ? 'w-[100%]' : 'w-[78%]'} transition-all`}>
-          <ErrorBoundary>
-            <Outlet />
-          </ErrorBoundary>
-
+        <div className="contentRight flex-1 min-w-0 pt-10">
+          <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-6 w-full">
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
+          </div>
         </div>
       </div>
     </section>
