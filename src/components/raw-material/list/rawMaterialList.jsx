@@ -15,7 +15,7 @@ import {
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import EditDrawer from "./editDrawer";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const rawMaterials = [
   {
@@ -115,7 +115,7 @@ const RawMaterialList = () => {
     <>
       <div className="w-full border-collapse p-4 flex flex-col">
         <div className="">
-          <h1 className="text-xl ">Filter</h1>
+          <h1 className="font-bold">Filters</h1>
         </div>
         <div className=" w-full">
           <div className="flex flex-row gap-5 gap-t-5 mt-5">
@@ -176,13 +176,27 @@ const RawMaterialList = () => {
         <Table width={100}>
           <TableHead>
             <TableRow>
-              <TableCell>No</TableCell>
-              <TableCell>Product Name </TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Quantity</TableCell>
-              <TableCell>Supplier</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell align="center">Action</TableCell>
+              <TableCell>
+                <strong>NO</strong>
+              </TableCell>
+              <TableCell>
+                <strong>PRODUCT NAME</strong>
+              </TableCell>
+              <TableCell>
+                <strong>TYPE</strong>
+              </TableCell>
+              <TableCell>
+                <strong>QUANTITY</strong>
+              </TableCell>
+              <TableCell>
+                <strong>SUPPLIER</strong>
+              </TableCell>
+              <TableCell>
+                <strong>PRICE</strong>
+              </TableCell>
+              <TableCell align="center">
+                <strong>ACTION</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
