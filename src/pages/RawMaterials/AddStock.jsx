@@ -1,11 +1,9 @@
-import RawMaterialStockAdd from "../../components/raw-material/stock/rawMaterialStockAdd";
-import RawMaterialStockAddRecheckingList from "../../components/raw-material/stock/rawMaterialStockAddRecheckingList";
+import Main from "../../components/raw-material/stock/main";
 
 const AddStock = () => {
   return (
     <div className="m-8">
-      <RawMaterialStockAdd />
-      <RawMaterialStockAddRecheckingList />
+      <Main />
     </div>
   );
 };

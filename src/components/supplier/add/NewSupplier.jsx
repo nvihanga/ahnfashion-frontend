@@ -2,6 +2,7 @@ import { Button, TextField, IconButton } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { useState } from "react";
 import axios from "axios";
+
 const initialSupplierState = {
   supplierCode: "",
   name: "",
@@ -24,6 +25,9 @@ const SupplierForm = () => {
     setSupplier((prev) => ({ ...prev, phoneNumbers: updatedPhones }));
   };
   const addPhoneNumber = () => {
+    setSupplier((prev) => ({ ...prev, phoneNumbers: [...prev.phoneNumbers, ""] }));
+  };
+ const addPhoneNumber = () => {
     setSupplier((prev) => ({ ...prev, phoneNumbers: [...prev.phoneNumbers, ""] }));
   };
   const removePhoneNumber = (index) => {
@@ -84,7 +88,7 @@ const SupplierForm = () => {
           </Button>
           <Button variant="outlined" onClick={handleReset}>Reset</Button>
         </div>
-        </div>
+      </div>
       <TextField
         name="supplierCode"
         label="Supplier Code"
@@ -95,7 +99,7 @@ const SupplierForm = () => {
         error={!!errors.supplierCode}
         helperText={errors.supplierCode}
       />
-      <TextField
+       <TextField
         name="name"
         label="Name"
         variant="outlined"
@@ -163,3 +167,4 @@ const SupplierForm = () => {
      );
    };
    export default SupplierForm;
+

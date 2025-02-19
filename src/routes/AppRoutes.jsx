@@ -8,6 +8,9 @@ import MainLayout from "../layouts/MainLayout";
 import NotFound from "../pages/NotFound";
 import { useAuth } from "../hooks/useAuth";
 import SupplierList from "../components/supplier/list/supplier";
+import CustomerForm from "../components/Customer/Add/NewCustomer.jsx";
+import CustomerList from "../components/Customer/List/customer.jsx";
+import CashOut from "../pages/CashOut/CashOut.jsx";
 
 const Login = lazy(() => import("../pages/authentication/LoginPage"));
 const AdminDashboard = lazy(() => import("../pages/dashboard/AdminDashboard"));
@@ -33,6 +36,7 @@ const FinishedGoodsStockAdd = lazy(() =>
 const SuppiersAdd = lazy(() => import("../pages/Suppliers/AddList"));
 //const SupplierList = lazy(() => import("../pages/Suppliers/List"));
 //
+
 
 const PurchaseOrderAdd = lazy(() => import("../pages/purchase-order/Add"));
 const PurchaseOrderList = lazy(() => import("../pages/purchase-order/List"));
@@ -99,17 +103,30 @@ const AppRoutes = () => {
                 element={<FinishedGoodsStockAdd />}
               />
 
-//
               <Route
                 path={ROUTES.PROTECTED.SUPPLIERS.LIST}
                 element={<SupplierList />}
               />
 
+                <Route
+                    path={ROUTES.PROTECTED.CUSTOMERS.LIST}
+                    element={<CustomerList />}
+                />
+
               <Route
                 path={ROUTES.PROTECTED.SUPPLIERS.ADD}
                 element={<SuppiersAdd />}
               />
-//
+
+                <Route
+                    path={ROUTES.PROTECTED.CUSTOMERS.ADD}
+                    element={<CustomerForm />}
+                />
+
+                <Route
+                    path={ROUTES.PROTECTED.CASH.CASHOUT}
+                    element={<CashOut />}
+                />
 
               <Route
                 path={ROUTES.PROTECTED.PURCHASE_ORDER.ADD}

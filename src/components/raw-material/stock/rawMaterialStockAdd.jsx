@@ -7,6 +7,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useState } from "react";
+import PropTypes from "prop-types";
 
 const productNameArray = [
   { id: 1, name: "Cotton" },
@@ -21,25 +22,44 @@ const supplierArray = [
   { id: 4, name: "Supplier D" },
 ];
 
-const RawMaterialStockAdd = () => {
-  const product = {
-    id: null,
-    name: "",
-  };
-
-  const [productName, setProductName] = useState(product);
-  const [supplier, setSupplier] = useState([]);
-  const [quantitiy, setQuantity] = useState();
+const RawMaterialStockAdd = ({ setStockList, stockList }) => {
+  const [productName, setProductName] = useState("");
+  const [supplier, setSupplier] = useState("");
+  const [quantitiy, setQuantity] = useState("");
 
   const handleAddToList = () => {
-    console.log(productName, supplier, quantitiy);
+    const selectedProduct = productNameArray.find(
+      (product) => product.name === productName
+    );
+
+    const selectedSupplier = supplierArray.find((sup) => sup.name === supplier);
+
+    const stock = {
+      productName: selectedProduct.name,
+      productId: selectedProduct.id,
+      supplier: selectedSupplier.name,
+      supplierId: selectedProduct.id,
+      quantity: quantitiy,
+    };
+
+    setStockList([...stockList, stock]);
+
+    setProductName("");
+    setSupplier("");
+    setQuantity("");
+  };
+
+  const handlePublish = () => {
+    console.log(stockList);
   };
 
   return (
     <div className="w-full">
       <div className="flex flex-row justify-between">
         <h1>Stock Add</h1>
-        <Button variant="contained">Publish</Button>
+        <Button variant="contained" onClick={handlePublish}>
+          Publish
+        </Button>
       </div>
       <div className="flex flex-row  justify-between mt-5">
         <div className="w-4/5">
@@ -97,6 +117,11 @@ const RawMaterialStockAdd = () => {
       </div>
     </div>
   );
+};
+
+RawMaterialStockAdd.propTypes = {
+  setStockList: PropTypes.func.isRequired,
+  stockList: PropTypes.array.isRequired,
 };
 
 export default RawMaterialStockAdd;

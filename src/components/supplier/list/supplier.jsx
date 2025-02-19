@@ -1,3 +1,4 @@
+
 import {
   IconButton,
   Table,
@@ -24,10 +25,8 @@ const SupplierList = () => {
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [search, setSearch] = useState("");
   const [viewDetails, setViewDetails] = useState(false);
-
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Detect mobile screens
-
   useEffect(() => {
     fetchSuppliers();
   }, []);
@@ -217,3 +216,6 @@ const SupplierList = () => {
 };
 
 export default SupplierList;
+
+
+

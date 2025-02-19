@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../config/routes"
 import {
@@ -20,7 +20,6 @@ import {
 } from '@mui/material';
 import { Add as AddIcon, Search as SearchIcon, Close as CloseIcon } from '@mui/icons-material';
 
-
 // Sample customer data
 const customers = [
   { id: 1, name: 'Customer 1'},
@@ -29,16 +28,26 @@ const customers = [
 ];
 
 const SalesOrderAdd = () => {
+  // Generate invoice number function
+  const generateInvoiceNumber = () => {
+    return `INV-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  };
+
+  // Get current local date in YYYY-MM-DD format
+  const getCurrentDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
   const [invoiceData, setInvoiceData] = useState({
-    invoiceNumber: '',
-    date: '',
+    invoiceNumber: generateInvoiceNumber(), // Automatically set invoice number
+    date: getCurrentDate(), // Automatically set current date
     customer: null,
   });
   
   const [items, setItems] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
-  
 
   const handleAddItem = () => {
     setItems([...items, { id: Date.now(), name: '', quantity: 0, price: 0 }]);
@@ -50,59 +59,59 @@ const SalesOrderAdd = () => {
   };
 
   const handlePublish = () => {
-    // Perform any necessary actions before navigating (e.g., save data)
+    // Validate if customer is selected
+    if (!invoiceData.customer) {
+      alert('Please select a customer');
+      return;
+    }
 
-    // Navigate to another page after clicking "Publish"
-     // Replace '/another-page' with the actual route path
-     navigate(ROUTES.PROTECTED.SALES_ORDER.INVOICE);
+    // Navigate to invoice page with state data
+    navigate(ROUTES.PROTECTED.SALES_ORDER.INVOICE, {
+      state: {
+        orderId: invoiceData.invoiceNumber,
+        date: invoiceData.date,
+        customerName: invoiceData.customer.name,
+      }
+    });
   };
 
+  const handleDiscard = () => {
+    // Reset form or navigate away
+    navigate(ROUTES.PROTECTED.SALES_ORDER.LIST); // Adjust route as needed
+  };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-        <TextField
-          placeholder="Search"
-          variant="outlined"
-          size="small"
-          InputProps={{
-            startAdornment: <SearchIcon color="action" />,
-          }}
-          sx={{ width: 250}}
-        />
-        <Box>
-          <Button
-            variant="outlined"
-            color="primary"
-            sx={{ mr: 2 }}
-          >
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 6 }}>
+        <Typography variant="h6">Invoice Info</Typography>
+        
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}> 
+          <Button variant="outlined" color="primary" sx={{ mr: 2 }} onClick={handleDiscard}>
             Discard
           </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handlePublish}
-          >
+          <Button variant="contained" color="primary" onClick={handlePublish}>
             Publish
           </Button>
         </Box>
       </Box>
-
-      <Typography variant="h6" sx={{ mb: 2 }}>Invoice Info</Typography>
       <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
         <TextField
           fullWidth
-          placeholder="Invoice Number"
+          label="Invoice Number"
           variant="outlined"
           value={invoiceData.invoiceNumber}
-          onChange={(e) => setInvoiceData({ ...invoiceData, invoiceNumber: e.target.value })}
+          InputProps={{
+            readOnly: true,
+          }}
         />
         <TextField
           fullWidth
           type="date"
           variant="outlined"
           value={invoiceData.date}
-          onChange={(e) => setInvoiceData({ ...invoiceData, date: e.target.value })}
+          InputProps={{
+            readOnly: true,
+          }}
         />
       </Box>
 
@@ -117,7 +126,7 @@ const SalesOrderAdd = () => {
             {...params}
             placeholder="Select Customer"
             variant="outlined"
-            sx={{mb: 4 }}
+            sx={{mb: 6 }}
           />
         )}
         renderOption={(props, option) => (
@@ -134,7 +143,6 @@ const SalesOrderAdd = () => {
           </Box>
         )}
       />
-
       <Typography variant="h6" sx={{ mb: 2 }}>Finished good</Typography>
       <Button
         variant="contained"
@@ -178,53 +186,13 @@ const SalesOrderAdd = () => {
      {items.length > 0 && (
         <TableContainer component={Paper}>
           <Table>
-          {/*  <TableHead>
-              <TableRow>
-                <TableCell>Item</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Price</TableCell>
-                <TableCell>Total</TableCell>
-              </TableRow>
-            </TableHead>
-     */}
-         {/*<TableBody>
-              {items.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      size="small"
-                      placeholder="Item name"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      type="number"
-                      variant="outlined"
-                      size="small"
-                      placeholder="0"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      type="number"
-                      variant="outlined"
-                      size="small"
-                      placeholder="0.00"
-                    />
-                  </TableCell>
-                  <TableCell>₹0.00</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-           */}
+  
           </Table>
         </TableContainer>
       )}
+
     </Container>
   );
 };
-
 
 export default SalesOrderAdd;

@@ -1,19 +1,53 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from "react-router-dom";
+import { ROUTES } from "../../config/routes";
+import PaymentDrawer from "./PaymentDrawer";
+import InvoiceModal from "./InvoiveModal";
 import {
   TextField,
   Select,
   MenuItem,
   Button,
+  Box,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper
+  Paper,
+  Autocomplete,
+  ListSubheader
 } from '@mui/material';
 
 const SalesOrderInvoice = () => {
+  // Sample style numbers - replace with your actual data
+  const styleNumbers = [
+    { id: '756', label: 'Style 756' },
+    { id: '748', label: 'Style 748' },
+    { id: '742', label: 'Style 742' },
+    { id: '744', label: 'Style 744' },
+    { id: '738', label: 'Style 738' },
+    { id: '760', label: 'Style 760' },
+  ];
+  
+  const navigate = useNavigate();
+  const [isPaymentDrawerOpen, setIsPaymentDrawerOpen] = useState(false);
+  const location = useLocation();
+
+  /*const [formData, setFormData] = useState({
+    orderId: location.state?.orderId || generateOrderId(),
+    customerName: location.state?.customerName || 'John Doe',
+    date: location.state?.date || new Date().toLocaleDateString(),
+    // ... rest of your state
+  });
+  */
+
+
+  const handleDiscard = () => {
+       navigate(ROUTES.PROTECTED.SALES_ORDER.ADD);
+    };
+
   const generateOrderId = () => {
     return `ORD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
   };
@@ -25,15 +59,24 @@ const SalesOrderInvoice = () => {
   ]);
 
   const [formData, setFormData] = useState({
-    orderId: generateOrderId(),
+    /*orderId: generateOrderId(),
     customerName: 'John Doe',
     date: new Date().toLocaleDateString(),
-    styleNo: '',
+    */
+    orderId: location.state?.orderId || generateOrderId(),
+    customerName: location.state?.customerName || 'John Doe',
+    date: location.state?.date || new Date().toLocaleDateString(),
+    styleNo: null,
     description: '',
     qty: '',
     rate: '',
     size: ''
   });
+
+  const [inputValue, setInputValue] = useState('');
+  const [open, setOpen] = useState(false);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -46,10 +89,48 @@ const SalesOrderInvoice = () => {
     return () => clearInterval(timer);
   }, []);
 
+
+  const handlePublish = () => {
+    if (paymentDetails) {
+      setIsInvoiceModalOpen(true);
+    } else {
+      alert('Please complete the payment first');
+    }
+  };
+
+  const handlePaymentComplete = (details) => {
+    setPaymentDetails(details);
+    setIsPaymentDrawerOpen(false);
+  };
+
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    });
+  };
+
+  const handleStyleChange = (event, newValue) => {
+    setFormData({
+      ...formData,
+      styleNo: newValue ? newValue.id : ''
+    });
+  };
+
+  const filterOptions = (options, { inputValue }) => {
+    if (!inputValue) return [];
+    
+    const filtered = options.filter(option => 
+      option.id.toLowerCase().includes(inputValue.toLowerCase()) ||
+      option.label.toLowerCase().includes(inputValue.toLowerCase())
+    );
+
+    return filtered.sort((a, b) => {
+      const aStartsWithInput = a.id.toLowerCase().startsWith(inputValue.toLowerCase());
+      const bStartsWithInput = b.id.toLowerCase().startsWith(inputValue.toLowerCase());
+      if (aStartsWithInput && !bStartsWithInput) return -1;
+      if (!aStartsWithInput && bStartsWithInput) return 1;
+      return 0;
     });
   };
 
@@ -75,8 +156,8 @@ const SalesOrderInvoice = () => {
     setOrders([newOrder, ...orders]);
     setFormData(prev => ({
       ...prev,
-      orderId: generateOrderId(), // Generate new order ID for next entry
-      styleNo: '',
+      orderId: generateOrderId(),
+      styleNo: null,
       description: '',
       qty: '',
       rate: '',
@@ -89,7 +170,7 @@ const SalesOrderInvoice = () => {
       <div className="space-y-6">
         <div className="grid items-center grid-cols-4 gap-4">
           <TextField
-            label="Order ID"
+            label="Invoice Number"
             variant="outlined"
             value={formData.orderId}
             className="bg-gray-50"
@@ -118,28 +199,48 @@ const SalesOrderInvoice = () => {
             }}
           />
           <div className="flex justify-end gap-2">
-            <Button variant="outlined" color="primary" className="w-32">
+            <Button variant="outlined" color="primary" className="w-32" onClick={handleDiscard}>
               Discard
             </Button>
-            <Button variant="contained" color="primary" className="w-32">
+            <Button variant="contained" color="primary" className="w-32" onClick={handlePublish}>
               Publish
             </Button>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
-          <Select
-            value={formData.styleNo}
-            onChange={handleInputChange}
-            name="styleNo"
-            displayEmpty
-            className="bg-gray-50"
-          >
-            <MenuItem value="">Style No</MenuItem>
-            <MenuItem value="1">Style 1</MenuItem>
-            <MenuItem value="2">Style 2</MenuItem>
-          </Select>
+          <Autocomplete
+            value={styleNumbers.find(option => option.id === formData.styleNo) || null}
+            onChange={handleStyleChange}
+            inputValue={inputValue}
+            onInputChange={(event, newInputValue) => {
+              setInputValue(newInputValue);
+              setOpen(!!newInputValue);
+            }}
+            open={open}
+            onClose={() => setOpen(false)}
+            options={styleNumbers}
+            getOptionLabel={(option) => option.label}
+            filterOptions={filterOptions}
+            noOptionsText="No matching style numbers"
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Style No"
+                variant="outlined"
+                className="bg-gray-50"
+                placeholder="Type to search style numbers"
+              />
+            )}
+            isOptionEqualToValue={(option, value) => option.id === value?.id}
+            blurOnSelect
+            openOnFocus={false}
+            ListboxProps={{
+              style: { maxHeight: '200px' }
+            }}
+          />
 
+          {/* Rest of your form fields */}
           <Select
             value={formData.description}
             onChange={handleInputChange}
@@ -192,16 +293,16 @@ const SalesOrderInvoice = () => {
           </Button>
         </div>
 
-        <TableContainer component={Paper} className="mt-8" sx={{ maxHeight: 400 }}>
+        <TableContainer component={Paper} variant="outlined" className="mt-8" sx={{ maxHeight: 300 }}>
           <Table stickyHeader>
             <TableHead>
-              <TableRow>
-                <TableCell>Style No</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Size</TableCell>
-                <TableCell>Qty</TableCell>
-                <TableCell>Rate</TableCell>
-                <TableCell>Price</TableCell>
+              <TableRow style={{ backgroundColor: "#f5f5f5" }}>
+                <TableCell sx={{ fontWeight: 'bold'}}>STYLE NO</TableCell>
+                <TableCell sx={{ fontWeight: 'bold'}}>DESCRIPTION</TableCell>
+                <TableCell sx={{ fontWeight: 'bold'}}>SIZE</TableCell>
+                <TableCell sx={{ fontWeight: 'bold'}}>QTY</TableCell>
+                <TableCell sx={{ fontWeight: 'bold'}}>RATE</TableCell>
+                <TableCell sx={{ fontWeight: 'bold'}}>PRICE</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -219,6 +320,32 @@ const SalesOrderInvoice = () => {
           </Table>
         </TableContainer>
 
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+        <Button 
+          variant="contained"
+          onClick={() => setIsPaymentDrawerOpen(true)}
+        >
+          Pay
+        </Button>
+      </Box>
+
+      <PaymentDrawer
+        open={isPaymentDrawerOpen}
+        onClose={() => setIsPaymentDrawerOpen(false)}
+        onPaymentComplete={handlePaymentComplete} // Added payment completion handler
+        totalAmount={orders.reduce((sum, order) => 
+          sum + parseFloat(order.price.replace('Rs. ', '')), 0).toFixed(2)}
+        invoiceNumber={formData.orderId}
+
+      />
+
+      <InvoiceModal
+        open={isInvoiceModalOpen}
+        onClose={() => setIsInvoiceModalOpen(false)}
+        invoiceData={formData}
+        orders={orders}
+        paymentDetails={paymentDetails}
+      />
         <div className="flex items-center justify-between p-4 mt-6 text-2xl bg-gray-100 rounded-lg">
           <div className="font-semibold">Total Amount</div>
           <div className="font-semibold text-blue-600">
