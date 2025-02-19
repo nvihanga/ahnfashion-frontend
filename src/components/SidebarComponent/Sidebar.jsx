@@ -1,8 +1,7 @@
 import React, { useState, useContext } from "react";
-import Button from "@mui/material/Button";
-
+import Button from "@mui/material/Button"
+import AHNLogo from "../../assets/images/AHNLogo.png";
 import { Link,NavLink,useLocation } from "react-router-dom";
-import logo from "../../assets/images/logo.png";
 import { Collapse } from "react-collapse";
 import { FaAngleDown } from "react-icons/fa6";
 import { RiDashboardHorizontalFill } from "react-icons/ri";
@@ -616,7 +615,8 @@ const Sidebar = () => {
       >
         <div className="py-2 w-full">
           <Link to={getDashboardPath()}>
-            <img src={logo} className="w-[50px]" alt="Logo" />
+            <img src={AHNLogo} className="w-[150px]" alt="Logo" />
+
           </Link>
         </div>
         <ul className="mt-4">{renderMenuItems()}</ul>
@@ -626,3 +626,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+

@@ -19,6 +19,7 @@ import {
                   <TableCell>Description</TableCell>
                   <TableCell>Quantity</TableCell>
                   <TableCell>Unit Price</TableCell>
+                  <TableCell>Date</TableCell>
                   <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
