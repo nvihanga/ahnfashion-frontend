@@ -3,14 +3,27 @@ import { useState } from "react";
 
 const NewType = () => {
   const [addNewType, setAddNewType] = useState("");
+  const [errors, setErrors] = useState({});
 
   const handleSubmit = () => {
+    if (!validateForm()) return;
     console.log(addNewType);
     setAddNewType("");
+    setErrors({});
   };
 
   const handleReset = () => {
     setAddNewType("");
+    setErrors({});
+  };
+
+  const validateForm = () => {
+    let errors = {};
+
+    if (!addNewType) errors.addNewType = "Type  is Required";
+    setErrors(errors);
+
+    return Object.keys(errors).length === 0;
   };
 
   return (
@@ -37,6 +50,8 @@ const NewType = () => {
               variant="outlined"
               value={addNewType}
               onChange={(e) => setAddNewType(e.target.value)}
+              helperText={errors.addNewType}
+              error={!!errors.addNewType}
             />
           </div>
         </FormControl>

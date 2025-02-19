@@ -1,4 +1,4 @@
-import Main from "../../components/raw-material/stock/main";
+import Main from "../../components/raw-material/stockIn/main";
 
 const AddStock = () => {
   return (

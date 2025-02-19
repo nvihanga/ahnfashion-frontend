@@ -22,11 +22,21 @@ const RawMaterialStockAddRecheckingList = ({ stockList, setStockList }) => {
           <Table width={100}>
             <TableHead>
               <TableRow>
-                <TableCell>Product Id</TableCell>
-                <TableCell>Product Name</TableCell>
-                <TableCell>Supplier</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Action</TableCell>
+                <TableCell>
+                  <strong>PRODUCT ID</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>PRODUCT NAME</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>DATE</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>QUANTITY</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>ACTION</strong>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -34,7 +44,14 @@ const RawMaterialStockAddRecheckingList = ({ stockList, setStockList }) => {
                 <TableRow key={stockList.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{stock.productName}</TableCell>
-                  <TableCell>{stock.supplier}</TableCell>
+                  <TableCell>
+                    {new Date(stock.date).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </TableCell>
+
                   <TableCell>{stock.quantity}</TableCell>
                   <TableCell>
                     <IconButton

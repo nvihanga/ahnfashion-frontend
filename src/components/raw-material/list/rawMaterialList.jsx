@@ -111,6 +111,15 @@ const RawMaterialList = () => {
     // Handle save logic here
     console.log("Updated Item:", updatedItem);
   };
+
+  const handleSearch = (event) => {
+    const searchValue = event.target.value.toLowerCase();
+    const filteredMaterials = rawMaterials.filter((material) =>
+      material.productName.toLowerCase().includes(searchValue)
+    );
+    setNewRawMaterial(filteredMaterials);
+  };
+
   return (
     <>
       <div className="w-full border-collapse p-4 flex flex-col">
@@ -165,7 +174,12 @@ const RawMaterialList = () => {
             </div>
             <div className="w-1/3">
               <FormControl fullWidth>
-                <TextField id="search" label="Search" variant="outlined" />
+                <TextField
+                  id="search"
+                  label="Search"
+                  variant="outlined"
+                  onChange={handleSearch}
+                />
               </FormControl>
             </div>
           </div>
