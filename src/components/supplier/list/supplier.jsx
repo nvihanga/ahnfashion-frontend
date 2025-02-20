@@ -6,7 +6,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,gi,
+  TableRow,
   TextField,
   Button,
   Paper,
@@ -138,7 +138,7 @@ const SupplierList = () => {
         </div>
       ) : (
         <>
-          <div className="w-full border-collapse p-4 flex flex-col">
+          <div className="flex flex-col w-full p-4 border-collapse">
             <h1 className="text-xl">Search</h1>
             <TextField
               id="search"

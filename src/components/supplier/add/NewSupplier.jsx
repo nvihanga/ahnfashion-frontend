@@ -2,7 +2,6 @@ import { Button, TextField, IconButton } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { useState } from "react";
 import axios from "axios";
-
 const initialSupplierState = {
   supplierCode: "",
   name: "",
@@ -24,12 +23,9 @@ const SupplierForm = () => {
     updatedPhones[index] = value;
     setSupplier((prev) => ({ ...prev, phoneNumbers: updatedPhones }));
   };
-  const addPhoneNumber = () => {
-    setSupplier((prev) => ({ ...prev, phoneNumbers: [...prev.phoneNumbers, ""] }));
-  };
- const addPhoneNumber = () => {
-    setSupplier((prev) => ({ ...prev, phoneNumbers: [...prev.phoneNumbers, ""] }));
-  };
+  //   const addPhoneNumber=()=>{
+  //   setSupplier((prev) => ({ ...prev, phoneNumbers: [...prev.phoneNumbers, ""] }));
+  // };
   const removePhoneNumber = (index) => {
     setSupplier((prev) => ({
       ...prev,
@@ -79,8 +75,8 @@ const SupplierForm = () => {
     setEditingSupplierId(null);
   };
   return (
-    <div className="w-full mt-10 px-10 space-y-5">
-      <div className="flex flex-row justify-between items-center">
+    <div className="w-full px-10 mt-10 space-y-5">
+      <div className="flex flex-row items-center justify-between">
         <h1 className="font-bold">{editingSupplierId ? "Edit Supplier" : "Add Supplier"}</h1>
         <div className="flex gap-5">
           <Button variant="contained" onClick={handleSaveSupplier}>
@@ -88,7 +84,7 @@ const SupplierForm = () => {
           </Button>
           <Button variant="outlined" onClick={handleReset}>Reset</Button>
         </div>
-      </div>
+        </div>
       <TextField
         name="supplierCode"
         label="Supplier Code"
@@ -99,7 +95,7 @@ const SupplierForm = () => {
         error={!!errors.supplierCode}
         helperText={errors.supplierCode}
       />
-       <TextField
+      <TextField
         name="name"
         label="Name"
         variant="outlined"
@@ -131,9 +127,9 @@ const SupplierForm = () => {
            error={!!errors.phoneNumbers}
            helperText={errors.phoneNumbers}
          />
-         <IconButton color="primary" onClick={addPhoneNumber}>
+         {/* <IconButton color="primary" onClick={addPhoneNumber}>
             <Add />
-          </IconButton>
+          </IconButton> */}
           {supplier.phoneNumbers.length > 1 && (
             <IconButton color="secondary" onClick={() => removePhoneNumber(index)}>
               <Remove />
@@ -167,4 +163,3 @@ const SupplierForm = () => {
      );
    };
    export default SupplierForm;
-

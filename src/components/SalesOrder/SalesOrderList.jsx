@@ -30,7 +30,7 @@ const SalesOrderList = () => {
 
 
   // Sample customers for the dropdown
-  const customers = ["Customer 1", "Customer 2", "Customer 3"];
+  const customers = ["Ambiga Textiles", "Chathura Enterprices", "Customer 3"];
 
   // Sample data - replace with your actual data
   const summaryData = {
@@ -41,13 +41,13 @@ const SalesOrderList = () => {
   const [salesData] = useState([
     {
       id1: 1,
-      customer1: 'Customer 1',
+      customer1: 'Ambiga Textiles',
       toPay1: 'Rs. 2,000',
       paymentMethod1: 'Cash',
       placeDate1: '2024-02-12'
     ,
       id2: 2,
-      customer2: 'Customer 2',
+      customer2: 'Chathura Enterprices',
       toPay2: 'Rs. 4,000',
       paymentMethod2: 'Credit',
       placeDate2: '2024-02-10'

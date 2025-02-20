@@ -17,52 +17,63 @@ import {
   TableRow,
   Paper,
   Autocomplete,
-  ListSubheader
+  FormHelperText
 } from '@mui/material';
 
 const SalesOrderInvoice = () => {
-  // Sample style numbers - replace with your actual data
-  const styleNumbers = [
-    { id: '756', label: 'Style 756' },
-    { id: '748', label: 'Style 748' },
-    { id: '742', label: 'Style 742' },
-    { id: '744', label: 'Style 744' },
-    { id: '738', label: 'Style 738' },
-    { id: '760', label: 'Style 760' },
-  ];
+  // Sample style numbers with their related descriptions
+  const styleData = {
+    '756': {
+      label: 'Style 756',
+      descriptions: ['Sleeveless', 'Short Sleeve']
+    },
+    '748': {
+      label: 'Style 748',
+      descriptions: ['Zipper Front', 'Button Front']
+    },
+    '742': {
+      label: 'Style 742',
+      descriptions: ['V-Neck', 'Crew Neck']
+    },
+    '744': {
+      label: 'Style 744',
+      descriptions: ['Polo', 'Henley']
+    },
+    '738': {
+      label: 'Style 738',
+      descriptions: ['Cardigan', 'Pullover']
+    },
+    '760': {
+      label: 'Style 760',
+      descriptions: ['Tank Top', 'Muscle Tee']
+    },
+  };
+  
+  // Convert to array for Autocomplete
+  const styleNumbers = Object.entries(styleData).map(([id, data]) => ({
+    id,
+    label: data.label
+  }));
   
   const navigate = useNavigate();
   const [isPaymentDrawerOpen, setIsPaymentDrawerOpen] = useState(false);
   const location = useLocation();
 
-  /*const [formData, setFormData] = useState({
-    orderId: location.state?.orderId || generateOrderId(),
-    customerName: location.state?.customerName || 'John Doe',
-    date: location.state?.date || new Date().toLocaleDateString(),
-    // ... rest of your state
-  });
-  */
-
-
   const handleDiscard = () => {
-       navigate(ROUTES.PROTECTED.SALES_ORDER.ADD);
-    };
+    navigate(ROUTES.PROTECTED.SALES_ORDER.ADD);
+  };
 
   const generateOrderId = () => {
     return `ORD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
   };
 
   const [orders, setOrders] = useState([
-    { styleNo: '756', description: 'desc1', size: 'L', qty: '2', rate: '25.00', price: 'Rs. 29.74' },
-    { styleNo: '756', description: 'desc1', size: 'XL', qty: '1', rate: '23.06', price: 'Rs. 23.06' },
-    { styleNo: '748', description: 'desc1', size: 'M', qty: '1', rate: '29.74', price: 'Rs. 29.74' }
+    { styleNo: '756', description: 'Sleeveless', size: 'L', qty: '2', rate: '25.00', price: 'Rs. 50.00' },
+    { styleNo: '756', description: 'Short Sleeve', size: 'XL', qty: '1', rate: '23.06', price: 'Rs. 23.06' },
+    { styleNo: '748', description: 'Zipper Front', size: 'M', qty: '1', rate: '29.74', price: 'Rs. 29.74' }
   ]);
 
   const [formData, setFormData] = useState({
-    /*orderId: generateOrderId(),
-    customerName: 'John Doe',
-    date: new Date().toLocaleDateString(),
-    */
     orderId: location.state?.orderId || generateOrderId(),
     customerName: location.state?.customerName || 'John Doe',
     date: location.state?.date || new Date().toLocaleDateString(),
@@ -73,6 +84,7 @@ const SalesOrderInvoice = () => {
     size: ''
   });
 
+  const [availableDescriptions, setAvailableDescriptions] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [open, setOpen] = useState(false);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
@@ -89,6 +101,16 @@ const SalesOrderInvoice = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Update available descriptions when style number changes
+  useEffect(() => {
+    if (formData.styleNo && styleData[formData.styleNo]) {
+      setAvailableDescriptions(styleData[formData.styleNo].descriptions);
+      // Reset description when style changes
+      setFormData(prev => ({...prev, description: ''}));
+    } else {
+      setAvailableDescriptions([]);
+    }
+  }, [formData.styleNo]);
 
   const handlePublish = () => {
     if (paymentDetails) {
@@ -113,7 +135,8 @@ const SalesOrderInvoice = () => {
   const handleStyleChange = (event, newValue) => {
     setFormData({
       ...formData,
-      styleNo: newValue ? newValue.id : ''
+      styleNo: newValue ? newValue.id : '',
+      description: '' // Reset description when style changes
     });
   };
 
@@ -146,7 +169,7 @@ const SalesOrderInvoice = () => {
 
     const newOrder = {
       styleNo: formData.styleNo,
-      description: formData.description === 'desc1' ? 'Description 1' : 'Description 2',
+      description: formData.description,
       size: formData.size,
       qty: formData.qty,
       rate: rate,
@@ -156,13 +179,13 @@ const SalesOrderInvoice = () => {
     setOrders([newOrder, ...orders]);
     setFormData(prev => ({
       ...prev,
-      orderId: generateOrderId(),
       styleNo: null,
       description: '',
       qty: '',
       rate: '',
       size: ''
     }));
+    setInputValue('');
   };
 
   return (
@@ -240,18 +263,24 @@ const SalesOrderInvoice = () => {
             }}
           />
 
-          {/* Rest of your form fields */}
-          <Select
-            value={formData.description}
-            onChange={handleInputChange}
-            name="description"
-            displayEmpty
-            className="bg-gray-50"
-          >
-            <MenuItem value="">Description</MenuItem>
-            <MenuItem value="desc1">Description 1</MenuItem>
-            <MenuItem value="desc2">Description 2</MenuItem>
-          </Select>
+          <div>
+            <Select
+              value={formData.description}
+              onChange={handleInputChange}
+              name="description"
+              displayEmpty
+              className="w-full bg-gray-50"
+              disabled={!formData.styleNo}
+            >
+              <MenuItem value="">Description</MenuItem>
+              {availableDescriptions.map((desc, index) => (
+                <MenuItem key={index} value={desc}>{desc}</MenuItem>
+              ))}
+            </Select>
+            {!formData.styleNo && (
+              <FormHelperText>Select a style number first</FormHelperText>
+            )}
+          </div>
 
           <Select
             value={formData.size}
@@ -321,31 +350,31 @@ const SalesOrderInvoice = () => {
         </TableContainer>
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-        <Button 
-          variant="contained"
-          onClick={() => setIsPaymentDrawerOpen(true)}
-        >
-          Pay
-        </Button>
-      </Box>
+          <Button 
+            variant="contained"
+            onClick={() => setIsPaymentDrawerOpen(true)}
+          >
+            Pay
+          </Button>
+        </Box>
 
-      <PaymentDrawer
-        open={isPaymentDrawerOpen}
-        onClose={() => setIsPaymentDrawerOpen(false)}
-        onPaymentComplete={handlePaymentComplete} // Added payment completion handler
-        totalAmount={orders.reduce((sum, order) => 
-          sum + parseFloat(order.price.replace('Rs. ', '')), 0).toFixed(2)}
-        invoiceNumber={formData.orderId}
+        <PaymentDrawer
+          open={isPaymentDrawerOpen}
+          onClose={() => setIsPaymentDrawerOpen(false)}
+          onPaymentComplete={handlePaymentComplete}
+          totalAmount={orders.reduce((sum, order) => 
+            sum + parseFloat(order.price.replace('Rs. ', '')), 0).toFixed(2)}
+          invoiceNumber={formData.orderId}
+        />
 
-      />
+        <InvoiceModal
+          open={isInvoiceModalOpen}
+          onClose={() => setIsInvoiceModalOpen(false)}
+          invoiceData={formData}
+          orders={orders}
+          paymentDetails={paymentDetails}
+        />
 
-      <InvoiceModal
-        open={isInvoiceModalOpen}
-        onClose={() => setIsInvoiceModalOpen(false)}
-        invoiceData={formData}
-        orders={orders}
-        paymentDetails={paymentDetails}
-      />
         <div className="flex items-center justify-between p-4 mt-6 text-2xl bg-gray-100 rounded-lg">
           <div className="font-semibold">Total Amount</div>
           <div className="font-semibold text-blue-600">
