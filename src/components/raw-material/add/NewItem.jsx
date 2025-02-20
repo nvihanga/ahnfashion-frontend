@@ -10,17 +10,17 @@ import {
 import { useState } from "react";
 
 const productTypes = [
-  { id: 1, name: "Type A" },
-  { id: 2, name: "Type B" },
-  { id: 3, name: "Type C" },
-  { id: 4, name: "Type D" },
+  { id: 1, name: "Buttons" },
+  { id: 2, name: "Threads" },
+  { id: 3, name: "Fabrics" },
+  { id: 4, name: "Labels" },
 ];
 
 const suppliers = [
-  { id: 1, name: "Supplier A" },
-  { id: 2, name: "Supplier B" },
-  { id: 3, name: "Supplier C" },
-  { id: 4, name: "Supplier D" },
+  { id: 1, name: "Naturub Industries (Pvt) Ltd" },
+  { id: 2, name: "CIB Accessories" },
+  { id: 3, name: "Chathura Enterprices" },
+  { id: 4, name: "Sanko Texttiles" },
 ];
 
 const initialProductState = {

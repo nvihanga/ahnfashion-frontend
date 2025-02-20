@@ -6,9 +6,31 @@ import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import { MdClose } from "react-icons/md";
 import { useState } from "react";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import PropTypes from "prop-types";
 
-// eslint-disable-next-line
-export default function EditDrawer({ open, onClose, item, onSave }) {
+const productTypes = [
+  { id: 1, name: "Buttons" },
+  { id: 2, name: "Threads" },
+  { id: 3, name: "Fabrics" },
+  { id: 4, name: "Labels" },
+];
+
+const suppliers = [
+  { id: 1, name: "Naturub Industries (Pvt) Ltd" },
+  { id: 2, name: "CIB Accessories" },
+  { id: 3, name: "Chathura Enterprices" },
+  { id: 4, name: "Sanko Texttiles" },
+];
+
+export default function EditDrawer({
+  open,
+  onClose,
+  item,
+  onSave,
+  newRawMaterial,
+  setNewRawMaterial,
+}) {
   const [formData, setFormData] = useState(item);
 
   React.useEffect(() => {
@@ -21,6 +43,10 @@ export default function EditDrawer({ open, onClose, item, onSave }) {
   };
 
   const handleSave = () => {
+    const updatedRawMaterials = newRawMaterial.map((material) =>
+      material.id === formData.id ? formData : material
+    );
+    setNewRawMaterial(updatedRawMaterials);
     onSave(formData);
     onClose();
   };
@@ -42,14 +68,21 @@ export default function EditDrawer({ open, onClose, item, onSave }) {
           fullWidth
           margin="normal"
         />
-        <TextField
-          label="Type"
-          name="type"
-          value={formData.type}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
+        <FormControl fullWidth>
+          <InputLabel id="Product_Type">Product Type</InputLabel>
+          <Select
+            label="Product_Type"
+            name="productType"
+            value={formData.type}
+            onChange={handleChange}
+          >
+            {productTypes.map((type) => (
+              <MenuItem key={type.id} value={type.name}>
+                {type.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <TextField
           label="Quantity"
           name="quantity"
@@ -58,14 +91,21 @@ export default function EditDrawer({ open, onClose, item, onSave }) {
           fullWidth
           margin="normal"
         />
-        <TextField
-          label="Supplier"
-          name="supplier"
-          value={formData.supplier}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
+        <FormControl fullWidth>
+          <InputLabel id="Product_Type">Supplier</InputLabel>
+          <Select
+            label="Supplier"
+            name="supplier"
+            value={formData.supplier}
+            onChange={handleChange}
+          >
+            {suppliers.map((type) => (
+              <MenuItem key={type.id} value={type.name}>
+                {type.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <TextField
           label="Price"
           name="price"
@@ -86,3 +126,12 @@ export default function EditDrawer({ open, onClose, item, onSave }) {
     </Drawer>
   );
 }
+
+EditDrawer.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  item: PropTypes.object.isRequired,
+  onSave: PropTypes.func.isRequired,
+  newRawMaterial: PropTypes.object,
+  setNewRawMaterial: PropTypes.func,
+};
