@@ -13,10 +13,10 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const productNameArray = [
-  { id: 1, name: "Cotton" },
-  { id: 2, name: "Silk" },
-  { id: 3, name: "Wool" },
-  { id: 4, name: "Polyester" },
+  { id: 1, name: "Buttons" },
+  { id: 2, name: "Threads" },
+  { id: 3, name: "Fabrics" },
+  { id: 4, name: "Labels" },
 ];
 
 const RawMaterialStockAdd = ({ setStockList, stockList }) => {

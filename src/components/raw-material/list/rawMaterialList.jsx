@@ -16,52 +16,19 @@ import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import EditDrawer from "./editDrawer";
 import { useState } from "react";
-
-const rawMaterials = [
-  {
-    id: 1,
-    productName: "Steel",
-    type: "Metal",
-    quantity: 100,
-    supplier: "Supplier A",
-    price: "$500",
-  },
-  {
-    id: 2,
-    productName: "Copper",
-    type: "Metal",
-    quantity: 200,
-    supplier: "Supplier B",
-    price: "$700",
-  },
-  {
-    id: 3,
-    productName: "Plastic",
-    type: "Polymer",
-    quantity: 300,
-    supplier: "Supplier C",
-    price: "$300",
-  },
-  {
-    id: 4,
-    productName: "Rubber",
-    type: "Elastomer",
-    quantity: 150,
-    supplier: "Supplier D",
-    price: "$400",
-  },
-];
+import { rawMaterials } from "./data";
 
 const Suppliers = [
-  { id: 1, name: "Supplier A" },
-  { id: 2, name: "Supplier B" },
-  { id: 3, name: "Supplier C" },
-  { id: 4, name: "Supplier D" },
+  { id: 1, name: "Naturub Industries (Pvt) Ltd" },
+  { id: 2, name: "CIB Accessories" },
+  { id: 3, name: "Chathura Enterprices" },
+  { id: 4, name: "Sanko Texttiles" },
 ];
 const rawMaterialTypes = [
-  { id: 1, type: "Metal" },
-  { id: 2, type: "Polymer" },
-  { id: 3, type: "Elastomer" },
+  { id: 1, type: "Buttons" },
+  { id: 2, type: "Threads" },
+  { id: 3, type: "Fabrics" },
+  { id: 4, type: "Labels" },
 ];
 
 const RawMaterialList = () => {
@@ -245,6 +212,8 @@ const RawMaterialList = () => {
       </TableContainer>
       {selectedItem && (
         <EditDrawer
+          newRawMaterial={newRawMaterial}
+          setNewRawMaterial={setNewRawMaterial}
           open={drawerOpen}
           onClose={handleDrawerClose}
           item={selectedItem}
