@@ -1,213 +1,189 @@
+import React, { useState, useEffect } from 'react';
 import {
-    IconButton,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TextField,
-    Button,
-    Paper,
-    Typography,
-} from "@mui/material";
-import { MdEdit, MdDelete } from "react-icons/md";
-import EditDrawer from "./editDrawer"; // Ensure this component is updated as needed
-import { useState, useEffect } from "react";
-import axios from "axios";
+  Drawer,
+  TextField,
+  Button,
+  Typography,
+  IconButton,
+  Box,
+  Divider,
+  Stack
+} from '@mui/material';
+import { MdClose } from 'react-icons/md';
 
-const CustomerList = () => {
-    const [customers, setCustomers] = useState([]);
-    const [drawerOpen, setDrawerOpen] = useState(false);
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
-    const [search, setSearch] = useState("");
-    const [viewDetails, setViewDetails] = useState(false);
+const EditDrawer = ({ open, onClose, item, onSave }) => {
+  const [formData, setFormData] = useState({
+    customerId: '',
+    customerCode: '',
+    customerName: '',
+    customerEmail: '',
+    customerPhoneNo: [''],
+    customerAddress: '',
+    customerNote: ''
+  });
 
-    useEffect(() => {
-        fetchCustomers();
-    }, []);
+  useEffect(() => {
+    if (item) {
+      setFormData({
+        ...item,
+        customerPhoneNo: [...item.customerPhoneNo] // Create a copy of the array
+      });
+    }
+  }, [item]);
 
-    const fetchCustomers = () => {
-        axios
-            .get("http://localhost:8085/api/v1/customer/all")
-            .then((response) => {
-                setCustomers(response.data);
-            })
-            .catch((error) => {
-                console.error("Error fetching customers:", error);
-            });
-    };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
 
-    const handleEditClick = (customer) => {
-        setSelectedCustomer(customer);
-        setDrawerOpen(true);
-    };
+  const handlePhoneChange = (index, value) => {
+    const updatedPhones = [...formData.customerPhoneNo];
+    updatedPhones[index] = value;
+    setFormData({
+      ...formData,
+      customerPhoneNo: updatedPhones
+    });
+  };
 
-    const handleDeleteClick = (customerId) => {
-        axios
-            .delete(`http://localhost:8085/api/v1/customer/delete/${customerId}`)
-            .then(() => {
-                setCustomers(customers.filter((customer) => customer.customerId !== customerId));
-            })
-            .catch((error) => {
-                console.error("Error deleting customer:", error);
-            });
-    };
+  const addPhoneField = () => {
+    setFormData({
+      ...formData,
+      customerPhoneNo: [...formData.customerPhoneNo, '']
+    });
+  };
 
-    const handleDrawerClose = () => {
-        setDrawerOpen(false);
-        setSelectedCustomer(null);
-    };
+  const removePhoneField = (index) => {
+    const updatedPhones = [...formData.customerPhoneNo];
+    updatedPhones.splice(index, 1);
+    setFormData({
+      ...formData,
+      customerPhoneNo: updatedPhones
+    });
+  };
 
-    const handleSave = (updatedCustomer) => {
-        axios
-            .put(`http://localhost:8085/api/v1/customer/update/${updatedCustomer.customerId}`, updatedCustomer)
-            .then(() => {
-                fetchCustomers(); // Refresh list after update
-                setDrawerOpen(false);
-            })
-            .catch((error) => {
-                console.error("Error updating customer:", error);
-            });
-        setSelectedCustomer(null);
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(formData);
+  };
 
-    const handleSearch = (event) => {
-        setSearch(event.target.value);
-    };
-
-    const handleRowClick = (customer) => {
-        setSelectedCustomer(customer);
-        setViewDetails(true);
-    };
-
-    const handleBackClick = () => {
-        setViewDetails(false);
-        setSelectedCustomer(null);
-    };
-
-    const filteredCustomers = customers.filter((customer) =>
-        customer.customerName.toLowerCase().includes(search.toLowerCase()) ||
-        customer.customerCode.toLowerCase().includes(search.toLowerCase())
-    );
-
-    return (
-        <>
-            {viewDetails && selectedCustomer ? (
-                <div className="p-4">
-                    <Button variant="contained" color="primary" onClick={handleBackClick}>
-                        Back
-                    </Button>
-                    <Typography variant="h5" className="mt-4">
-                        Customer Details
-                    </Typography>
-                    <TableContainer component={Paper} className="mt-4">
-                        <Table>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell><b>Customer Code</b></TableCell>
-                                    <TableCell>{selectedCustomer.customerCode}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell><b>Name</b></TableCell>
-                                    <TableCell>{selectedCustomer.customerName}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell><b>Email</b></TableCell>
-                                    <TableCell>{selectedCustomer.customerEmail}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell><b>Phone Number</b></TableCell>
-                                    <TableCell>{selectedCustomer.customerPhoneNo.join(", ")}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell><b>Address</b></TableCell>
-                                    <TableCell>{selectedCustomer.customerAddress}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell><b>Notes</b></TableCell>
-                                    <TableCell>{selectedCustomer.customerNote}</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </div>
-            ) : (
-                <>
-                    <div className="w-full border-collapse p-4 flex flex-col">
-                        <h1 className="text-xl">Search</h1>
-                        <TextField
-                            id="search"
-                            label="Search by Name or Customer Code"
-                            variant="outlined"
-                            value={search}
-                            onChange={handleSearch}
-                            fullWidth
-                            margin="normal"
-                        />
-                    </div>
-
-                    <TableContainer>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>No</TableCell>
-                                    <TableCell>Customer Code</TableCell>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell>Email</TableCell>
-                                    <TableCell>Phone Number</TableCell>
-                                    <TableCell align="center">Action</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {filteredCustomers.map((customer, index) => (
-                                    <TableRow
-                                        key={customer.customerId}
-                                        onClick={() => handleRowClick(customer)}
-                                        style={{ cursor: "pointer" }}
-                                    >
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell>{customer.customerCode}</TableCell>
-                                        <TableCell>{customer.customerName}</TableCell>
-                                        <TableCell>{customer.customerEmail}</TableCell>
-                                        <TableCell>{customer.customerPhoneNo.join(", ")}</TableCell>
-                                        <TableCell align="center">
-                                            <IconButton
-                                                color="info"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleEditClick(customer);
-                                                }}
-                                            >
-                                                <MdEdit />
-                                            </IconButton>
-                                            <IconButton
-                                                color="error"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleDeleteClick(customer.customerId);
-                                                }}
-                                            >
-                                                <MdDelete />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </>
-            )}
-            {selectedCustomer && (
-                <EditDrawer
-                    open={drawerOpen}
-                    onClose={handleDrawerClose}
-                    item={selectedCustomer}
-                    onSave={handleSave}
+  return (
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={onClose}
+      sx={{
+        '& .MuiDrawer-paper': {
+          width: '400px',
+          padding: '20px',
+          boxSizing: 'border-box',
+        },
+      }}
+    >
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6">Edit Customer</Typography>
+        <IconButton onClick={onClose}>
+          <MdClose />
+        </IconButton>
+      </Box>
+      
+      <Divider sx={{ mb: 3 }} />
+      
+      <form onSubmit={handleSubmit}>
+        <Stack spacing={3}>
+          <TextField
+            name="customerCode"
+            label="Customer Code"
+            value={formData.customerCode}
+            onChange={handleChange}
+            fullWidth
+            required
+            disabled // Usually codes are not editable
+          />
+          
+          <TextField
+            name="customerName"
+            label="Customer Name"
+            value={formData.customerName}
+            onChange={handleChange}
+            fullWidth
+            required
+          />
+          
+          <TextField
+            name="customerEmail"
+            label="Email"
+            type="email"
+            value={formData.customerEmail}
+            onChange={handleChange}
+            fullWidth
+            required
+          />
+          
+          <Box>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>Phone Numbers</Typography>
+            {formData.customerPhoneNo.map((phone, index) => (
+              <Box key={index} sx={{ display: 'flex', mb: 1 }}>
+                <TextField
+                  value={phone}
+                  onChange={(e) => handlePhoneChange(index, e.target.value)}
+                  fullWidth
+                  label={`Phone ${index + 1}`}
+                  sx={{ mr: 1 }}
                 />
-            )}
-        </>
-    );
+                <Button 
+                  variant="outlined" 
+                  color="error" 
+                  onClick={() => removePhoneField(index)}
+                  disabled={formData.customerPhoneNo.length <= 1}
+                >
+                  Remove
+                </Button>
+              </Box>
+            ))}
+            <Button 
+              variant="outlined" 
+              onClick={addPhoneField} 
+              sx={{ mt: 1 }}
+            >
+              Add Phone Number
+            </Button>
+          </Box>
+          
+          <TextField
+            name="customerAddress"
+            label="Address"
+            value={formData.customerAddress}
+            onChange={handleChange}
+            fullWidth
+            multiline
+            rows={2}
+          />
+          
+          <TextField
+            name="customerNote"
+            label="Notes"
+            value={formData.customerNote}
+            onChange={handleChange}
+            fullWidth
+            multiline
+            rows={3}
+          />
+          
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, gap: 2 }}>
+            <Button variant="outlined" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained" color="primary">
+              Save Changes
+            </Button>
+          </Box>
+        </Stack>
+      </form>
+    </Drawer>
+  );
 };
 
-export default CustomerList;
+export default EditDrawer;
