@@ -1,5 +1,11 @@
+import InvoiceInformation from "../../components/purchase-order/InvoiceInformation";
+
 const Add = () => {
-  return <div>Add Purchase Order</div>;
+  return (
+    <div>
+      <InvoiceInformation />
+    </div>
+  );
 };
 
 export default Add;

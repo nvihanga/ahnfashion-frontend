@@ -15,53 +15,20 @@ import {
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import EditDrawer from "./editDrawer";
-import { useState, useEffect } from "react";
-
-const rawMaterials = [
-  {
-    id: 1,
-    productName: "Steel",
-    type: "Metal",
-    quantity: 100,
-    supplier: "Supplier A",
-    price: "$500",
-  },
-  {
-    id: 2,
-    productName: "Copper",
-    type: "Metal",
-    quantity: 200,
-    supplier: "Supplier B",
-    price: "$700",
-  },
-  {
-    id: 3,
-    productName: "Plastic",
-    type: "Polymer",
-    quantity: 300,
-    supplier: "Supplier C",
-    price: "$300",
-  },
-  {
-    id: 4,
-    productName: "Rubber",
-    type: "Elastomer",
-    quantity: 150,
-    supplier: "Supplier D",
-    price: "$400",
-  },
-];
+import { useState } from "react";
+import { rawMaterials } from "./data";
 
 const Suppliers = [
-  { id: 1, name: "Supplier A" },
-  { id: 2, name: "Supplier B" },
-  { id: 3, name: "Supplier C" },
-  { id: 4, name: "Supplier D" },
+  { id: 1, name: "Naturub Industries (Pvt) Ltd" },
+  { id: 2, name: "CIB Accessories" },
+  { id: 3, name: "Chathura Enterprices" },
+  { id: 4, name: "Sanko Texttiles" },
 ];
 const rawMaterialTypes = [
-  { id: 1, type: "Metal" },
-  { id: 2, type: "Polymer" },
-  { id: 3, type: "Elastomer" },
+  { id: 1, type: "Buttons" },
+  { id: 2, type: "Threads" },
+  { id: 3, type: "Fabrics" },
+  { id: 4, type: "Labels" },
 ];
 
 const RawMaterialList = () => {
@@ -111,11 +78,20 @@ const RawMaterialList = () => {
     // Handle save logic here
     console.log("Updated Item:", updatedItem);
   };
+
+  const handleSearch = (event) => {
+    const searchValue = event.target.value.toLowerCase();
+    const filteredMaterials = rawMaterials.filter((material) =>
+      material.productName.toLowerCase().includes(searchValue)
+    );
+    setNewRawMaterial(filteredMaterials);
+  };
+
   return (
     <>
       <div className="w-full border-collapse p-4 flex flex-col">
         <div className="">
-          <h1 className="text-xl ">Filter</h1>
+          <h1 className="font-bold">Filters</h1>
         </div>
         <div className=" w-full">
           <div className="flex flex-row gap-5 gap-t-5 mt-5">
@@ -165,7 +141,12 @@ const RawMaterialList = () => {
             </div>
             <div className="w-1/3">
               <FormControl fullWidth>
-                <TextField id="search" label="Search" variant="outlined" />
+                <TextField
+                  id="search"
+                  label="Search"
+                  variant="outlined"
+                  onChange={handleSearch}
+                />
               </FormControl>
             </div>
           </div>
@@ -176,13 +157,27 @@ const RawMaterialList = () => {
         <Table width={100}>
           <TableHead>
             <TableRow>
-              <TableCell>No</TableCell>
-              <TableCell>Product Name </TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Quantity</TableCell>
-              <TableCell>Supplier</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell align="center">Action</TableCell>
+              <TableCell>
+                <strong>NO</strong>
+              </TableCell>
+              <TableCell>
+                <strong>PRODUCT NAME</strong>
+              </TableCell>
+              <TableCell>
+                <strong>TYPE</strong>
+              </TableCell>
+              <TableCell>
+                <strong>QUANTITY</strong>
+              </TableCell>
+              <TableCell>
+                <strong>SUPPLIER</strong>
+              </TableCell>
+              <TableCell>
+                <strong>PRICE</strong>
+              </TableCell>
+              <TableCell align="center">
+                <strong>ACTION</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -217,6 +212,8 @@ const RawMaterialList = () => {
       </TableContainer>
       {selectedItem && (
         <EditDrawer
+          newRawMaterial={newRawMaterial}
+          setNewRawMaterial={setNewRawMaterial}
           open={drawerOpen}
           onClose={handleDrawerClose}
           item={selectedItem}

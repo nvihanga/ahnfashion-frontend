@@ -19,6 +19,7 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
     const updatedPhoneNumbers = supplier.supplierPhoneNo.filter((_, i) => i !== index);
     setSupplier({ ...supplier, supplierPhoneNo: updatedPhoneNumbers });
   };
+
   const handleSubmit = () => {
     onSave(supplier);
   };
@@ -97,8 +98,11 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
           <Button variant="contained" color="primary" onClick={handleSubmit} className="mt-4">
           Save
           </Button>
-          </div>
+         </div>
     </Drawer>
   );
 };
 export default EditDrawer;
+
+
+

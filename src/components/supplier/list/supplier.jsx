@@ -1,3 +1,4 @@
+
 import {
   IconButton,
   Table,
@@ -24,10 +25,8 @@ const SupplierList = () => {
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [search, setSearch] = useState("");
   const [viewDetails, setViewDetails] = useState(false);
-
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Detect mobile screens
-
   useEffect(() => {
     fetchSuppliers();
   }, []);
@@ -139,7 +138,7 @@ const SupplierList = () => {
         </div>
       ) : (
         <>
-          <div className="w-full border-collapse p-4 flex flex-col">
+          <div className="flex flex-col w-full p-4 border-collapse">
             <h1 className="text-xl">Search</h1>
             <TextField
               id="search"
@@ -217,3 +216,6 @@ const SupplierList = () => {
 };
 
 export default SupplierList;
+
+
+

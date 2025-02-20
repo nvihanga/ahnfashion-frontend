@@ -30,7 +30,7 @@ const SalesOrderList = () => {
 
 
   // Sample customers for the dropdown
-  const customers = ["Customer 1", "Customer 2", "Customer 3"];
+  const customers = ["Ambiga Textiles", "Chathura Enterprices", "Customer 3"];
 
   // Sample data - replace with your actual data
   const summaryData = {
@@ -41,13 +41,13 @@ const SalesOrderList = () => {
   const [salesData] = useState([
     {
       id1: 1,
-      customer1: 'Customer 1',
+      customer1: 'Ambiga Textiles',
       toPay1: 'Rs. 2,000',
       paymentMethod1: 'Cash',
       placeDate1: '2024-02-12'
     ,
       id2: 2,
-      customer2: 'Customer 2',
+      customer2: 'Chathura Enterprices',
       toPay2: 'Rs. 4,000',
       paymentMethod2: 'Credit',
       placeDate2: '2024-02-10'
@@ -173,12 +173,12 @@ const SalesOrderList = () => {
       <TableContainer component={Paper} variant="outlined">
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Invoice Number</TableCell>
-              <TableCell>Customer Name</TableCell>
-              <TableCell>Net Total</TableCell>
-              <TableCell>Payment Method</TableCell>
-              <TableCell>Invoice Date</TableCell>
+            <TableRow style={{ backgroundColor: "#f5f5f5" }}>
+              <TableCell sx={{ fontWeight: 'bold'}}>INVOICE NUMBER</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>CUSTOMER NAME</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>NET TOTAL</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>PAYMENT METHOD</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>INVOICE DATE</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
