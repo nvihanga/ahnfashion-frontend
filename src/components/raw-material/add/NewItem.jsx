@@ -5,21 +5,22 @@ import {
   MenuItem,
   Select,
   TextField,
+  FormHelperText,
 } from "@mui/material";
 import { useState } from "react";
 
 const productTypes = [
-  { id: 1, name: "Type A" },
-  { id: 2, name: "Type B" },
-  { id: 3, name: "Type C" },
-  { id: 4, name: "Type D" },
+  { id: 1, name: "Buttons" },
+  { id: 2, name: "Threads" },
+  { id: 3, name: "Fabrics" },
+  { id: 4, name: "Labels" },
 ];
 
 const suppliers = [
-  { id: 1, name: "Supplier A" },
-  { id: 2, name: "Supplier B" },
-  { id: 3, name: "Supplier C" },
-  { id: 4, name: "Supplier D" },
+  { id: 1, name: "Naturub Industries (Pvt) Ltd" },
+  { id: 2, name: "CIB Accessories" },
+  { id: 3, name: "Chathura Enterprices" },
+  { id: 4, name: "Sanko Texttiles" },
 ];
 
 const initialProductState = {
@@ -32,26 +33,24 @@ const initialProductState = {
 
 const NewItem = () => {
   const [product, setProduct] = useState(initialProductState);
-
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProduct((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+    }
   };
 
   const validateForm = () => {
     let errors = {};
 
     if (!product.productName) errors.productName = "Product Name is required";
-
     if (!product.productType) errors.productType = "Product Type is required";
-
     if (!product.quantity || isNaN(product.quantity) || product.quantity <= 0)
       errors.quantity = "Quantity must be a positive number";
-
     if (!product.supplier) errors.supplier = "Supplier is required";
-
     if (!product.price || isNaN(product.price) || product.price <= 0)
       errors.price = "Price must be a positive number";
 
@@ -112,7 +111,7 @@ const NewItem = () => {
         <FormControl fullWidth error={!!errors.productType}>
           <InputLabel id="Product_Type">Product Type</InputLabel>
           <Select
-            labelId="Product_Type"
+            label="Product_Type"
             name="productType"
             value={product.productType}
             onChange={handleChange}
@@ -123,6 +122,9 @@ const NewItem = () => {
               </MenuItem>
             ))}
           </Select>
+          {errors.productType && (
+            <FormHelperText>{errors.productType}</FormHelperText>
+          )}
         </FormControl>
       </div>
 
@@ -146,7 +148,7 @@ const NewItem = () => {
         <FormControl fullWidth error={!!errors.supplier}>
           <InputLabel id="Supplier">Supplier</InputLabel>
           <Select
-            labelId="Supplier"
+            label="Supplier"
             name="supplier"
             value={product.supplier}
             onChange={handleChange}
@@ -157,6 +159,9 @@ const NewItem = () => {
               </MenuItem>
             ))}
           </Select>
+          {errors.supplier && (
+            <FormHelperText>{errors.supplier}</FormHelperText>
+          )}
         </FormControl>
       </div>
 

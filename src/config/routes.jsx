@@ -31,6 +31,7 @@ export const ROUTES = {
         SALES_ORDER: {
             LIST: '/sales-order/list',
             ADD: '/sales-order/add',
+            INVOICE: '/sales-order/invoice',
         },
         PURCHASE_ORDER: {
             LIST: '/purchase-order/list',
