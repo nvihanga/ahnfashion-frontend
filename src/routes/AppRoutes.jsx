@@ -40,6 +40,7 @@ const PurchaseOrderList = lazy(() => import("../pages/purchase-order/List"));
 const SalesOrderAdd = lazy(() => import("../pages/SalesOrder/AddOrder"));
 const SalesOrderList = lazy(() => import("../pages/SalesOrder/List"));
 
+const Setting = lazy(() => import("../pages/settings/Setting"));
 
 
 const PrivateRoutesWrapper = () => {
@@ -138,6 +139,10 @@ const AppRoutes = () => {
               <Route
                 path={ROUTES.PROTECTED.DASHBOARD.ADMIN}
                 element={<AdminDashboard />}
+              />
+              <Route 
+                path={ROUTES.PROTECTED.SETTING}
+                element={<Setting/>}
               />
             </Route>
 
