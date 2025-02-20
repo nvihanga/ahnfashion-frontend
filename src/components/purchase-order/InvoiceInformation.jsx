@@ -38,7 +38,7 @@ const InvoiceInformation = () => {
         <div>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label="Controlled picker"
+              label="Date"
               value={value}
               onChange={(newValue) => setValue(newValue)}
             />

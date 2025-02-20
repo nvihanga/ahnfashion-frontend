@@ -23,7 +23,9 @@ const RawMaterialsAdd = lazy(() => import("../pages/RawMaterials/AddList"));
 const RawMaterialStockAdd = lazy(() =>
   import("../pages/RawMaterials/AddStock")
 );
-
+const RawMaterialStockOut = lazy(() =>
+  import("../pages/RawMaterials/OutStock")
+);
 
 const FinishedGoodsList = lazy(() => import("../pages/FinishedGoods/List"));
 const FinishedGoodsAdd = lazy(() => import("../pages/FinishedGoods/AddList"));
@@ -37,15 +39,12 @@ const SuppiersAdd = lazy(() => import("../pages/Suppliers/AddList"));
 //const SupplierList = lazy(() => import("../pages/Suppliers/List"));
 //
 
-
 const PurchaseOrderAdd = lazy(() => import("../pages/purchase-order/Add"));
 const PurchaseOrderList = lazy(() => import("../pages/purchase-order/List"));
 
 const SalesOrderAdd = lazy(() => import("../pages/SalesOrder/AddOrder"));
 const SalesOrderList = lazy(() => import("../pages/SalesOrder/List"));
-const SalesOrderInvoice = lazy(() => import("../pages/SalesOrder/Invoice"))
-
-
+const SalesOrderInvoice = lazy(() => import("../pages/SalesOrder/Invoice"));
 
 const PrivateRoutesWrapper = () => {
   const { user, loading } = useAuth();
@@ -86,8 +85,12 @@ const AppRoutes = () => {
                 element={<RawMaterialsAdd />}
               />
               <Route
-                path={ROUTES.PROTECTED.RAW_MATERIALS.STOCK_ADD}
+                path={ROUTES.PROTECTED.RAW_MATERIALS.STOCK_IN}
                 element={<RawMaterialStockAdd />}
+              />
+              <Route
+                path={ROUTES.PROTECTED.RAW_MATERIALS.STOCK_OUT}
+                element={<RawMaterialStockOut />}
               />
 
               <Route
@@ -108,25 +111,25 @@ const AppRoutes = () => {
                 element={<SupplierList />}
               />
 
-                <Route
-                    path={ROUTES.PROTECTED.CUSTOMERS.LIST}
-                    element={<CustomerList />}
-                />
+              <Route
+                path={ROUTES.PROTECTED.CUSTOMERS.LIST}
+                element={<CustomerList />}
+              />
 
               <Route
                 path={ROUTES.PROTECTED.SUPPLIERS.ADD}
                 element={<SuppiersAdd />}
               />
 
-                <Route
-                    path={ROUTES.PROTECTED.CUSTOMERS.ADD}
-                    element={<CustomerForm />}
-                />
+              <Route
+                path={ROUTES.PROTECTED.CUSTOMERS.ADD}
+                element={<CustomerForm />}
+              />
 
-                <Route
-                    path={ROUTES.PROTECTED.CASH.CASHOUT}
-                    element={<CashOut />}
-                />
+              <Route
+                path={ROUTES.PROTECTED.CASH.CASHOUT}
+                element={<CashOut />}
+              />
 
               <Route
                 path={ROUTES.PROTECTED.PURCHASE_ORDER.ADD}
@@ -139,21 +142,17 @@ const AppRoutes = () => {
             </Route>
 
             <Route
-                path={ROUTES.PROTECTED.SALES_ORDER.ADD}
-                element={<SalesOrderAdd />}
-              />
-              <Route
-                path={ROUTES.PROTECTED.SALES_ORDER.LIST}
-                element={<SalesOrderList />}
-              />
-              <Route
-                path={ROUTES.PROTECTED.SALES_ORDER.INVOICE}
-                element={<SalesOrderInvoice />}
-              />
-
-
-              
-
+              path={ROUTES.PROTECTED.SALES_ORDER.ADD}
+              element={<SalesOrderAdd />}
+            />
+            <Route
+              path={ROUTES.PROTECTED.SALES_ORDER.LIST}
+              element={<SalesOrderList />}
+            />
+            <Route
+              path={ROUTES.PROTECTED.SALES_ORDER.INVOICE}
+              element={<SalesOrderInvoice />}
+            />
 
             {/* Admin-only Routes */}
             <Route element={<AdminRoute />}>
