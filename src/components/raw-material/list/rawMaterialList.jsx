@@ -11,6 +11,7 @@ import {
   TableRow,
   TextField,
   MenuItem,
+  Paper,
 } from "@mui/material";
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
@@ -153,10 +154,10 @@ const RawMaterialList = () => {
         </div>
       </div>
 
-      <TableContainer>
+      <TableContainer component={Paper} elevation={3}>
         <Table width={100}>
           <TableHead>
-            <TableRow>
+            <TableRow style={{ backgroundColor: "#f5f5f5" }}>
               <TableCell>
                 <strong>NO</strong>
               </TableCell>
@@ -182,7 +183,7 @@ const RawMaterialList = () => {
           </TableHead>
           <TableBody>
             {newRawMaterial.map((raw) => (
-              <TableRow key={raw.id}>
+              <TableRow key={raw.id} style={{ cursor: "pointer" }}>
                 <TableCell>{raw.id}</TableCell>
                 <TableCell>{raw.productName}</TableCell>
                 <TableCell>{raw.type}</TableCell>
