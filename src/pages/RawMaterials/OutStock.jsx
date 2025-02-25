@@ -2,7 +2,7 @@ import MainOut from "../../components/raw-material/stockOut/mainOut";
 
 const OutStock = () => {
   return (
-    <div>
+    <div className="m-8">
       <MainOut />
     </div>
   );

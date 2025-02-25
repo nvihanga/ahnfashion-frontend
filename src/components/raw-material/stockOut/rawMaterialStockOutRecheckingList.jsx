@@ -1,5 +1,6 @@
 import {
   IconButton,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -18,10 +19,10 @@ const RawMaterialStockAddRecheckingList = ({ stockList, setStockList }) => {
   return (
     <>
       <div className="mt-5 border-gray-200 border-2">
-        <TableContainer>
+        <TableContainer component={Paper} elevation={3}>
           <Table width={100}>
             <TableHead>
-              <TableRow>
+              <TableRow style={{ backgroundColor: "#f5f5f5" }}>
                 <TableCell>
                   <strong>PRODUCT ID</strong>
                 </TableCell>
@@ -41,7 +42,7 @@ const RawMaterialStockAddRecheckingList = ({ stockList, setStockList }) => {
             </TableHead>
             <TableBody>
               {stockList.map((stock, index) => (
-                <TableRow key={stockList.id}>
+                <TableRow key={stockList.id} style={{ cursor: "pointer" }}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{stock.productName}</TableCell>
                   <TableCell>
