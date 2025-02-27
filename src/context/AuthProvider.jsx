@@ -27,22 +27,7 @@ export const AuthProvider = ({ children }) => {
         initializeAuth();
     }, []);
 
-    // const login = (userData) => {
-    //     // localStorage.setItem('user', JSON.stringify(userData));
-    //     // setUser(userData);
-
-    //     const expiresAt = Date.now() + 3600000;
-    //     //const authData = { user: userData, expiresAt };
-    //     // localStorage.setItem('user', JSON.stringify(authData));
-    //     sessionStorage.setItem('user', JSON.stringify({
-    //         user: userData,
-    //         expiresAt,
-    //         token: localStorage.getItem('token')
-    //     }));
-    //     setUser(userData);
-    // };
-
-    // In login function
+    
 const login = (userData) => {
     const normalizedUser = {
       ...userData,
@@ -58,7 +43,7 @@ const login = (userData) => {
   };
     const logout = () => {
         localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
         setUser(null);
     };
 

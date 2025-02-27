@@ -42,6 +42,7 @@ const handleSubmit = async (e) => {
           username: responseUsername,
           role,
         },
+        expiresAt: Date.now() + 3600000
       }));
 
       login({
