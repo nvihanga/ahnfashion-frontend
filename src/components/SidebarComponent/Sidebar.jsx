@@ -613,7 +613,7 @@ const Sidebar = () => {
       <div
         className={`sidebar fixed top-0 left-0 z-50 bg-white h-screen border-r border-gray-200 ${isSidebarOpen ? "w-[260px]" : "w-0"} transition-all duration-300 flex flex-col`}
       >
-        <div className="logo-container relative h-24 p-4 bg-gradient-to-br from-white to-white rounded-2xl mx-4 mt-4 shadow-lg flex justify-center items-center">
+        <div className="logo-container relative h-24 p-4 bg-gradient-to-br mx-4 mt-4 flex justify-center items-center">
           
         <Link to={getDashboardPath()}
         className="block transform transition-transform hover:scale-105">
