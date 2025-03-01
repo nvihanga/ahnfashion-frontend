@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Container,
   Paper,
@@ -17,31 +18,46 @@ import {
   FormControl
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import PayCreditDrawer from './PayCreditDrawer';
 
 const CreditIn = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-
+  const [isPaymentDrawerOpen, setIsPaymentDrawerOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
   
+  // Convert invoice data to include numeric values and payment method
+  const [invoices, setInvoices] = useState([
+    { id: '450', customer: 'customer1', netTotal: 4000.00, toPay: 0, date: '2024-12-18', paymentMethod: 'Cash', status: 'Paid' },
+    { id: '3', customer: 'customer2', netTotal: 990.00, toPay: 0, date: '2024-11-29', paymentMethod: 'Cash', status: 'Paid' },
+    { id: 'INV7863', customer: 'customer3', netTotal: 331.50, toPay: 331.50, date: '2024-10-26', paymentMethod: '', status: 'Unpaid' },
+    { id: 'INV7786', customer: 'customer4', netTotal: 18066.75, toPay: 596.75, date: '2024-10-22', paymentMethod: 'Credit', status: 'Partial' },
+    { id: 'INV95', customer: 'customer5', netTotal: 18665.36, toPay: 18665.36, date: '2024-10-22', paymentMethod: '', status: 'Unpaid' },
+    { id: 'INV7780', customer: 'customer6', netTotal: 7977.25, toPay: 0, date: '2024-10-22', paymentMethod: 'Cheque', status: 'Paid' },
+    { id: 'INV87', customer: 'customer7', netTotal: 4267.50, toPay: 267.50, date: '2024-10-21', paymentMethod: 'Credit', status: 'Partial' }
+  ]);
 
-  // Sample data for invoices
-  const invoices = [
-    { id: '450', customer: 'customer1', netTotal: 'Rs. 4000.00', toPay: 'Paid', date: '2024-12-18' },
-    { id: '3', customer: 'customer2', netTotal: 'Rs. 990.00', toPay: 'Paid', date: '2024-11-29' },
-    { id: 'INV7863', customer: 'customer3', netTotal: 'Rs. 331.50', toPay: 'Rs. 331.50', date: '2024-10-26' },
-    { id: 'INV7786', customer: 'customer4', netTotal: 'Rs. 18066.75', toPay: 'Rs. 596.75', date: '2024-10-22' },
-    { id: 'INV95', customer: 'customer5', netTotal: 'Rs. 18665.36', toPay: 'Rs. 18665.36', date: '2024-10-22' },
-    { id: 'INV7780', customer: 'customer6', netTotal: 'Rs. 7977.25', toPay: 'Paid', date: '2024-10-22' },
-    { id: 'INV87', customer: 'customer7', netTotal: 'Rs. 4267.50', toPay: 'Rs. 267.50', date: '2024-10-21' }
-  ];
-
-  const summaryData = {
-    totalNetAmount: 'Rs. 577556.39',
-    totalPaidAmount: 'Rs. 192110.32',
-    totalToPay: 'Rs. 385446.07',
-    totalInvoices: 30
+  // Format currency - MOVED UP before it's used
+  const formatCurrency = (value) => {
+    return `Rs. ${value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
   };
+
+  // Calculate summary data based on current invoices
+  const calculateSummaryData = () => {
+    const totalNetAmount = invoices.reduce((sum, invoice) => sum + invoice.netTotal, 0);
+    const totalPaidAmount = invoices.reduce((sum, invoice) => sum + (invoice.netTotal - invoice.toPay), 0);
+    const totalToPay = invoices.reduce((sum, invoice) => sum + invoice.toPay, 0);
+    
+    return {
+      totalNetAmount: formatCurrency(totalNetAmount),
+      totalPaidAmount: formatCurrency(totalPaidAmount),
+      totalToPay: formatCurrency(totalToPay),
+      totalInvoices: invoices.length
+    };
+  };
+
+  const summaryData = calculateSummaryData();
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -50,6 +66,63 @@ const CreditIn = () => {
   const handleShow = () => {
     // Filter logic would go here
     console.log("Filtering with dates:", startDate, endDate);
+  };
+
+  const handlePayCreditClick = (invoice) => {
+    setSelectedInvoice({
+      id: invoice.id,
+      customer: invoice.customer,
+      amount: invoice.toPay,
+      index: invoices.findIndex(inv => inv.id === invoice.id)
+    });
+    setIsPaymentDrawerOpen(true);
+  };
+
+  const handlePaymentComplete = (paymentDetails) => {
+    const { amount, method } = paymentDetails;
+    const invoiceIndex = selectedInvoice.index;
+    
+    if (invoiceIndex !== -1) {
+      const updatedInvoices = [...invoices];
+      const invoice = updatedInvoices[invoiceIndex];
+      
+      // Calculate remaining amount to pay
+      const remainingToPay = parseFloat((invoice.toPay - parseFloat(amount)).toFixed(2));
+      
+      // Update invoice status and payment method
+      if (remainingToPay <= 0) {
+        invoice.toPay = 0;
+        invoice.status = 'Paid';
+      } else {
+        invoice.toPay = remainingToPay;
+        invoice.status = 'Partial';
+      }
+      
+      // Update payment method
+      invoice.paymentMethod = method.charAt(0).toUpperCase() + method.slice(1);
+      
+      setInvoices(updatedInvoices);
+    }
+    
+    setIsPaymentDrawerOpen(false);
+  };
+
+  const getStatusDisplay = (invoice) => {
+    if (invoice.status === 'Paid') {
+      return (
+        <span className="px-3 py-1 text-sm text-white bg-green-500 rounded-full">
+          Paid
+        </span>
+      );
+    } else if (invoice.status === 'Partial') {
+      return (
+        <span className="px-3 py-1 text-sm text-white bg-yellow-500 rounded-full">
+          Partial
+        </span>
+      );
+    } else {
+      return formatCurrency(invoice.toPay);
+    }
   };
 
   return (
@@ -117,13 +190,15 @@ const CreditIn = () => {
       {/* Search and Date Filter */}
       <Card variant="outlined">
         <CardContent className="flex items-center gap-6">
-        <FormControl size="small" className="w-52">
-        <TextField
-            size="small"
-            placeholder="Search Payment"
-            variant="outlined"
-            className="max-w-xs"
-            />
+          <FormControl size="small" className="w-52">
+            <TextField
+                size="small"
+                placeholder="Search Payment"
+                variant="outlined"
+                className="max-w-xs"
+                value={searchTerm}
+                onChange={handleSearch}
+                />
           </FormControl>
           
           <div className="flex-grow"></div>
@@ -131,6 +206,8 @@ const CreditIn = () => {
             size="small"
             type="date"
             className="w-40"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
           />
           <Typography variant="body2" color="textSecondary">
             to
@@ -139,13 +216,16 @@ const CreditIn = () => {
             size="small"
             type="date"
             className="w-40"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
           />
-            <Button 
-              variant="contained"
-              color="primary"
-            >
-              Show
-            </Button>
+          <Button 
+            variant="contained"
+            color="primary"
+            onClick={handleShow}
+          >
+            Show
+          </Button>
         </CardContent>
       </Card>
 
@@ -158,6 +238,7 @@ const CreditIn = () => {
               <TableCell sx={{ fontWeight: 'bold'}}>CUSTOMER NAME</TableCell>
               <TableCell sx={{ fontWeight: 'bold'}}>NET TOTAL</TableCell>
               <TableCell sx={{ fontWeight: 'bold'}}>TO PAY</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>PAYMENT METHOD</TableCell>
               <TableCell sx={{ fontWeight: 'bold'}}>INVOICE DATE</TableCell>
               <TableCell></TableCell>
             </TableRow>
@@ -167,23 +248,19 @@ const CreditIn = () => {
               <TableRow key={index} hover>
                 <TableCell>{invoice.id}</TableCell>
                 <TableCell>{invoice.customer}</TableCell>
-                <TableCell>{invoice.netTotal}</TableCell>
+                <TableCell>{formatCurrency(invoice.netTotal)}</TableCell>
                 <TableCell>
-                  {invoice.toPay === 'Paid' ? (
-                    <span className="px-3 py-1 text-sm text-white bg-green-500 rounded-full">
-                      Paid
-                    </span>
-                  ) : (
-                    invoice.toPay
-                  )}
+                  {getStatusDisplay(invoice)}
                 </TableCell>
+                <TableCell>{invoice.paymentMethod}</TableCell>
                 <TableCell>{invoice.date}</TableCell>
                 <TableCell>
-                  {invoice.toPay !== 'Paid' && (
+                  {invoice.status !== 'Paid' && (
                     <Button
                       variant="outlined"
                       color="primary"
                       className="border-amber-400 text-amber-500"
+                      onClick={() => handlePayCreditClick(invoice)}
                     >
                       Pay Credit
                     </Button>
@@ -194,6 +271,16 @@ const CreditIn = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Payment Drawer */}
+      <PayCreditDrawer
+        open={isPaymentDrawerOpen}
+        onClose={() => setIsPaymentDrawerOpen(false)}
+        totalAmount={selectedInvoice?.amount}
+        invoiceNumber={selectedInvoice?.id}
+        onPaymentComplete={handlePaymentComplete}
+        allowPartialPayment={true}
+      />
     </Container>
   );
 };
