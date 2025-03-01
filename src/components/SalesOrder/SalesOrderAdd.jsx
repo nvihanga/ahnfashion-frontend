@@ -90,7 +90,7 @@ const SalesOrderAdd = () => {
             Discard
           </Button>
           <Button variant="contained" color="primary" onClick={handlePublish}>
-            Publish
+            Create a Invoice
           </Button>
         </Box>
       </Box>

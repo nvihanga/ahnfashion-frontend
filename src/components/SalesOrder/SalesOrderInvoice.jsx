@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ROUTES } from "../../config/routes";
 import PaymentDrawer from "./PaymentDrawer";
 import InvoiceModal from "./InvoiveModal";
+import { MdEdit } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 import {
   TextField,
   Select,
@@ -17,7 +19,8 @@ import {
   TableRow,
   Paper,
   Autocomplete,
-  FormHelperText
+  FormHelperText,
+  IconButton
 } from '@mui/material';
 
 const SalesOrderInvoice = () => {
@@ -332,6 +335,7 @@ const SalesOrderInvoice = () => {
                 <TableCell sx={{ fontWeight: 'bold'}}>QTY</TableCell>
                 <TableCell sx={{ fontWeight: 'bold'}}>RATE</TableCell>
                 <TableCell sx={{ fontWeight: 'bold'}}>PRICE</TableCell>
+                <TableCell sx={{ fontWeight: 'bold'}}>ACTION</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -343,6 +347,22 @@ const SalesOrderInvoice = () => {
                   <TableCell>{order.qty}</TableCell>
                   <TableCell>Rs. {order.rate}</TableCell>
                   <TableCell>{order.price}</TableCell>
+                  <TableCell>
+                  <IconButton
+                    color="info"
+                    id="edit"
+                    onClick={() => handleEditClick(raw)}
+                  >
+                    <MdEdit />
+                  </IconButton>
+                  <IconButton
+                    color="error"
+                    id="delete"
+                    onClick={() => handleDeleteClick(raw)}
+                  >
+                    <MdDelete />
+                  </IconButton>
+                </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { ReceiptLong } from '@mui/icons-material';
 
-const SalesOrderList = () => {
+const CashIn = () => {
   const [dateRange, setDateRange] = useState({
     startDate: '',
     endDate: ''
@@ -35,7 +35,8 @@ const SalesOrderList = () => {
   // Sample data - replace with your actual data
   const summaryData = {
     totalPaidAmount: 'Rs. 50,000',
-    totalCreditAmount: 'Rs. 30,000',
+    totalInvoices: 30,
+    
   };
 
   const [salesData] = useState([
@@ -43,13 +44,11 @@ const SalesOrderList = () => {
       id1: 1,
       customer1: 'Ambiga Textiles',
       toPay1: 'Rs. 2,000',
-      paymentMethod1: 'Cash',
       placeDate1: '2024-02-12'
     ,
       id2: 2,
       customer2: 'Chathura Enterprices',
       toPay2: 'Rs. 4,000',
-      paymentMethod2: 'Credit',
       placeDate2: '2024-02-10'
     }
   ]);
@@ -93,54 +92,47 @@ const SalesOrderList = () => {
   return (
     <div className="p-6 space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-20">
-        {[
-          { title: 'Total Paid Amount', value: summaryData.totalPaidAmount },
-          { title: 'Total Credit Amount', value: summaryData.totalCreditAmount },
-          //{ title: 'Total To Pay', value: summaryData.totalToPay }
-        ].map((item, index) => (
-          <Card key={index} variant="outlined">
-            <CardContent className="flex items-center justify-between p-4">
-              <div>
-                <Typography variant="subtitle2" color="textSecondary">
-                  {item.title}
-                </Typography>
-                <Typography variant="h6">
-                  {item.value}
-                </Typography>
-              </div>
-              <IconButton size="small">
-                <ReceiptLong />
-              </IconButton>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+        <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-3">
+    {[
+        {
+        title: "Monthly Amount",
+        value: summaryData.totalPaidAmount,
+        invoices: summaryData.totalInvoices, // Assuming you have invoice data
+        },
+    ].map((item, index) => (
+        <Paper key={index} elevation={1} className="p-4">
+        <div className="flex items-center justify-between">
+            <div>
+            <Typography variant="subtitle2" className="text-gray-600">
+                {item.title}
+            </Typography>
+            <Typography variant="h5" className="font-medium">
+                {item.value}
+            </Typography>
+            <Typography variant="body2" className="text-gray-500">
+                {item.invoices} invoices
+            </Typography>
+            </div>
+            <IconButton className="bg-gray-100">
+            <ReceiptLong />
+            </IconButton>
+        </div>
+        </Paper>
+    ))}
+    </div>
 
       {/* Date Range Filter */}
       <Card variant="outlined">
         <CardContent className="flex items-center gap-6">
         <FormControl size="small" className="w-52">
-            <Select
-              value={selectedCustomer}
-              onChange={handleCustomerChange}
-              displayEmpty
-            >
-              <MenuItem value="">All Customers</MenuItem>
-              {customers.map((customer, index) => (
-                <MenuItem key={index} value={customer}>
-                  {customer}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          {/*<TextField
+        <TextField
             size="small"
-            placeholder="Search Customer..."
+            placeholder="Search Payment"
             variant="outlined"
             className="max-w-xs"
-          />
-          */}
+            />
+          </FormControl>
+          
           <div className="flex-grow"></div>
           <TextField
             size="small"
@@ -174,10 +166,9 @@ const SalesOrderList = () => {
         <Table>
           <TableHead>
             <TableRow style={{ backgroundColor: "#f5f5f5" }}>
-              <TableCell sx={{ fontWeight: 'bold'}}>INVOICE NUMBER</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>#</TableCell>
               <TableCell sx={{ fontWeight: 'bold'}}>CUSTOMER NAME</TableCell>
-              <TableCell sx={{ fontWeight: 'bold'}}>NET TOTAL</TableCell>
-              <TableCell sx={{ fontWeight: 'bold'}}>PAYMENT METHOD</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>AMOUNT</TableCell>
               <TableCell sx={{ fontWeight: 'bold'}}>INVOICE DATE</TableCell>
             </TableRow>
           </TableHead>
@@ -187,7 +178,6 @@ const SalesOrderList = () => {
                 <TableCell>{row1.id1}</TableCell>
                 <TableCell>{row1.customer1}</TableCell>
                 <TableCell>{row1.toPay1}</TableCell>
-                <TableCell>{row1.paymentMethod1}</TableCell>
                 <TableCell>{row1.placeDate1}</TableCell>
               </TableRow>
             ))}
@@ -198,7 +188,6 @@ const SalesOrderList = () => {
                 <TableCell>{row2.id2}</TableCell>
                 <TableCell>{row2.customer2}</TableCell>
                 <TableCell>{row2.toPay2}</TableCell>
-                <TableCell>{row2.paymentMethod2}</TableCell>
                 <TableCell>{row2.placeDate2}</TableCell>
               </TableRow>
             ))}
@@ -209,4 +198,4 @@ const SalesOrderList = () => {
   );
 };
 
-export default SalesOrderList;
+export default CashIn;
