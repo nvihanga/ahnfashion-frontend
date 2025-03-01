@@ -1,6 +1,6 @@
 import React from 'react'
 
-const cheque = () => {
+const ChequeOut = () => {
   return (
     <div>
       
@@ -8,4 +8,4 @@ const cheque = () => {
   )
 }
 
-export default cheque
+export default ChequeOut

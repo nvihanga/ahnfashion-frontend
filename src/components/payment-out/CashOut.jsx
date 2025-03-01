@@ -135,7 +135,7 @@ const CashOut = () => {
           <TableHead>
             <TableRow style={{ backgroundColor: "#f5f5f5" }}>
               <TableCell sx={{ fontWeight: 'bold'}}>INVOICE NUMBER</TableCell>
-              <TableCell sx={{ fontWeight: 'bold'}}>SUPPLIER</TableCell>
+              <TableCell sx={{ fontWeight: 'bold'}}>SUPPLIER NAME</TableCell>
               <TableCell sx={{ fontWeight: 'bold'}}>AMOUNT</TableCell>
               <TableCell sx={{ fontWeight: 'bold'}}>INVOICE DATE</TableCell>
             </TableRow>
