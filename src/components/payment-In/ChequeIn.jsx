@@ -20,13 +20,17 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  IconButton
 } from '@mui/material';
 import { 
   AccessTime, 
   ErrorOutline, 
   CheckCircleOutline,
-  ListAlt
+  ListAlt,
+  Close,
+  Warning,
+  CheckCircle
 } from '@mui/icons-material';
 
 const ChequeIn = () => {
@@ -44,7 +48,8 @@ const ChequeIn = () => {
   const [notification, setNotification] = useState({
     open: false,
     message: '',
-    severity: 'success'
+    severity: 'success',
+    details: ''
   });
 
   // State for confirmation dialog
@@ -53,7 +58,9 @@ const ChequeIn = () => {
     title: '',
     message: '',
     chequeId: null,
-    action: null
+    action: null,
+    reason: '',
+    details: ''
   });
 
   // State for summary data
@@ -96,12 +103,28 @@ const ChequeIn = () => {
   // Show confirmation dialog before action
   const showConfirmDialog = (id, action) => {
     const cheque = cheques.find(c => c.id === id);
+    
+    const dialogContent = {
+      clear: {
+        title: 'Clear Cheque',
+        message: `Are you sure you want to clear this cheque?`,
+        details: `Cheque #${id} for Rs. ${cheque.amount.toFixed(2)} will be marked as cleared and calculated in your total assets.`
+      },
+      decline: {
+        title: 'Decline Cheque',
+        message: `Are you sure you want to decline this cheque?`,
+        details: `Cheque #${id} for Rs. ${cheque.amount.toFixed(2)} will be marked as declined and excluded from your total assets.`
+      }
+    };
+
     setConfirmDialog({
       open: true,
-      title: action === 'clear' ? 'Clear Cheque' : 'Decline Cheque',
-      message: `Are you sure you want to ${action} cheque #${id} for Rs. ${cheque.amount.toFixed(2)}?`,
+      title: dialogContent[action].title,
+      message: dialogContent[action].message,
+      details: dialogContent[action].details,
       chequeId: id,
-      action: action
+      action: action,
+      reason: ''
     });
   };
 
@@ -112,24 +135,47 @@ const ChequeIn = () => {
 
   // Handle confirmation
   const handleConfirm = () => {
-    const { chequeId, action } = confirmDialog;
-    performAction(chequeId, action);
+    const { chequeId, action, reason } = confirmDialog;
+    performAction(chequeId, action, reason);
     handleCloseDialog();
   };
 
+  // Handle reason change
+  const handleReasonChange = (event) => {
+    setConfirmDialog({...confirmDialog, reason: event.target.value});
+  };
+
   // Perform the actual action
-  const performAction = (id, action) => {
+  const performAction = (id, action, reason) => {
+    const cheque = cheques.find(c => c.id === id);
+    const date = new Date().toLocaleDateString();
+    const time = new Date().toLocaleTimeString();
+    
     setCheques(cheques.map(cheque => 
       cheque.id === id 
         ? {...cheque, status: action === 'clear' ? 'cleared' : 'declined'} 
         : cheque
     ));
 
-    // Show notification
+    // Show notification with enhanced details
+    const notificationDetails = {
+      clear: {
+        message: `Cheque #${id} has been cleared successfully`,
+        details: `Amount: Rs. ${cheque.amount.toFixed(2)} | Date: ${date} ${time}`,
+        severity: 'success'
+      },
+      decline: {
+        message: `Cheque #${id} has been declined`,
+        details: `Amount: Rs. ${cheque.amount.toFixed(2)} | Date: ${date} ${time}${reason ? ` | Reason: ${reason}` : ''}`,
+        severity: 'warning'
+      }
+    };
+
     setNotification({
       open: true,
-      message: `Cheque #${id} has been ${action === 'clear' ? 'cleared' : 'declined'} successfully`,
-      severity: action === 'clear' ? 'success' : 'warning'
+      message: notificationDetails[action].message,
+      details: notificationDetails[action].details,
+      severity: notificationDetails[action].severity
     });
   };
 
@@ -261,15 +307,28 @@ const ChequeIn = () => {
                 <TableCell>{cheque.id}</TableCell>
                 <TableCell>Rs. {cheque.amount.toFixed(2)}</TableCell>
                 <TableCell>
-                  <span className={
-                    cheque.status === 'pending' 
-                      ? 'text-blue-500' 
-                      : cheque.status === 'cleared' 
-                        ? 'text-green-500' 
-                        : 'text-red-500'
-                  }>
-                    {cheque.status}
-                  </span>
+                  <Box sx={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center',
+                    backgroundColor: 
+                      cheque.status === 'pending' ? '#e0f2fe' : 
+                      cheque.status === 'cleared' ? '#dcfce7' : 
+                      '#fee2e2',
+                    color: 
+                      cheque.status === 'pending' ? '#0284c7' : 
+                      cheque.status === 'cleared' ? '#16a34a' : 
+                      '#dc2626',
+                    py: 0.5,
+                    px: 1.5,
+                    borderRadius: 1,
+                    fontWeight: 'medium',
+                    fontSize: '0.875rem'
+                  }}>
+                    {cheque.status === 'pending' && <AccessTime sx={{ mr: 0.5, fontSize: '16px' }} />}
+                    {cheque.status === 'cleared' && <CheckCircle sx={{ mr: 0.5, fontSize: '16px' }} />}
+                    {cheque.status === 'declined' && <Warning sx={{ mr: 0.5, fontSize: '16px' }} />}
+                    {cheque.status.charAt(0).toUpperCase() + cheque.status.slice(1)}
+                  </Box>
                 </TableCell>
                 <TableCell>{cheque.reason}</TableCell>
                 <TableCell>{cheque.placeDate}</TableCell>
@@ -323,19 +382,63 @@ const ChequeIn = () => {
         </Table>
       </TableContainer>
 
-      {/* Confirmation Dialog */}
+      {/* Enhanced Confirmation Dialog */}
       <Dialog
         open={confirmDialog.open}
         onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
       >
-        <DialogTitle>{confirmDialog.title}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
+        <DialogTitle sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          backgroundColor: confirmDialog.action === 'clear' ? '#f0fdf4' : '#fef2f2',
+          color: confirmDialog.action === 'clear' ? '#166534' : '#b91c1c'
+        }}>
+          {confirmDialog.action === 'clear' && <CheckCircle sx={{ mr: 1.5 }} />}
+          {confirmDialog.action === 'decline' && <Warning sx={{ mr: 1.5 }} />}
+          {confirmDialog.title}
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseDialog}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <Close />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
+          <DialogContentText sx={{ fontWeight: 'medium', mb: 1 }}>
             {confirmDialog.message}
           </DialogContentText>
+          <DialogContentText sx={{ mb: 2 }}>
+            {confirmDialog.details}
+          </DialogContentText>
+          
+          {confirmDialog.action === 'decline' && (
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Reason for declining (optional)"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={confirmDialog.reason}
+              onChange={handleReasonChange}
+              sx={{ mt: 2 }}
+            />
+          )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button 
+            onClick={handleCloseDialog} 
+            variant="outlined"
+            startIcon={<Close />}
+          >
             Cancel
           </Button>
           <Button 
@@ -343,16 +446,17 @@ const ChequeIn = () => {
             color={confirmDialog.action === 'clear' ? 'success' : 'error'} 
             variant="contained" 
             autoFocus
+            startIcon={confirmDialog.action === 'clear' ? <CheckCircle /> : <Warning />}
           >
-            Confirm
+            {confirmDialog.action === 'clear' ? 'Clear Cheque' : 'Decline Cheque'}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Notification Snackbar */}
+      {/* Enhanced Notification Snackbar */}
       <Snackbar
         open={notification.open}
-        autoHideDuration={4000}
+        autoHideDuration={5000}
         onClose={handleCloseNotification}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
@@ -360,9 +464,23 @@ const ChequeIn = () => {
           onClose={handleCloseNotification} 
           severity={notification.severity}
           variant="filled"
-          sx={{ width: '100%' }}
+          sx={{ 
+            width: '100%',
+            boxShadow: 3,
+            '& .MuiAlert-message': {
+              width: '100%'
+            }
+          }}
+          icon={notification.severity === 'success' ? <CheckCircle /> : <Warning />}
         >
-          {notification.message}
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+              {notification.message}
+            </Typography>
+            <Typography variant="body2">
+              {notification.details}
+            </Typography>
+          </Box>
         </Alert>
       </Snackbar>
     </div>
