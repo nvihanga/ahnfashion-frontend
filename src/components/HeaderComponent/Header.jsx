@@ -1,4 +1,5 @@
 import React, { useState,useContext } from 'react'
+
 import { Routes, useNavigate,Navigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Badge from '@mui/material/Badge';
@@ -13,6 +14,7 @@ import { IoMdLogOut } from "react-icons/io";
 import { AppContext } from '../../context/AppProvider';
 import { ROUTES } from '../../config/routes';
 import { useAuth } from '../../hooks/useAuth';
+import NotificationCenter from '../notifications/NotificationCenter';
 
 const Header = () => {
     const [anchorMyAcc, setAnchorMyAcc] = React.useState(null);
@@ -20,6 +22,16 @@ const Header = () => {
     const {logout} = useAuth();
     const navigate = useNavigate();
     const {user} = useAuth();
+    const [anchorNotifications, setAnchorNotifications] = useState(null);
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    const handleNotificationOpen = (event) => {
+        setAnchorNotifications(event.currentTarget);
+    };
+
+    const handleNotificationClose = () => {
+        setAnchorNotifications(null);
+    };
     const handleClickMyAcc = (event) => {
         setAnchorMyAcc(event.currentTarget);
     };
@@ -58,11 +70,30 @@ const Header = () => {
                 </div>
 
                 <div className='part2 w-[40%] flex items-center justify-end gap-5'>
-                    <IconButton aria-label="cart">
-                        <Badge color="secondary" variant="dot">
+                    <IconButton aria-label="cart"
+                    onClick={handleNotificationOpen}>
+                        <Badge color="secondary" variant="dot"
+                        badgeContent={unreadCount}>
                             <FaRegBell className='text-[20px] text-[rgba(0,0,0,0.8)]' />
                         </Badge>
                     </IconButton>
+                    <Menu
+                    anchorEl={anchorNotifications}
+                    open={Boolean(anchorNotifications)}
+                    onClose={handleNotificationClose}
+                    PaperProps={{
+                        style: { 
+                            width: 400,
+                            maxHeight: '70vh',
+                            padding: 0
+                        }
+                    }}
+                >
+                    <NotificationCenter 
+                        onUnreadUpdate={setUnreadCount}
+                        onClose={handleNotificationClose}
+                    />
+                </Menu>
                     <div className='relative'>
                         <div className='rounded-full w-[35px] h-[35px] overflow-hidden cursor-pointer' onClick={handleClickMyAcc}>
                             <img src="https://www.w3schools.com/howto/img_avatar.png" alt="profile" className='w-full h-full object-cover' />

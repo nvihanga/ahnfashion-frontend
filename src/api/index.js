@@ -5,7 +5,7 @@ const createApi = (basePath) => {
     baseURL: `http://localhost:8085/api/v1/${basePath}`,
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('token')}` 
+      //'Authorization': `Bearer ${localStorage.getItem('token')}` 
     },
     withCredentials:true
   });
@@ -35,3 +35,6 @@ const createApi = (basePath) => {
 };
 
 export default createApi;
+export const notificationApi = createApi('notifications');
+export const authApi = createApi('auth');
+export const userApi = createApi('user');
