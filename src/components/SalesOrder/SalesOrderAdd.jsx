@@ -22,8 +22,8 @@ import { Add as AddIcon, Search as SearchIcon, Close as CloseIcon } from '@mui/i
 
 // Sample customer data
 const customers = [
-  { id: 1, name: 'Customer 1'},
-  { id: 2, name: 'Customer 2'},
+  { id: 1, name: 'Ambiga Textiles'},
+  { id: 2, name: 'Chathura Enterprises'},
   // Add more customers as needed
 ];
 

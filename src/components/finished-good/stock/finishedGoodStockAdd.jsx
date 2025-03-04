@@ -1,6 +1,4 @@
 
-
-
 import {
   Button,
   FormControl,
@@ -10,6 +8,20 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useState } from "react";
+
+const styleNumberArray = [
+  { id: 1, number: "S1001" },
+  { id: 2, number: "S1002" },
+  { id: 3, number: "S1003" },
+  { id: 4, number: "S1004" },
+];
+
+const descriptionArray = [
+  { id: 1, text: "Casual wear" },
+  { id: 2, text: "Formal wear" },
+  { id: 3, text: "Sportswear" },
+  { id: 4, text: "Winter collection" },
+];
 
 const productNameArray = [
   { id: 1, name: "Shirt" },
@@ -24,9 +36,10 @@ const FinishedGoodStockAdd = () => {
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState("");
   const [unitPrice, setUnitPrice] = useState("");
+  const [date, setDate] = useState("");
 
   const handleAddToList = () => {
-    console.log({ styleNumber, productName, description, quantity, unitPrice });
+    console.log({ styleNumber, productName, description, quantity, unitPrice, date });
   };
 
   return (
@@ -37,19 +50,25 @@ const FinishedGoodStockAdd = () => {
       </div>
       <div className="flex flex-row justify-between mt-5">
         <div className="w-4/5">
-          {/* Style Number */}
+          {/* Style Number Dropdown */}
           <div>
             <FormControl fullWidth>
-              <TextField
+              <InputLabel id="style_number">Style Number</InputLabel>
+              <Select
                 id="style_number"
-                label="Style Number"
-                variant="outlined"
                 value={styleNumber}
+                label="Style Number"
                 onChange={(e) => setStyleNumber(e.target.value)}
-              />
+              >
+                {styleNumberArray.map((style) => (
+                  <MenuItem key={style.id} value={style.number}>
+                    {style.number}
+                  </MenuItem>
+                ))}
+              </Select>
             </FormControl>
           </div>
-          {/* Product Name */}
+          {/* Product Name Dropdown */}
           <div className="mt-5">
             <FormControl fullWidth>
               <InputLabel id="product_name">Product Name</InputLabel>
@@ -67,18 +86,22 @@ const FinishedGoodStockAdd = () => {
               </Select>
             </FormControl>
           </div>
-          {/* Description */}
+          {/* Description Dropdown */}
           <div className="mt-5">
             <FormControl fullWidth>
-              <TextField
+              <InputLabel id="description">Description</InputLabel>
+              <Select
                 id="description"
-                label="Description"
-                variant="outlined"
-                multiline
-                rows={4}
                 value={description}
+                label="Description"
                 onChange={(e) => setDescription(e.target.value)}
-              />
+              >
+                {descriptionArray.map((desc) => (
+                  <MenuItem key={desc.id} value={desc.text}>
+                    {desc.text}
+                  </MenuItem>
+                ))}
+              </Select>
             </FormControl>
           </div>
           {/* Quantity */}
@@ -105,6 +128,20 @@ const FinishedGoodStockAdd = () => {
               />
             </FormControl>
           </div>
+          {/* Date Picker */}
+          <div className="mt-5">
+            <FormControl fullWidth>
+              <TextField
+                id="date"
+                label="Date"
+                type="date"
+                variant="outlined"
+                InputLabelProps={{ shrink: true }}
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+            </FormControl>
+          </div>
         </div>
         <div className="flex items-end">
           <Button variant="contained" onClick={handleAddToList}>
@@ -117,6 +154,3 @@ const FinishedGoodStockAdd = () => {
 };
 
 export default FinishedGoodStockAdd;
-
-
-

@@ -1,9 +1,7 @@
-
 import { Button, TextField, IconButton } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { useState } from "react";
 import axios from "axios";
-
 const initialSupplierState = {
   supplierCode: "",
   name: "",
@@ -12,34 +10,28 @@ const initialSupplierState = {
   address: "",
   notes: "",
 };
-
 const SupplierForm = () => {
   const [supplier, setSupplier] = useState(initialSupplierState);
   const [errors, setErrors] = useState({});
   const [editingSupplierId, setEditingSupplierId] = useState(null);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSupplier((prev) => ({ ...prev, [name]: value }));
   };
-
   const handlePhoneChange = (index, value) => {
     const updatedPhones = [...supplier.phoneNumbers];
     updatedPhones[index] = value;
     setSupplier((prev) => ({ ...prev, phoneNumbers: updatedPhones }));
   };
-
-  const addPhoneNumber = () => {
-    setSupplier((prev) => ({ ...prev, phoneNumbers: [...prev.phoneNumbers, ""] }));
-  };
-
+  //   const addPhoneNumber=()=>{
+  //   setSupplier((prev) => ({ ...prev, phoneNumbers: [...prev.phoneNumbers, ""] }));
+  // };
   const removePhoneNumber = (index) => {
     setSupplier((prev) => ({
       ...prev,
       phoneNumbers: prev.phoneNumbers.filter((_, i) => i !== index),
     }));
   };
-
   const validateForm = () => {
     let errors = {};
     if (!supplier.supplierCode) errors.supplierCode = "Supplier Code is required";
@@ -50,10 +42,8 @@ const SupplierForm = () => {
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
-
   const handleSaveSupplier = async () => {
     if (!validateForm()) return;
-
     const supplierData = {
       supplierCode: supplier.supplierCode,
       supplierName: supplier.name,
@@ -64,7 +54,6 @@ const SupplierForm = () => {
       outstandingBalance: 0.0,
       activeState: true,
     };
-
     try {
       if (editingSupplierId) {
         await axios.put(`http://localhost:8085/api/v1/supplier/update/${editingSupplierId}`, supplierData);
@@ -80,16 +69,14 @@ const SupplierForm = () => {
       alert("Failed to save supplier");
     }
   };
-
   const handleReset = () => {
     setSupplier(initialSupplierState);
     setErrors({});
     setEditingSupplierId(null);
   };
-
   return (
-    <div className="w-full mt-10 px-10 space-y-5">
-      <div className="flex flex-row justify-between items-center">
+    <div className="w-full px-10 mt-10 space-y-5">
+      <div className="flex flex-row items-center justify-between">
         <h1 className="font-bold">{editingSupplierId ? "Edit Supplier" : "Add Supplier"}</h1>
         <div className="flex gap-5">
           <Button variant="contained" onClick={handleSaveSupplier}>
@@ -97,8 +84,7 @@ const SupplierForm = () => {
           </Button>
           <Button variant="outlined" onClick={handleReset}>Reset</Button>
         </div>
-      </div>
-
+        </div>
       <TextField
         name="supplierCode"
         label="Supplier Code"
@@ -109,7 +95,6 @@ const SupplierForm = () => {
         error={!!errors.supplierCode}
         helperText={errors.supplierCode}
       />
-
       <TextField
         name="name"
         label="Name"
@@ -120,7 +105,6 @@ const SupplierForm = () => {
         error={!!errors.name}
         helperText={errors.name}
       />
-
       <TextField
         name="email"
         label="Email Address"
@@ -132,54 +116,50 @@ const SupplierForm = () => {
         error={!!errors.email}
         helperText={errors.email}
       />
-
       {supplier.phoneNumbers.map((phone, index) => (
         <div className="flex items-center gap-2" key={index}>
           <TextField
-            label={`Phone Number ${index + 1}`}
-            variant="outlined"
-            fullWidth
-            value={phone}
-            onChange={(e) => handlePhoneChange(index, e.target.value)}
-            error={!!errors.phoneNumbers}
-            helperText={errors.phoneNumbers}
-          />
-          <IconButton color="primary" onClick={addPhoneNumber}>
+           label={`Phone Number ${index + 1}`}
+           variant="outlined"
+           fullWidth
+           value={phone}
+           onChange={(e) => handlePhoneChange(index, e.target.value)}
+           error={!!errors.phoneNumbers}
+           helperText={errors.phoneNumbers}
+         />
+         {/* <IconButton color="primary" onClick={addPhoneNumber}>
             <Add />
-          </IconButton>
+          </IconButton> */}
           {supplier.phoneNumbers.length > 1 && (
             <IconButton color="secondary" onClick={() => removePhoneNumber(index)}>
               <Remove />
             </IconButton>
           )}
         </div>
-      ))}
-
-      <TextField
-        name="address"
-        label="Address"
-        variant="outlined"
-        fullWidth
-        multiline
-        rows={2}
-        value={supplier.address}
-        onChange={handleChange}
-        error={!!errors.address}
-        helperText={errors.address}
-      />
-
-      <TextField
-        name="notes"
-        label="Notes"
-        variant="outlined"
-        fullWidth
-        multiline
-        rows={3}
-        value={supplier.notes}
-        onChange={handleChange}
-      />
-    </div>
-  );
-};
-
-export default SupplierForm;
+         ))}
+         <TextField
+           name="address"
+           label="Address"
+           variant="outlined"
+           fullWidth
+           multiline
+           rows={2}
+           value={supplier.address}
+           onChange={handleChange}
+           error={!!errors.address}
+           helperText={errors.address}
+         />
+         <TextField
+           name="notes"
+           label="Notes"
+           variant="outlined"
+           fullWidth
+           multiline
+           rows={3}
+           value={supplier.notes}
+           onChange={handleChange}
+         />
+       </div>
+     );
+   };
+   export default SupplierForm;

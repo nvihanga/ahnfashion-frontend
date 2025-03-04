@@ -11,6 +11,8 @@ import {
   Button,
   Paper,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { MdEdit, MdDelete } from "react-icons/md";
 import EditDrawer from "./editDrawer";
@@ -23,7 +25,8 @@ const SupplierList = () => {
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [search, setSearch] = useState("");
   const [viewDetails, setViewDetails] = useState(false);
-
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Detect mobile screens
   useEffect(() => {
     fetchSuppliers();
   }, []);
@@ -70,7 +73,7 @@ const SupplierList = () => {
       .catch((error) => {
         console.error("Error updating supplier:", error);
       });
-      setSelectedSupplier(null);
+    setSelectedSupplier(null);
   };
 
   const handleSearch = (event) => {
@@ -135,7 +138,7 @@ const SupplierList = () => {
         </div>
       ) : (
         <>
-          <div className="w-full border-collapse p-4 flex flex-col">
+          <div className="flex flex-col w-full p-4 border-collapse">
             <h1 className="text-xl">Search</h1>
             <TextField
               id="search"
@@ -147,23 +150,23 @@ const SupplierList = () => {
               margin="normal"
             />
           </div>
-
-          <TableContainer>
+          <TableContainer component={Paper} style={{ overflowX: "auto" }}>
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell>No</TableCell>
-                  <TableCell>Supplier Code</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Phone Number</TableCell>
-                  <TableCell align="center">Action</TableCell>
+                <TableRow style={{ backgroundColor: "#f5f5f5" }}>
+                  <TableCell><b>NO</b></TableCell>
+                  <TableCell><b>SUPPLIER CODE</b></TableCell>
+                  <TableCell><b>NAME</b></TableCell>
+                  <TableCell><b>EMAIL</b></TableCell>
+                  <TableCell><b>PHONE NUMBER</b></TableCell>
+                  <TableCell align="center"><b>ACTION</b></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredSuppliers.map((supplier, index) => (
                   <TableRow
                     key={supplier.supplierId}
+                    hover
                     onClick={() => handleRowClick(supplier)}
                     style={{ cursor: "pointer" }}
                   >
@@ -213,5 +216,6 @@ const SupplierList = () => {
 };
 
 export default SupplierList;
+
 
 
