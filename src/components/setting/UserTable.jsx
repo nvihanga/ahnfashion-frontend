@@ -7,7 +7,7 @@ const UserTable = ({
   handleSelectUser, 
   handleEdit,
   handleView,
-  handleDelete 
+  handleDelete,
 }) => {
   return (
     <div className="bg-white rounded-lg shadow overflow-x-auto">

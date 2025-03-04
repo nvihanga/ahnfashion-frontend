@@ -18,6 +18,7 @@ import { MdDelete } from "react-icons/md";
 import EditDrawer from "./editDrawer";
 import { useState } from "react";
 import { rawMaterials } from "./data";
+import DialogBox from "./dialogBox";
 
 const Suppliers = [
   { id: 1, name: "Naturub Industries (Pvt) Ltd" },
@@ -34,6 +35,7 @@ const rawMaterialTypes = [
 
 const RawMaterialList = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [supplier, setSupplier] = useState("");
   const [rawMaterialType, setRawMaterialType] = useState("");
@@ -50,6 +52,7 @@ const RawMaterialList = () => {
     );
     setNewRawMaterial(updatedRawMaterials);
     console.log("Updated Raw Materials:", updatedRawMaterials);
+    setDialogBoxOpen(false);
   };
 
   const handleDrawerClose = () => {
@@ -86,6 +89,11 @@ const RawMaterialList = () => {
       material.productName.toLowerCase().includes(searchValue)
     );
     setNewRawMaterial(filteredMaterials);
+  };
+
+  const handleDialogBoxOpen = (raw) => {
+    setDialogBoxOpen(true);
+    setSelectedItem(raw);
   };
 
   return (
@@ -189,7 +197,7 @@ const RawMaterialList = () => {
                 <TableCell>{raw.type}</TableCell>
                 <TableCell>{raw.quantity}</TableCell>
                 <TableCell>{raw.supplier}</TableCell>
-                <TableCell>{raw.price}</TableCell>
+                <TableCell>Rs.{raw.price}</TableCell>
                 <TableCell align="center">
                   <IconButton
                     color="info"
@@ -201,7 +209,7 @@ const RawMaterialList = () => {
                   <IconButton
                     color="error"
                     id="delete"
-                    onClick={() => handleDeleteClick(raw)}
+                    onClick={() => handleDialogBoxOpen(raw)}
                   >
                     <MdDelete />
                   </IconButton>
@@ -221,6 +229,12 @@ const RawMaterialList = () => {
           onSave={handleSave}
         />
       )}
+      <DialogBox
+        openProp={dialogBoxOpen}
+        onCloseProp={() => setDialogBoxOpen(false)}
+        selectedItemProp={selectedItem}
+        handleDeleteProp={() => handleDeleteClick(selectedItem)}
+      />
     </>
   );
 };

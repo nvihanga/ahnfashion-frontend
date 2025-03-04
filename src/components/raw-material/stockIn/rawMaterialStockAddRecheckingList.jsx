@@ -10,12 +10,24 @@ import {
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { MdDelete } from "react-icons/md";
+import DialogBox from "./dialogBox";
+import { useState } from "react";
 
 const RawMaterialStockAddRecheckingList = ({ stockList, setStockList }) => {
   const handleDeleteClick = (stock) => {
     const updatedStockList = stockList.filter((obj) => obj !== stock);
     setStockList(updatedStockList);
+    setDialogBoxOpen(false);
   };
+
+  const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
+  const [selectItem, setSelectItem] = useState(null);
+
+  const handleDialogBoxOpen = (stock) => {
+    setDialogBoxOpen(true);
+    setSelectItem(stock);
+  };
+
   return (
     <>
       <div className="mt-5 border-gray-200 border-2">
@@ -65,7 +77,7 @@ const RawMaterialStockAddRecheckingList = ({ stockList, setStockList }) => {
                     <IconButton
                       color="error"
                       id="delete"
-                      onClick={() => handleDeleteClick(stock)}
+                      onClick={() => handleDialogBoxOpen(stock)}
                     >
                       <MdDelete />
                     </IconButton>
@@ -76,6 +88,12 @@ const RawMaterialStockAddRecheckingList = ({ stockList, setStockList }) => {
           </Table>
         </TableContainer>
       </div>
+      <DialogBox
+        openProp={dialogBoxOpen}
+        onCloseProp={() => setDialogBoxOpen(false)}
+        selectedItemProp={selectItem}
+        handleDeleteProp={() => handleDeleteClick(selectItem)}
+      />
     </>
   );
 };

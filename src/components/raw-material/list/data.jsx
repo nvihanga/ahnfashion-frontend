@@ -5,7 +5,7 @@ export const rawMaterials = [
     type: "Fabrics",
     quantity: 100,
     supplier: "Sanko Texttiles",
-    price: "Rs.500",
+    price: "500",
   },
   {
     id: 2,
@@ -13,7 +13,7 @@ export const rawMaterials = [
     type: "Labels",
     quantity: 200,
     supplier: "CIB Accessories",
-    price: "Rs.500",
+    price: "500",
   },
   {
     id: 3,
@@ -21,7 +21,7 @@ export const rawMaterials = [
     type: "Threads",
     quantity: 30,
     supplier: "Chathura Enterprices",
-    price: "Rs.400",
+    price: "400",
   },
   {
     id: 4,
@@ -29,6 +29,6 @@ export const rawMaterials = [
     type: "Buttons",
     quantity: 50,
     supplier: "Naturub Industries (Pvt) Ltd",
-    price: "Rs.600",
+    price: "600",
   },
 ];

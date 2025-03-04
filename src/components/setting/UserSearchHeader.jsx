@@ -1,6 +1,6 @@
 import { Search, Plus } from 'lucide-react';
 
-const UserSearchHeader = ({ searchQuery, handleSearch, selectedUsers, onAdd }) => {
+const UserSearchHeader = ({ searchQuery, handleSearch, selectedUsers, onAdd, onDeleteSelected }) => {
   return (
     <div className="flex justify-between items-center mb-4">
       <div className="relative">
@@ -17,6 +17,7 @@ const UserSearchHeader = ({ searchQuery, handleSearch, selectedUsers, onAdd }) =
         <button
           className="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50"
           disabled={selectedUsers.length === 0}
+          onClick={onDeleteSelected}  
         >
           Delete Selected
         </button>
