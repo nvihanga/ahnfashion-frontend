@@ -1,4 +1,3 @@
-import image from "../../assets/images/first.jpg";
 import RawMaterialList from "../../components/raw-material/list/rawMaterialList";
 
 const List = () => {
