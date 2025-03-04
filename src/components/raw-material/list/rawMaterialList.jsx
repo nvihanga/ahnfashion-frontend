@@ -152,7 +152,7 @@ const RawMaterialList = () => {
               <FormControl fullWidth>
                 <TextField
                   id="search"
-                  label="Search"
+                  label="Search by Product Name"
                   variant="outlined"
                   onChange={handleSearch}
                 />
