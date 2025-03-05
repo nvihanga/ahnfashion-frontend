@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 
 export default function SearchBar({ searchTerm, setSearchTerm }) {
   return (
-    <div className="p-4 border-b border-gray-200">
+    <div className="p-4  border-gray-200">
       <div className="relative">
         <input
           type="text"

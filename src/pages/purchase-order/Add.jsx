@@ -2,7 +2,7 @@ import InvoiceInformation from "../../components/purchase-order/add/InvoiceInfor
 
 const Add = () => {
   return (
-    <div className="m-8">
+    <div className="mt-8">
       <InvoiceInformation />s
     </div>
   );

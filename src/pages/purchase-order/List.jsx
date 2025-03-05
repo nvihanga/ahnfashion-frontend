@@ -2,7 +2,7 @@ import PurchaseOrderTable from "../../components/purchase-order/list/purchaseOrd
 
 const List = () => {
   return (
-    <div className="m-8">
+    <div className="mt-8">
       <PurchaseOrderTable />
     </div>
   );

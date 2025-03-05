@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 
 export default function Pagination({ filteredGRNs }) {
   return (
-    <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
+    <div className="px-6 py-4 flex items-center justify-between  border-gray-200">
       <div>
         <p className="text-sm text-gray-700">
           Showing <span className="font-medium">1</span> to{" "}

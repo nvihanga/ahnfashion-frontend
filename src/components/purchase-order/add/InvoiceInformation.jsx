@@ -108,7 +108,7 @@ function InvoiceInformation() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-white rounded-lg shadow">
+    <div className="w-full mx-auto p-6 bg-white rounded-lg shadow">
       <h1 className="text-2xl font-bold mb-6 px-5">Add New Invoice Details</h1>
 
       <div className="bg-blue-50 py-6 rounded-lg mb-8 px-5 ">

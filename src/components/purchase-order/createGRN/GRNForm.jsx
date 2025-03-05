@@ -118,7 +118,7 @@ export default function GRNForm() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto bg-white rounded-lg shadow-md">
+    <div className="w-full  mx-auto bg-white rounded-lg shadow-md">
       <div className="p-6 border-b border-gray-200">
         <h1 className="text-2xl font-bold">Create Goods Received Note (GRN)</h1>
       </div>
@@ -285,7 +285,7 @@ export default function GRNForm() {
 
         <div className="flex flex-col items-end gap-2 mb-6">
           <div className="flex gap-2 items-center">
-            <span className="font-medium bg-blue-500 text-white px-4 py-2 rounded">
+            <span className="font-medium bg-blue-500 text-white px-4 py-2 rounded-full">
               Sub Total:
             </span>
             <span className="font-bold text-lg w-32 text-right">
@@ -301,10 +301,10 @@ export default function GRNForm() {
         </div>
 
         <div className="flex justify-end gap-4">
-          <button className="px-2 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-md shadow-sm">
+          <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-full shadow-sm">
             Create GRN
           </button>
-          <button className="px-2 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-md shadow-sm">
+          <button className="px-4 py-2 bg-red-400 hover:bg-red-600 text-white font-medium rounded-full shadow-sm">
             Cancel
           </button>
         </div>

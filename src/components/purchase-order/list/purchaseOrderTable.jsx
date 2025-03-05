@@ -3,11 +3,11 @@
 import { useState } from "react";
 import {
   Search,
-  Filter,
   Trash2,
   Send,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import InvoiceDetailsModal from "./purchaseOrderDetails";
 
@@ -109,7 +109,7 @@ export default function PurchaseOrderTable() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4">
+    <div className="w-full  mx-auto p-4 bg-white rounded-lg shadow-md">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Purchase Orders</h1>
         <button
@@ -119,7 +119,6 @@ export default function PurchaseOrderTable() {
           Create New Order
         </button>
       </div>
-
       <div className="flex items-center space-x-2 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
@@ -131,18 +130,11 @@ export default function PurchaseOrderTable() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button className="p-2 border rounded-md hover:bg-gray-100">
-          <Filter className="h-4 w-4" />
-        </button>
       </div>
-
       <div className="border rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="w-[50px] px-6 py-3 text-left">
-                <input type="checkbox" className="rounded" />
-              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Invoice No
               </th>
@@ -166,9 +158,6 @@ export default function PurchaseOrderTable() {
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedOrders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <input type="checkbox" className="rounded" />
-                </td>
                 <td className="px-6 py-4 whitespace-nowrap font-medium">
                   <button
                     className="text-blue-500 hover:text-blue-700"
@@ -214,17 +203,6 @@ export default function PurchaseOrderTable() {
                     >
                       <Send className="h-4 w-4" />
                     </button>
-                    {/* <div className="relative">
-                      <button
-                        className="text-gray-500 hover:text-gray-700"
-                        onClick={() => {
-                          // In a real app, you would implement a dropdown menu here
-                          alert("More options would appear here");
-                        }}
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
-                    </div> */}
                   </div>
                 </td>
               </tr>
@@ -232,7 +210,6 @@ export default function PurchaseOrderTable() {
           </tbody>
         </table>
       </div>
-
       {/* Confirmation Dialog for Delete */}
       {confirmDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -259,7 +236,6 @@ export default function PurchaseOrderTable() {
           </div>
         </div>
       )}
-
       {/* Confirmation Dialog for Send Email */}
       {sendEmail && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -286,44 +262,46 @@ export default function PurchaseOrderTable() {
           </div>
         </div>
       )}
-
       <div className="flex items-center justify-between mt-4">
         <div className="text-sm text-gray-500">
-          Rows per page:
-          <select
-            className="ml-2 border rounded p-1"
-            value={rowsPerPage}
-            onChange={(e) => setRowsPerPage(Number(e.target.value))}
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-          </select>
-        </div>
-        <div className="text-sm text-gray-500">
-          {startIndex + 1}-
+          Showing {startIndex + 1} to{" "}
           {Math.min(startIndex + rowsPerPage, filteredOrders.length)} of{" "}
-          {filteredOrders.length}
+          {filteredOrders.length} results
         </div>
-        <div className="flex items-center space-x-2">
-          <button
-            className="p-2 border rounded-md hover:bg-gray-100 disabled:opacity-50"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            className="p-2 border rounded-md hover:bg-gray-100 disabled:opacity-50"
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <select
+              className="appearance-none bg-white border rounded-md pl-3 pr-8 py-2 text-sm hover:border-gray-400 focus:outline-none focus:border-blue-500"
+              value={rowsPerPage}
+              onChange={(e) => setRowsPerPage(Number(e.target.value))}
+            >
+              <option value={5}>5 per page</option>
+              <option value={10}>10 per page</option>
+              <option value={20}>20 per page</option>
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none text-gray-500" />
+          </div>
+          <div className="flex items-center border rounded-md divide-x">
+            <button
+              className="p-2 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <div className="px-4 py-2 text-sm">{currentPage}</div>
+            <button
+              className="p-2 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
-      </div>
+      </div>{" "}
       <InvoiceDetailsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
