@@ -3,64 +3,50 @@ import image from '../../assets/images/sec.jpg';
 import {useAuth} from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../config/routes';
-import axios from 'axios';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth();
 
+  
   const navigate = useNavigate();
 
-const getDashboardPath = (role) => {
-    const rolePaths = {
-      ADMIN: ROUTES.PROTECTED.DASHBOARD.ADMIN,
-      INVENTORY: ROUTES.PROTECTED.DASHBOARD.INVENTORY,
-      SALES: ROUTES.PROTECTED.DASHBOARD.SALES,
-    };
-    return rolePaths[role.toUpperCase()] || ROUTES.PUBLIC.LOGIN;
-  };
-
-
-const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post('http://localhost:8085/authentication', {
-        username,
-        password
-      },{
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-  
-      const { jwtToken, role, username: responseUsername } = response.data;
-      
-      sessionStorage.setItem('user', JSON.stringify({
-        user: {
-          token: jwtToken,
-          username: responseUsername,
-          role,
-        },
-        expiresAt: Date.now() + 3600000
-      }));
+    // Mock authentication and role assignment
+    // const mockUsers = {
+    //   admin: 'admin',
+    //   inventory: 'inventory',
+    //   sales: 'sales',
+    // };
 
-      login({
-        username: responseUsername,
-        role,
-        token: jwtToken
-      });
-      const dashboardPath = getDashboardPath(role);
-      // Redirect based on role
-      navigate(dashboardPath);
-    }catch (error) {
-        console.error('Login error:', error);
-        alert(
-          error.response?.data?.message || 
-          'Login failed. Please check your credentials and try again.'
-        );
-    }
+    const mockUsers = [
+        { username: 'admin', password: 'admin123', role: 'admin' },
+        { username: 'inventory', password: 'inventory123', role: 'inventory' },
+        { username: 'sales', password: 'sales123', role: 'sales' },
+      ];
+
+      const user = mockUsers.find(
+        (u) => u.username === username && u.password === password
+      );
+
+    // if (mockUsers[username] && password === 'password') {
+    //   const role = mockUsers[username];
+    //   setUser({ username, role }); // Save the logged-in user and their role
+
+    if (user) {
+        login(user);
+        navigate(ROUTES.PROTECTED.DASHBOARD[user.role.toUpperCase()]);
+  
+
+      // Redirect to the appropriate dashboard based on role
+      
+  } else {
+    alert('Invalid credentials!');
+  }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-4 ">
