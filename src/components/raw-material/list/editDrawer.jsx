@@ -106,6 +106,7 @@ export default function EditDrawer({
             ))}
           </Select>
         </FormControl>
+
         <TextField
           label="Price"
           name="price"

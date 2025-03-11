@@ -3,12 +3,17 @@
 import { useState } from "react";
 import {
   Search,
+  Filter,
   Trash2,
   Send,
+  MoreVertical,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  Edit,
 } from "lucide-react";
+
+import PurchaseOrderEdit from "./purchaseOrderEdit";
 import InvoiceDetailsModal from "./purchaseOrderDetails";
 
 export default function PurchaseOrderTable() {
@@ -19,6 +24,8 @@ export default function PurchaseOrderTable() {
   const [sendEmail, setSendEmail] = useState(null);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editInvoice, setEditInvoice] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Mock data
   const [purchaseOrders, setPurchaseOrders] = useState([
@@ -108,17 +115,28 @@ export default function PurchaseOrderTable() {
     setIsModalOpen(true);
   };
 
+  const handleEditClick = (order) => {
+    setEditInvoice(order);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = (updatedInvoice) => {
+    setPurchaseOrders(
+      purchaseOrders.map((po) =>
+        po.id === updatedInvoice.id ? updatedInvoice : po
+      )
+    );
+  };
+
   return (
-    <div className="w-full  mx-auto p-4 bg-white rounded-lg shadow-md">
+    <div className="w-full max-w-6xl mx-auto p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Purchase Orders</h1>
-        <button
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-          onClick={() => (window.location.href = "/purchase-order/add")}
-        >
+        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
           Create New Order
         </button>
       </div>
+
       <div className="flex items-center space-x-2 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
@@ -130,11 +148,18 @@ export default function PurchaseOrderTable() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <button className="p-2 border rounded-md hover:bg-gray-100">
+          <Filter className="h-4 w-4" />
+        </button>
       </div>
+
       <div className="border rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
+              <th className="w-[50px] px-6 py-3 text-left">
+                <input type="checkbox" className="rounded" />
+              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Invoice No
               </th>
@@ -158,6 +183,9 @@ export default function PurchaseOrderTable() {
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedOrders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <input type="checkbox" className="rounded" />
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap font-medium">
                   <button
                     className="text-blue-500 hover:text-blue-700"
@@ -184,6 +212,14 @@ export default function PurchaseOrderTable() {
                 <td className="px-6 py-4 whitespace-nowrap">${order.total}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <div className="flex justify-end space-x-2">
+                    {order.status === "pending" && (
+                      <button
+                        className="text-blue-500 hover:text-blue-700"
+                        onClick={() => handleEditClick(order)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                    )}
                     <button
                       className="text-red-500 hover:text-red-700"
                       onClick={() => setConfirmDelete(order.id)}
@@ -203,6 +239,17 @@ export default function PurchaseOrderTable() {
                     >
                       <Send className="h-4 w-4" />
                     </button>
+                    <div className="relative">
+                      <button
+                        className="text-gray-500 hover:text-gray-700"
+                        onClick={() => {
+                          // In a real app, you would implement a dropdown menu here
+                          alert("More options would appear here");
+                        }}
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -210,6 +257,7 @@ export default function PurchaseOrderTable() {
           </tbody>
         </table>
       </div>
+
       {/* Confirmation Dialog for Delete */}
       {confirmDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -236,6 +284,7 @@ export default function PurchaseOrderTable() {
           </div>
         </div>
       )}
+
       {/* Confirmation Dialog for Send Email */}
       {sendEmail && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -262,6 +311,7 @@ export default function PurchaseOrderTable() {
           </div>
         </div>
       )}
+
       <div className="flex items-center justify-between mt-4">
         <div className="text-sm text-gray-500">
           Showing {startIndex + 1} to{" "}
@@ -301,11 +351,21 @@ export default function PurchaseOrderTable() {
             </button>
           </div>
         </div>
-      </div>{" "}
+      </div>
+
+      {/* View Invoice Modal */}
       <InvoiceDetailsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         invoice={selectedInvoice}
+      />
+
+      {/* Edit Invoice Modal */}
+      <PurchaseOrderEdit
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        invoice={editInvoice}
+        onSave={handleSaveEdit}
       />
     </div>
   );
