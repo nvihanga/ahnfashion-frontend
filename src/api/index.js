@@ -35,6 +35,6 @@ const createApi = (basePath) => {
 };
 
 export default createApi;
-export const notificationApi = createApi('notifications');
+
 export const authApi = createApi('auth');
 export const userApi = createApi('user');

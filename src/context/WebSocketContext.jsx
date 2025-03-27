@@ -1,13 +1,15 @@
-import { createContext, useContext, useEffect, useRef } from 'react';
-import { Client } from '@stomp/stompjs';
+// src/context/WebSocketContext.jsx
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 import { useAuth } from '../hooks/useAuth';
 
-const WebSocketContext = createContext();
+const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ children }) => {
+  const [stompClient, setStompClient] = useState(null);
+  const [notifications, setNotifications] = useState([]);
   const { user } = useAuth();
-  const clientRef = useRef(null);
 
   useEffect(() => {
     if (user?.token) {
@@ -16,30 +18,29 @@ export const WebSocketProvider = ({ children }) => {
         connectHeaders: {
           Authorization: `Bearer ${user.token}`
         },
-        debug: (str) => console.log(str),
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000,
-        onConnect: () => {
-          console.log('WebSocket Connected');
-        },
-        onStompError: (frame) => {
-          console.error('WebSocket Error:', frame.headers.message);
-        }
       });
 
-      clientRef.current = client;
+      client.onConnect = () => {
+        client.subscribe('/topic/notifications', (message) => {
+          const newNotification = JSON.parse(message.body);
+          setNotifications(prev => [newNotification, ...prev]);
+        });
+      };
+
       client.activate();
+      setStompClient(client);
 
       return () => {
         client.deactivate();
-        clientRef.current = null;
       };
     }
-  }, [user]);
+  }, [user?.token]);
 
   return (
-    <WebSocketContext.Provider value={clientRef.current}>
+    <WebSocketContext.Provider value={{ notifications, setNotifications }}>
       {children}
     </WebSocketContext.Provider>
   );
