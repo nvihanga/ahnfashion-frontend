@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { useAuth } from '../hooks/useAuth';
+import { useLocation } from 'react-router-dom';
 
 const WebSocketContext = createContext(null);
 
@@ -10,6 +11,11 @@ export const WebSocketProvider = ({ children }) => {
   const [stompClient, setStompClient] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const { user } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    setNotifications([]);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (user?.token) {
@@ -26,7 +32,14 @@ export const WebSocketProvider = ({ children }) => {
       client.onConnect = () => {
         client.subscribe('/topic/notifications', (message) => {
           const newNotification = JSON.parse(message.body);
-          setNotifications(prev => [newNotification, ...prev]);
+          const userRole = user.role.toUpperCase(); // Match backend role format
+          const notificationRoles = newNotification.roles
+            ? newNotification.roles.split(',').map(role => role.trim().toUpperCase())
+            : [];
+
+          if (userRole === 'ADMIN' || notificationRoles.includes(userRole)) {
+            setNotifications(prev => [newNotification, ...prev]);
+          }
         });
       };
 
