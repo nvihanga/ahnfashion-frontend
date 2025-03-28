@@ -118,6 +118,11 @@ const Sidebar = () => {
             path: ROUTES.PROTECTED.FINISHED_GOODS.STOCK_ADD,
             icon: <ImPlus className="text-[13px]" />,
           },
+          {
+            label: "History",
+            path: ROUTES.PROTECTED.FINISHED_GOODS.HISTORY,
+            icon: <ImPlus className="text-[13px]" />,
+          },
         ],
       },
       {
