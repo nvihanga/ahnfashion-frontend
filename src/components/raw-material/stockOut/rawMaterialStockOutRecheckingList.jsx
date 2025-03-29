@@ -1,5 +1,6 @@
 import {
   IconButton,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -9,19 +10,31 @@ import {
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { MdDelete } from "react-icons/md";
+import DialogBox from "../list/dialogBox";
+import { useState } from "react";
 
 const RawMaterialStockAddRecheckingList = ({ stockList, setStockList }) => {
   const handleDeleteClick = (stock) => {
     const updatedStockList = stockList.filter((obj) => obj !== stock);
     setStockList(updatedStockList);
+    setDialogBoxOpen(false);
   };
+
+  const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
+  const [selectItem, setSelectItem] = useState(null);
+
+  const handleDialogBoxOpen = (stock) => {
+    setDialogBoxOpen(true);
+    setSelectItem(stock);
+  };
+
   return (
     <>
       <div className="mt-5 border-gray-200 border-2">
-        <TableContainer>
+        <TableContainer component={Paper} elevation={3}>
           <Table width={100}>
             <TableHead>
-              <TableRow>
+              <TableRow style={{ backgroundColor: "#f5f5f5" }}>
                 <TableCell>
                   <strong>PRODUCT ID</strong>
                 </TableCell>
@@ -41,7 +54,7 @@ const RawMaterialStockAddRecheckingList = ({ stockList, setStockList }) => {
             </TableHead>
             <TableBody>
               {stockList.map((stock, index) => (
-                <TableRow key={stockList.id}>
+                <TableRow key={stockList.id} style={{ cursor: "pointer" }}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{stock.productName}</TableCell>
                   <TableCell>
@@ -57,7 +70,7 @@ const RawMaterialStockAddRecheckingList = ({ stockList, setStockList }) => {
                     <IconButton
                       color="error"
                       id="delete"
-                      onClick={() => handleDeleteClick(stock)}
+                      onClick={() => handleDialogBoxOpen(stock)}
                     >
                       <MdDelete />
                     </IconButton>
@@ -68,6 +81,12 @@ const RawMaterialStockAddRecheckingList = ({ stockList, setStockList }) => {
           </Table>
         </TableContainer>
       </div>
+      <DialogBox
+        openProp={dialogBoxOpen}
+        onCloseProp={() => setDialogBoxOpen(false)}
+        selectedItemProp={selectItem}
+        handleDeleteProp={() => handleDeleteClick(selectItem)}
+      />
     </>
   );
 };

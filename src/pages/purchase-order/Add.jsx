@@ -1,9 +1,9 @@
-import InvoiceInformation from "../../components/purchase-order/InvoiceInformation";
+import InvoiceInformation from "../../components/purchase-order/add/InvoiceInformation";
 
 const Add = () => {
   return (
-    <div>
-      <InvoiceInformation />
+    <div className="m-8">
+      <InvoiceInformation />s
     </div>
   );
 };

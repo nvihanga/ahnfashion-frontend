@@ -9,9 +9,15 @@ export const ProtectedRoutes = ({ allowedRoles }) => {
     const { user, loading } = useAuth();
     const location = useLocation();
 
+    
+
     if (loading) return <LoadingSpinner fullScreen />
     
-    if (!allowedRoles.includes(user.role)) {
+    if(!user) {
+        return <Navigate to={ROUTES.PUBLIC.LOGIN} replace />
+    }
+
+    if (!allowedRoles.includes(user.role.toLowerCase())) {
         return <Navigate to={ROUTES.PUBLIC.NOT_FOUND} replace />
     }
     return (

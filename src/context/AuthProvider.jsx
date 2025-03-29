@@ -27,19 +27,23 @@ export const AuthProvider = ({ children }) => {
         initializeAuth();
     }, []);
 
-    const login = (userData) => {
-        // localStorage.setItem('user', JSON.stringify(userData));
-        // setUser(userData);
-
-        const expiresAt = Date.now() + 3600000;
-        const authData = { user: userData, expiresAt };
-        // localStorage.setItem('user', JSON.stringify(authData));
-        sessionStorage.setItem('user', JSON.stringify(authData));
-        setUser(userData);
+    
+const login = (userData) => {
+    const normalizedUser = {
+      ...userData,
+      role: userData.role.toLowerCase() // Convert to lowercase
     };
-
+    
+    sessionStorage.setItem('user', JSON.stringify({
+      user: normalizedUser,
+      expiresAt: Date.now() + 3600000,
+      token: localStorage.getItem('token')
+    }));
+    setUser(normalizedUser);
+  };
     const logout = () => {
-        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         setUser(null);
     };
 

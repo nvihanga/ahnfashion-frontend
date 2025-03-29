@@ -17,7 +17,7 @@ const ViewUserModal = ({ isOpen, onClose, user }) => {
             <div>
               <label className="block text-sm font-medium mb-1">User ID</label>
               <div className="w-full p-2 border rounded bg-gray-100">
-                {user?.id}
+                {user?.userId || 'N/A'}
               </div>
             </div>
             <div>
@@ -59,28 +59,30 @@ const ViewUserModal = ({ isOpen, onClose, user }) => {
             <div>
               <label className="block text-sm font-medium mb-1">Created At</label>
               <div className="w-full p-2 border rounded bg-gray-100">
-                {new Date(user?.createdAt).toLocaleDateString()}
+                {user?.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A'}
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Updated At</label>
               <div className="w-full p-2 border rounded bg-gray-100">
-                {new Date(user?.updatedAt).toLocaleDateString()}
+                {user?.updatedAt ? new Date(user.updatedAt).toLocaleString() : 'N/A'}
               </div>
             </div>
           </div>
         </div>
 
-        <Box display="flex"  alignItems="right" mb={3} mt={-5} px={42}>
-
-        <div className="mt-4 flex justify-end"> 
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-          >
-            Close
-          </button>
-        </div>
+        <Box sx={{
+          padding: 2,
+          backgroundColor: 'white'
+        }}>
+          <div className="flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            >
+              Close
+            </button>
+          </div>
         </Box>
       </Box>
     </Drawer>
