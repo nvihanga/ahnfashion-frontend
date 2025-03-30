@@ -75,13 +75,13 @@ const NewItem = () => {
       <div className="flex flex-row justify-between gap-5">
         <h1 className="font-bold">Add New Item</h1>
         <div className="flex gap-5">
-          <Button
-            variant="contained"
+          <button
+            className="px-6 py-2 bg-blue-500 text-white rounded-full"
             onClick={handleAddNewItem}
             aria-label="Submit form"
           >
             Submit
-          </Button>
+          </button>
           <Button
             variant="outlined"
             onClick={handleReset}

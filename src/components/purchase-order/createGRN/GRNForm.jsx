@@ -283,7 +283,7 @@ export default function GRNForm() {
           ))}
         </div>
 
-        <div className="flex flex-col items-end gap-2 mb-6">
+        <div className="flex flex-col items-end gap-10 mb-6">
           <div className="flex gap-2 items-center">
             <span className="font-medium bg-blue-500 text-white px-4 py-2 rounded-full">
               Sub Total:
@@ -292,21 +292,19 @@ export default function GRNForm() {
               {subTotal.toFixed(2)}
             </span>
           </div>
-          <div className="flex gap-2 items-center">
-            <span className="font-medium">Grand Total:</span>
-            <span className="font-bold text-lg w-32 text-right">
-              {subTotal.toFixed(2)}
-            </span>
-          </div>
         </div>
 
-        <div className="flex justify-end gap-4">
-          <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-full shadow-sm">
-            Create GRN
-          </button>
-          <button className="px-4 py-2 bg-red-400 hover:bg-red-600 text-white font-medium rounded-full shadow-sm">
-            Cancel
-          </button>
+        <div className="flex justify-end gap-10 ">
+          <div>
+            <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-full shadow-sm">
+              Create GRN
+            </button>
+          </div>
+          <div className="text-right">
+            <button className="px-4 py-2 bg-red-400 hover:bg-red-600 text-white font-medium rounded-full shadow-sm">
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
     </div>

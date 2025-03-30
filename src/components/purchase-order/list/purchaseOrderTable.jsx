@@ -157,9 +157,6 @@ export default function PurchaseOrderTable() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="w-[50px] px-6 py-3 text-left">
-                <input type="checkbox" className="rounded" />
-              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Invoice No
               </th>
@@ -183,9 +180,6 @@ export default function PurchaseOrderTable() {
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedOrders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <input type="checkbox" className="rounded" />
-                </td>
                 <td className="px-6 py-4 whitespace-nowrap font-medium">
                   <button
                     className="text-blue-500 hover:text-blue-700"
