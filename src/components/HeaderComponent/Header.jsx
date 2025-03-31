@@ -1,24 +1,24 @@
-import React, { useState,useContext } from 'react'
-import { Routes, useNavigate,Navigate } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Badge from '@mui/material/Badge';
 import IconButton from '@mui/material/IconButton';
-import { AiOutlineMenuFold } from "react-icons/ai";
-import { AiOutlineMenuUnfold } from "react-icons/ai";
-import { FaRegBell } from "react-icons/fa6";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
-import { IoMdLogOut } from "react-icons/io";
+import { AiOutlineMenuFold, AiOutlineMenuUnfold } from 'react-icons/ai';
+import { FaRegBell } from 'react-icons/fa6';
+import { IoMdLogOut } from 'react-icons/io';
 import { AppContext } from '../../context/AppProvider';
 import { ROUTES } from '../../config/routes';
 import { useAuth } from '../../hooks/useAuth';
 
 const Header = () => {
-    const [anchorMyAcc, setAnchorMyAcc] = React.useState(null);
+    const [anchorMyAcc, setAnchorMyAcc] = useState(null);
     const openMyAcc = Boolean(anchorMyAcc);
-    const {logout} = useAuth();
+    const { logout } = useAuth();
     const navigate = useNavigate();
+    const context = useContext(AppContext);
     const {user} = useAuth();
     const handleClickMyAcc = (event) => {
         setAnchorMyAcc(event.currentTarget);
@@ -27,16 +27,13 @@ const Header = () => {
         setAnchorMyAcc(null);
     };
 
-    const context = useContext(AppContext);
-
     const handleSignOut = () => {
         logout();
-        //navigate(ROUTES.PUBLIC.LOGIN);
+        navigate(ROUTES.PUBLIC.LOGIN);
     };
 
-    
-
     return (
+
         <>
             <style>
                 {`
@@ -122,12 +119,36 @@ const Header = () => {
                             </MenuItem>
                         </Menu>
                     </div>
+                    <Menu
+                        anchorEl={anchorMyAcc}
+                        open={openMyAcc}
+                        onClose={handleCloseMyAcc}
+                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                        sx={{ mt: 1 }}
+                    >
+                        <MenuItem onClick={handleCloseMyAcc}>
+                            <div className='flex items-center gap-3'>
+                                <div className='w-9 h-9 rounded-full overflow-hidden'>
+                                    <img src='https://www.w3schools.com/howto/img_avatar.png' alt='profile' className='w-full h-full object-cover' />
+                                </div>
+                                <div>
+                                    <h3 className='text-sm font-medium'>John Doe</h3>
+                                    <p className='text-xs text-gray-500'>Admin</p>
+                                </div>
+                            </div>
+                        </MenuItem>
+                        <Divider />
+                        <MenuItem onClick={handleSignOut} className='flex items-center gap-2'>
+                            <IoMdLogOut className='text-lg' />
+                            <span className='text-sm'>Sign Out</span>
+                        </MenuItem>
+                    </Menu>
                 </div>
-
-            </header>
-        </>
-    )
-}
+            </div>
+        </header>
+    );
+};
 
 export default Header
 
