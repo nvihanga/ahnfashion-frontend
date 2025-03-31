@@ -224,20 +224,16 @@ function InvoiceInformation() {
         ))}
       </div>
 
-      <div className="flex flex-col items-end mb-6">
+      <div className="flex flex-col items-end mb-6 font-bold">
         <div className="w-full max-w-xs">
           <div className="flex justify-between py-2">
             <span>Sub Total:</span>
-            <span>{subTotal}</span>
-          </div>
-          <div className="flex justify-between py-2 font-bold">
-            <span>Grand Total:</span>
-            <span>{grandTotal.toFixed(2)}</span>
+            <span>{subTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-end gap-4">
+      <div className="flex justify-end gap-24">
         <button
           className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
           onClick={handleCreate}
