@@ -23,9 +23,12 @@ const SupplierForm = () => {
     updatedPhones[index] = value;
     setSupplier((prev) => ({ ...prev, phoneNumbers: updatedPhones }));
   };
-  //   const addPhoneNumber=()=>{
-  //   setSupplier((prev) => ({ ...prev, phoneNumbers: [...prev.phoneNumbers, ""] }));
-  // };
+
+
+    const addPhoneNumber=()=>{
+    setSupplier((prev) => ({ ...prev, phoneNumbers: [...prev.phoneNumbers, ""] }));
+  };
+
   const removePhoneNumber = (index) => {
     setSupplier((prev) => ({
       ...prev,
@@ -127,9 +130,12 @@ const SupplierForm = () => {
            error={!!errors.phoneNumbers}
            helperText={errors.phoneNumbers}
          />
-         {/* <IconButton color="primary" onClick={addPhoneNumber}>
+
+
+         
+         <IconButton color="primary" onClick={addPhoneNumber}>
             <Add />
-          </IconButton> */}
+          </IconButton>
           {supplier.phoneNumbers.length > 1 && (
             <IconButton color="secondary" onClick={() => removePhoneNumber(index)}>
               <Remove />

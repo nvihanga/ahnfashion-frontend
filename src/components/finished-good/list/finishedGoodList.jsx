@@ -1,4 +1,3 @@
-
 import {
   IconButton,
   Table,
@@ -11,8 +10,11 @@ import {
   Paper,
   Typography,
   CircularProgress,
+  Grid,
+  Collapse,
+  Box,
 } from "@mui/material";
-import { MdEdit, MdDelete } from "react-icons/md";
+import { MdEdit, MdDelete, MdExpandMore, MdExpandLess } from "react-icons/md";
 import EditDrawer from "./editDrawer";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -24,6 +26,7 @@ const FinishedGoodList = () => {
   const [finishedGoods, setFinishedGoods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [expandedRow, setExpandedRow] = useState(null);
 
   useEffect(() => {
     fetchFinishedGoods();
@@ -33,13 +36,7 @@ const FinishedGoodList = () => {
     try {
       setLoading(true);
       const response = await axios.get("http://localhost:8085/api/v1/finishedGood/all");
-      setFinishedGoods(
-        response.data.map((item) => ({
-          ...item,
-          finishPrice: parseFloat(item.finishPrice),
-          calculatedSize: getSizeFromStyleNumber(item.finishItemNo),
-        }))
-      );
+      setFinishedGoods(response.data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching finished goods:", error);
@@ -48,13 +45,9 @@ const FinishedGoodList = () => {
     }
   };
 
-  const getSizeFromStyleNumber = (styleNumber) => {
-    if (styleNumber.includes("S")) return "S";
-    if (styleNumber.includes("M")) return "M";
-    if (styleNumber.includes("L")) return "L";
-    if (styleNumber.includes("XL")) return "XL";
-    if (styleNumber.includes("XXL")) return "XXL";
-    return "Unknown";
+  const calculateTotalVariantQuantity = (variants) => {
+    if (!variants) return 0;
+    return variants.reduce((total, variant) => total + (variant.quantityInStock || 0), 0);
   };
 
   const handleEditClick = (item) => {
@@ -80,12 +73,26 @@ const FinishedGoodList = () => {
 
   const handleSave = async (updatedItem) => {
     try {
-      await axios.put(`http://localhost:8085/api/v1/finishedGood/update/${updatedItem.finishId}`, updatedItem);
-      setFinishedGoods((prevGoods) =>
-        prevGoods.map((item) =>
-          item.finishId === updatedItem.finishId
-            ? { ...updatedItem, finishPrice: parseFloat(updatedItem.finishPrice) }
-            : item
+      const requestBody = {
+        finishName: updatedItem.finishName,
+        finishDescription: updatedItem.finishDescription,
+        finishedGoodVariants: updatedItem.finishedGoodVariants.map(variant => ({
+          size: variant.size,
+          quantityInStock: Number(variant.quantityInStock),
+          unitPrice: Number(variant.unitPrice)
+        }))
+      };
+
+      await axios.put(
+        `http://localhost:8085/api/v1/finishedGood/update/${updatedItem.finishId}`,
+        requestBody
+      );
+
+      setFinishedGoods(prevGoods =>
+        prevGoods.map(item =>
+          item.finishId === updatedItem.finishId ? 
+          { ...item, ...requestBody, finishedGoodVariants: updatedItem.finishedGoodVariants } : 
+          item
         )
       );
       setDrawerOpen(false);
@@ -99,27 +106,35 @@ const FinishedGoodList = () => {
     setSearch(event.target.value.toLowerCase());
   };
 
+  const handleRowExpand = (finishId) => {
+    setExpandedRow(expandedRow === finishId ? null : finishId);
+  };
+
   const filteredGoods = finishedGoods.filter(
     (item) =>
       item.finishName.toLowerCase().includes(search) ||
-      item.finishItemNo.toLowerCase().includes(search)
+      item.finishId.toString().toLowerCase().includes(search)
   );
 
   return (
     <div className="p-6">
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" gutterBottom className="text-center md:text-left">
         Finished Goods Inventory
       </Typography>
 
-      <TextField
-        id="search"
-        label="Search by Style Number or Name"
-        variant="outlined"
-        value={search}
-        onChange={handleSearch}
-        fullWidth
-        margin="normal"
-      />
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={12} sm={8}>
+          <TextField
+            id="search"
+            label="Search by Style Number or Name"
+            variant="outlined"
+            value={search}
+            onChange={handleSearch}
+            fullWidth
+            margin="normal"
+          />
+        </Grid>
+      </Grid>
 
       {loading ? (
         <div className="flex justify-center mt-4">
@@ -128,45 +143,108 @@ const FinishedGoodList = () => {
       ) : error ? (
         <Typography color="error">{error}</Typography>
       ) : (
-        <TableContainer component={Paper} elevation={3} className="mt-4">
-          <Table>
-            <TableHead>
-              <TableRow style={{ backgroundColor: "#f5f5f5" }}>
-                <TableCell><b>NO</b></TableCell>
-                <TableCell><b>STYLE NUMBER</b></TableCell>
-                <TableCell><b>NAME</b></TableCell>
-                <TableCell><b>DESCRIPTION</b></TableCell>
-                <TableCell><b>SIZE</b></TableCell>
-                <TableCell><b>QUANTITY IN STOCK</b></TableCell>
-                <TableCell><b>UNIT PRICE</b></TableCell>
-                <TableCell align="center"><b>ACTION</b></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredGoods.map((good, index) => (
-                <TableRow key={good.finishId} hover>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{good.finishItemNo}</TableCell>
-                  <TableCell>{good.finishName}</TableCell>
-                  <TableCell>{good.finishDescription}</TableCell>
-                  <TableCell>{good.calculatedSize}</TableCell>
-                  <TableCell>{good.finishQuantity}</TableCell>
-                  <TableCell>
-                    Rs. {good.finishPrice.toFixed(2)}
-                  </TableCell>
-                  <TableCell align="center">
-                    <IconButton color="info" onClick={() => handleEditClick(good)}>
-                      <MdEdit />
-                    </IconButton>
-                    <IconButton color="error" onClick={() => handleDeleteClick(good)}>
-                      <MdDelete />
-                    </IconButton>
-                  </TableCell>
+        <div className="overflow-x-auto">
+          <TableContainer component={Paper} elevation={3} className="mt-4">
+            <Table>
+              <TableHead>
+                <TableRow style={{ backgroundColor: "#f5f5f5" }}>
+                  <TableCell></TableCell>
+                  {/* <TableCell><b>NO</b></TableCell> */}
+                  <TableCell><b>STYLE NUMBER</b></TableCell>
+                  <TableCell><b>NAME</b></TableCell>
+                  <TableCell><b>DESCRIPTION</b></TableCell>
+                  <TableCell><b>TOTAL QUANTITY</b></TableCell>
+                  <TableCell align="center"><b>ACTION</b></TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {filteredGoods.map((good, index) => {
+                  const totalQuantity = calculateTotalVariantQuantity(good.finishedGoodVariants);
+                  
+                  return (
+                    <>
+                      <TableRow 
+                        key={good.finishId} 
+                        hover 
+                        onClick={() => handleRowExpand(good.finishId)}
+                        sx={{ cursor: 'pointer' }}
+                      >
+                        <TableCell>
+                          {expandedRow === good.finishId ? <MdExpandLess /> : <MdExpandMore />}
+                        </TableCell>
+                        {/* <TableCell>{index + 1}</TableCell> */}
+                        <TableCell>{good.finishId}</TableCell>
+                        <TableCell>{good.finishName}</TableCell>
+                        <TableCell>{good.finishDescription}</TableCell>
+                        <TableCell>{totalQuantity}</TableCell>
+                        <TableCell align="center" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center space-x-2">
+                            <IconButton 
+                              color="info" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditClick(good);
+                              }}
+                            >
+                              <MdEdit />
+                            </IconButton>
+                            <IconButton 
+                              color="error" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteClick(good);
+                              }}
+                            >
+                              <MdDelete />
+                            </IconButton>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                      
+                      <TableRow>
+                        <TableCell style={{ padding: 0 }} colSpan={7}>
+                          <Collapse in={expandedRow === good.finishId} timeout="auto" unmountOnExit>
+                            <Box sx={{ margin: 1, backgroundColor: '#f8f9fa' }}>
+                              <Typography variant="h6" gutterBottom component="div">
+                                Variant Details
+                              </Typography>
+                              <Table size="small">
+                                <TableHead>
+                                  <TableRow>
+                                    <TableCell><b>Size</b></TableCell>
+                                    <TableCell><b>Quantity</b></TableCell>
+                                    <TableCell><b>Unit Price</b></TableCell>
+                                  </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                  {good.finishedGoodVariants && good.finishedGoodVariants.length > 0 ? (
+                                    good.finishedGoodVariants.map((variant) => (
+                                      <TableRow key={variant.variantID}>
+                                        <TableCell>{variant.size}</TableCell>
+                                        <TableCell>{variant.quantityInStock}</TableCell>
+                                        <TableCell>Rs. {variant.unitPrice?.toFixed(2)}</TableCell>
+                                      </TableRow>
+                                    ))
+                                  ) : (
+                                    <TableRow>
+                                      <TableCell colSpan={3} align="center">
+                                        No variants available
+                                      </TableCell>
+                                    </TableRow>
+                                  )}
+                                </TableBody>
+                              </Table>
+                            </Box>
+                          </Collapse>
+                        </TableCell>
+                      </TableRow>
+                    </>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
       )}
 
       {selectedItem && (
