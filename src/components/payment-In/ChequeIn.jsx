@@ -44,6 +44,13 @@ const ChequeIn = () => {
     { id: '353808', amount: 9593.10, status: 'pending', reason: 'INV7371 direct cheque payment', placeDate: '2024-10-09', chequeDate: '2024-10-23' },
   ]);
 
+  // State for search query
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // State for date range
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
   // State for notification
   const [notification, setNotification] = useState({
     open: false,
@@ -179,6 +186,18 @@ const ChequeIn = () => {
     });
   };
 
+  // Filter cheques based on search query and date range
+  const filteredCheques = cheques.filter(cheque => {
+    const chequeDate = new Date(cheque.placeDate);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const matchesSearch = cheque.id.includes(searchQuery) || cheque.reason.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDateRange = (!startDate || chequeDate >= start) && (!endDate || chequeDate <= end);
+
+    return matchesSearch && matchesDateRange;
+  });
+
   return (
     <div className="p-4 mx-auto max-w-7xl">
       {/* Summary Cards */}
@@ -255,12 +274,14 @@ const ChequeIn = () => {
       {/* Filter Section */}
       <Card variant="outlined">
         <CardContent className="flex items-center gap-6">
-        <FormControl size="small" className="w-52">
-        <TextField
-            size="small"
-            placeholder="Search Payment"
-            variant="outlined"
-            className="max-w-xs"
+          <FormControl size="small" className="w-52">
+            <TextField
+              size="small"
+              placeholder="Search Payment"
+              variant="outlined"
+              className="max-w-xs"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </FormControl>
           
@@ -269,6 +290,8 @@ const ChequeIn = () => {
             size="small"
             type="date"
             className="w-40"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
           />
           <Typography variant="body2" color="textSecondary">
             to
@@ -277,17 +300,19 @@ const ChequeIn = () => {
             size="small"
             type="date"
             className="w-40"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
           />
-            <Button 
-              variant="contained"
-              color="primary"
-            >
-              Show
-            </Button>
+          <Button 
+            variant="contained"
+            color="primary"
+          >
+            Show
+          </Button>
         </CardContent>
       </Card>
+
       {/* Cheques Table */}
-      
       <TableContainer component={Paper} variant="outlined" className="mt-6 shadow-sm">
         <Table>
           <TableHead>
@@ -302,7 +327,7 @@ const ChequeIn = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {cheques.map((cheque) => (
+            {filteredCheques.map((cheque) => (
               <TableRow key={cheque.id} hover>
                 <TableCell>{cheque.id}</TableCell>
                 <TableCell>Rs. {cheque.amount.toFixed(2)}</TableCell>
