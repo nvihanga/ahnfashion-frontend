@@ -1,24 +1,16 @@
 import {
   FormControl,
-  IconButton,
   InputLabel,
   Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   MenuItem,
-  Paper,
 } from "@mui/material";
-import { MdEdit } from "react-icons/md";
-import { MdDelete } from "react-icons/md";
+
 import EditDrawer from "./editDrawer";
 import { useState } from "react";
 import { rawMaterials } from "./data";
 import DialogBox from "./dialogBox";
+import { Edit, Trash2 } from "lucide-react";
 
 const Suppliers = [
   { id: 1, name: "Naturub Industries (Pvt) Ltd" },
@@ -102,6 +94,7 @@ const RawMaterialList = () => {
         <div className="">
           <h1 className="font-bold">Filters</h1>
         </div>
+
         <div className=" w-full">
           <div className="flex flex-row gap-5 gap-t-5 mt-5">
             <div className="w-1/3">
@@ -162,79 +155,82 @@ const RawMaterialList = () => {
         </div>
       </div>
 
-      <TableContainer component={Paper} elevation={3}>
-        <Table width={100}>
-          <TableHead>
-            <TableRow style={{ backgroundColor: "#f5f5f5" }}>
-              <TableCell>
-                <strong>NO</strong>
-              </TableCell>
-              <TableCell>
-                <strong>PRODUCT NAME</strong>
-              </TableCell>
-              <TableCell>
-                <strong>TYPE</strong>
-              </TableCell>
-              <TableCell>
-                <strong>QUANTITY</strong>
-              </TableCell>
-              <TableCell>
-                <strong>SUPPLIER</strong>
-              </TableCell>
-              <TableCell>
-                <strong>PRICE</strong>
-              </TableCell>
-              <TableCell align="center">
-                <strong>ACTION</strong>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      <div className="border rounded-lg overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                No
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Product Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Quantity
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Supplier
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Price
+              </th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
             {newRawMaterial.map((raw) => (
-              <TableRow key={raw.id} style={{ cursor: "pointer" }}>
-                <TableCell>{raw.id}</TableCell>
-                <TableCell>{raw.productName}</TableCell>
-                <TableCell>{raw.type}</TableCell>
-                <TableCell>{raw.quantity}</TableCell>
-                <TableCell>{raw.supplier}</TableCell>
-                <TableCell>Rs.{raw.price}</TableCell>
-                <TableCell align="center">
-                  <IconButton
-                    color="info"
-                    id="edit"
-                    onClick={() => handleEditClick(raw)}
-                  >
-                    <MdEdit />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    id="delete"
-                    onClick={() => handleDialogBoxOpen(raw)}
-                  >
-                    <MdDelete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
+              <tr key={raw.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">{raw.id}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {raw.productName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">{raw.type}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{raw.quantity}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{raw.supplier}</td>
+                <td className="px-6 py-4 whitespace-nowrap">Rs.{raw.price}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-right">
+                  <div className="flex justify-center space-x-2">
+                    <button
+                      className="text-blue-500 hover:text-blue-700"
+                      onClick={() => handleEditClick(raw)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleDialogBoxOpen(raw)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {selectedItem && (
-        <EditDrawer
-          newRawMaterial={newRawMaterial}
-          setNewRawMaterial={setNewRawMaterial}
-          open={drawerOpen}
-          onClose={handleDrawerClose}
-          item={selectedItem}
-          onSave={handleSave}
-        />
-      )}
-      <DialogBox
-        openProp={dialogBoxOpen}
-        onCloseProp={() => setDialogBoxOpen(false)}
-        selectedItemProp={selectedItem}
-        handleDeleteProp={() => handleDeleteClick(selectedItem)}
-      />
+          </tbody>
+
+          {selectedItem && (
+            <EditDrawer
+              newRawMaterial={newRawMaterial}
+              setNewRawMaterial={setNewRawMaterial}
+              open={drawerOpen}
+              onClose={handleDrawerClose}
+              item={selectedItem}
+              onSave={handleSave}
+            />
+          )}
+          <DialogBox
+            openProp={dialogBoxOpen}
+            onCloseProp={() => setDialogBoxOpen(false)}
+            selectedItemProp={selectedItem}
+            handleDeleteProp={() => handleDeleteClick(selectedItem)}
+          />
+        </table>
+      </div>
     </>
   );
 };
