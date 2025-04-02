@@ -10,6 +10,7 @@ const WebSocketContext = createContext(null);
 export const WebSocketProvider = ({ children }) => {
   const [stompClient, setStompClient] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
   const { user } = useAuth();
   const location = useLocation();
 
@@ -41,6 +42,14 @@ export const WebSocketProvider = ({ children }) => {
             setNotifications(prev => [newNotification, ...prev]);
           }
         });
+
+        client.subscribe('/topic/total-revenue', (message) => {
+          const revenue = parseFloat(message.body);
+          console.log('Received total revenue:', revenue); // Add logging for debugging
+          setTotalRevenue(revenue);
+        });
+        client.publish({ destination: '/app/request-total-revenue' });
+      
       };
 
       client.activate();
@@ -53,7 +62,7 @@ export const WebSocketProvider = ({ children }) => {
   }, [user?.token]);
 
   return (
-    <WebSocketContext.Provider value={{ notifications, setNotifications }}>
+    <WebSocketContext.Provider value={{ notifications, setNotifications,totalRevenue }}>
       {children}
     </WebSocketContext.Provider>
   );
