@@ -1,5 +1,5 @@
 const List = () => {
-  return <div>List of Purchase Order</div>;
+  return <div className="m-8">List</div>;
 };
 
 export default List;
