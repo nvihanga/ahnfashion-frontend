@@ -10,19 +10,28 @@ import {
   Collapse,
   Box,
   IconButton,
-  Typography
+  Typography,
 } from "@mui/material";
 import React, { useState } from "react";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 
-const FinishedGoodStockAddRecheckingList = ({ stockList = [] }) => {
+const SIZE_MAPPING = {
+  L: "L",
+  XL: "XL",
+  XXL: "2XL",
+  XXXL: "3XL",
+  XXXXL: "4XL",
+  XXXXXL: "5XL",
+};
+
+const FinishedGoodStockAddRecheckingList = ({ stockList = [], onRemove, onEdit }) => {
   const [expandedRow, setExpandedRow] = useState(null);
 
   const handleRowClick = (index) => {
     setExpandedRow(expandedRow === index ? null : index);
   };
 
-  if (stockList.length === 0) return null; // Hide the table when no data is available
+  if (stockList.length === 0) return null;
 
   return (
     <TableContainer component={Paper} sx={{ mt: 5 }}>
@@ -34,13 +43,12 @@ const FinishedGoodStockAddRecheckingList = ({ stockList = [] }) => {
             <TableCell>Description</TableCell>
             <TableCell>Quantity</TableCell>
             <TableCell>Date</TableCell>
-            <TableCell>Action</TableCell>
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {stockList.map((item, index) => (
             <React.Fragment key={index}>
-              {/* Main Row */}
               <TableRow onClick={() => handleRowClick(index)} style={{ cursor: "pointer" }}>
                 <TableCell>
                   <IconButton size="small">
@@ -52,11 +60,30 @@ const FinishedGoodStockAddRecheckingList = ({ stockList = [] }) => {
                 <TableCell>{item.quantity}</TableCell>
                 <TableCell>{item.date}</TableCell>
                 <TableCell>
-                  <Button variant="contained" color="secondary">Remove</Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent row expansion on button click
+                      onEdit(index);
+                    }}
+                    sx={{ mr: 1 }}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent row expansion on button click
+                      onRemove(index);
+                    }}
+                  >
+                    Remove
+                  </Button>
                 </TableCell>
               </TableRow>
 
-              {/* Expandable Row for Size Variants */}
               <TableRow>
                 <TableCell colSpan={6} style={{ paddingBottom: 0, paddingTop: 0 }}>
                   <Collapse in={expandedRow === index} timeout="auto" unmountOnExit>
@@ -72,9 +99,9 @@ const FinishedGoodStockAddRecheckingList = ({ stockList = [] }) => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {Object.entries(item.sizes || {}).map(([size, quantity]) => (
-                            <TableRow key={size}>
-                              <TableCell>{size}</TableCell>
+                          {Object.entries(item.sizes || {}).map(([displaySize, quantity]) => (
+                            <TableRow key={displaySize}>
+                              <TableCell>{displaySize}</TableCell>
                               <TableCell>{quantity}</TableCell>
                             </TableRow>
                           ))}

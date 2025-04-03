@@ -9,6 +9,15 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 
+const sizeMapping = {
+  "L": "L",
+  "XL": "XL",
+  "2XL": "2XL",
+  "3XL": "3XL",
+  "4XL": "4XL",
+  "5XL": "5XL"
+};
+
 const EditDrawer = ({ open, onClose, item, onSave }) => {
   const [updatedItem, setUpdatedItem] = useState(item);
   const theme = useTheme();
@@ -85,7 +94,7 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
         {updatedItem?.finishedGoodVariants?.map((variant, index) => (
           <Box key={index} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
             <Typography variant="body2" sx={{ mb: 1 }}>
-              Size: {variant.size}
+              Size: {sizeMapping[variant.size] || variant.size}
             </Typography>
             
             <TextField

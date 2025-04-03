@@ -2,6 +2,7 @@ import { Button, TextField, IconButton } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { useState } from "react";
 import axios from "axios";
+
 const initialSupplierState = {
   supplierCode: "",
   name: "",
@@ -10,22 +11,24 @@ const initialSupplierState = {
   address: "",
   notes: "",
 };
+
 const SupplierForm = () => {
   const [supplier, setSupplier] = useState(initialSupplierState);
   const [errors, setErrors] = useState({});
   const [editingSupplierId, setEditingSupplierId] = useState(null);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSupplier((prev) => ({ ...prev, [name]: value }));
   };
+
   const handlePhoneChange = (index, value) => {
     const updatedPhones = [...supplier.phoneNumbers];
     updatedPhones[index] = value;
     setSupplier((prev) => ({ ...prev, phoneNumbers: updatedPhones }));
   };
 
-
-    const addPhoneNumber=()=>{
+  const addPhoneNumber = () => {
     setSupplier((prev) => ({ ...prev, phoneNumbers: [...prev.phoneNumbers, ""] }));
   };
 
@@ -35,18 +38,40 @@ const SupplierForm = () => {
       phoneNumbers: prev.phoneNumbers.filter((_, i) => i !== index),
     }));
   };
+
   const validateForm = () => {
     let errors = {};
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    const phoneRegex = /^[0-9]{10}$/; // Assuming phone number should be 10 digits
+
     if (!supplier.supplierCode) errors.supplierCode = "Supplier Code is required";
     if (!supplier.name) errors.name = "Name is required";
-    if (!supplier.email) errors.email = "Email Address is required";
-    if (supplier.phoneNumbers.some((phone) => !phone)) errors.phoneNumbers = "Phone Number is required";
+    if (!supplier.email) {
+      errors.email = "Email Address is required";
+    } else if (!emailRegex.test(supplier.email)) {
+      errors.email = "Invalid email format";
+    }
+    if (supplier.phoneNumbers.some((phone) => !phone || !phoneRegex.test(phone))) {
+      errors.phoneNumbers = "Phone Numbers must be valid (10 digits)";
+    }
     if (!supplier.address) errors.address = "Address is required";
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
+
+  const checkSupplierCodeExists = async (code) => {
+    try {
+      const response = await axios.get(`http://localhost:8085/api/v1/supplier/exists/${code}`);
+      return response.data.exists;
+    } catch (error) {
+      console.error("Error checking supplier code:", error);
+      return false;
+    }
+  };
+
   const handleSaveSupplier = async () => {
     if (!validateForm()) return;
+
     const supplierData = {
       supplierCode: supplier.supplierCode,
       supplierName: supplier.name,
@@ -57,7 +82,16 @@ const SupplierForm = () => {
       outstandingBalance: 0.0,
       activeState: true,
     };
+
     try {
+      if (!editingSupplierId) {
+        const exists = await checkSupplierCodeExists(supplier.supplierCode);
+        if (exists) {
+          alert("Supplier Code already exists! Please use a different code.");
+          return;
+        }
+      }
+
       if (editingSupplierId) {
         await axios.put(`http://localhost:8085/api/v1/supplier/update/${editingSupplierId}`, supplierData);
         alert("Supplier updated successfully");
@@ -65,6 +99,7 @@ const SupplierForm = () => {
         await axios.post("http://localhost:8085/api/v1/supplier/save", supplierData);
         alert("Supplier added successfully");
       }
+
       setSupplier(initialSupplierState);
       setEditingSupplierId(null);
     } catch (error) {
@@ -72,11 +107,13 @@ const SupplierForm = () => {
       alert("Failed to save supplier");
     }
   };
+
   const handleReset = () => {
     setSupplier(initialSupplierState);
     setErrors({});
     setEditingSupplierId(null);
   };
+
   return (
     <div className="w-full px-10 mt-10 space-y-5">
       <div className="flex flex-row items-center justify-between">
@@ -87,7 +124,8 @@ const SupplierForm = () => {
           </Button>
           <Button variant="outlined" onClick={handleReset}>Reset</Button>
         </div>
-        </div>
+      </div>
+
       <TextField
         name="supplierCode"
         label="Supplier Code"
@@ -98,6 +136,7 @@ const SupplierForm = () => {
         error={!!errors.supplierCode}
         helperText={errors.supplierCode}
       />
+
       <TextField
         name="name"
         label="Name"
@@ -108,6 +147,7 @@ const SupplierForm = () => {
         error={!!errors.name}
         helperText={errors.name}
       />
+
       <TextField
         name="email"
         label="Email Address"
@@ -119,21 +159,20 @@ const SupplierForm = () => {
         error={!!errors.email}
         helperText={errors.email}
       />
+
       {supplier.phoneNumbers.map((phone, index) => (
         <div className="flex items-center gap-2" key={index}>
           <TextField
-           label={`Phone Number ${index + 1}`}
-           variant="outlined"
-           fullWidth
-           value={phone}
-           onChange={(e) => handlePhoneChange(index, e.target.value)}
-           error={!!errors.phoneNumbers}
-           helperText={errors.phoneNumbers}
-         />
+            label={`Phone Number ${index + 1}`}
+            variant="outlined"
+            fullWidth
+            value={phone}
+            onChange={(e) => handlePhoneChange(index, e.target.value)}
+            error={!!errors.phoneNumbers}
+            helperText={errors.phoneNumbers}
+          />
 
-
-         
-         <IconButton color="primary" onClick={addPhoneNumber}>
+          <IconButton color="primary" onClick={addPhoneNumber}>
             <Add />
           </IconButton>
           {supplier.phoneNumbers.length > 1 && (
@@ -142,30 +181,34 @@ const SupplierForm = () => {
             </IconButton>
           )}
         </div>
-         ))}
-         <TextField
-           name="address"
-           label="Address"
-           variant="outlined"
-           fullWidth
-           multiline
-           rows={2}
-           value={supplier.address}
-           onChange={handleChange}
-           error={!!errors.address}
-           helperText={errors.address}
-         />
-         <TextField
-           name="notes"
-           label="Notes"
-           variant="outlined"
-           fullWidth
-           multiline
-           rows={3}
-           value={supplier.notes}
-           onChange={handleChange}
-         />
-       </div>
-     );
-   };
-   export default SupplierForm;
+      ))}
+
+      <TextField
+        name="address"
+        label="Address"
+        variant="outlined"
+        fullWidth
+        multiline
+        rows={2}
+        value={supplier.address}
+        onChange={handleChange}
+        error={!!errors.address}
+        helperText={errors.address}
+      />
+
+      <TextField
+        name="notes"
+        label="Notes"
+        variant="outlined"
+        fullWidth
+        multiline
+        rows={3}
+        value={supplier.notes}
+        onChange={handleChange}
+      />
+    </div>
+  );
+};
+
+export default SupplierForm;
+
