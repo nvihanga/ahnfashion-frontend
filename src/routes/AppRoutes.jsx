@@ -13,6 +13,8 @@ import CustomerList from "../components/Customer/List/customer.jsx";
 import CashOut from "../pages/CashOut/CashOut.jsx";
 import CashOutList from "../pages/CashOut/CashOutList.jsx";
 
+
+
 const Login = lazy(() => import("../pages/authentication/LoginPage"));
 const AdminDashboard = lazy(() => import("../pages/dashboard/AdminDashboard"));
 const InventoryDashboard = lazy(() =>
@@ -33,12 +35,10 @@ const FinishedGoodsAdd = lazy(() => import("../pages/FinishedGoods/AddList"));
 const FinishedGoodsStockAdd = lazy(() =>
   import("../pages/FinishedGoods/AddStock")
 );
+const History = lazy(() => import("../components/finished-good/History/history.jsx"));
 
-//
-//const FinishedGoodsAdd = lazy(() => import("../pages/FinishedGoods/AddList"));
+
 const SuppiersAdd = lazy(() => import("../pages/Suppliers/AddList"));
-//const SupplierList = lazy(() => import("../pages/Suppliers/List"));
-//
 
 const PurchaseOrderAdd = lazy(() => import("../pages/purchase-order/Add"));
 const PurchaseOrderList = lazy(() => import("../pages/purchase-order/List"));
@@ -118,6 +118,12 @@ const AppRoutes = () => {
                 path={ROUTES.PROTECTED.FINISHED_GOODS.STOCK_ADD}
                 element={<FinishedGoodsStockAdd />}
               />
+              <Route
+                path={ROUTES.PROTECTED.FINISHED_GOODS.HISTORY}
+                element={<History />}
+              />
+
+          
 
               <Route
                 path={ROUTES.PROTECTED.SUPPLIERS.LIST}

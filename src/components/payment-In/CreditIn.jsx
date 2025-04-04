@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PayCreditDrawer from './PayCreditDrawer';
+import moment from 'moment';
 
 const CreditIn = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,7 +28,7 @@ const CreditIn = () => {
   const [isPaymentDrawerOpen, setIsPaymentDrawerOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   
-  // Convert invoice data to include numeric values and payment method
+  // Sample invoice data
   const [invoices, setInvoices] = useState([
     { id: '450', customer: 'customer1', netTotal: 4000.00, toPay: 0, date: '2024-12-18', paymentMethod: 'Cash', status: 'Paid' },
     { id: '3', customer: 'customer2', netTotal: 990.00, toPay: 0, date: '2024-11-29', paymentMethod: 'Cash', status: 'Paid' },
@@ -38,7 +39,7 @@ const CreditIn = () => {
     { id: 'INV87', customer: 'customer7', netTotal: 4267.50, toPay: 267.50, date: '2024-10-21', paymentMethod: 'Credit', status: 'Partial' }
   ]);
 
-  // Format currency - MOVED UP before it's used
+  // Format currency
   const formatCurrency = (value) => {
     return `Rs. ${value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
   };
@@ -125,6 +126,20 @@ const CreditIn = () => {
     }
   };
 
+  // Filter invoices based on search term and date range
+  const filteredInvoices = invoices.filter(invoice => {
+    const matchesSearch = invoice.id.includes(searchTerm) || invoice.customer.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const startDateMoment = startDate ? moment(startDate) : null;
+    const endDateMoment = endDate ? moment(endDate) : null;
+    const invoiceDateMoment = moment(invoice.date);
+
+    const matchesDateRange = (!startDateMoment || invoiceDateMoment.isSameOrAfter(startDateMoment)) && 
+                             (!endDateMoment || invoiceDateMoment.isSameOrBefore(endDateMoment));
+
+    return matchesSearch && matchesDateRange;
+  });
+
   return (
     <Container maxWidth="lg" className="py-6">
       {/* Summary Cards */}
@@ -192,13 +207,13 @@ const CreditIn = () => {
         <CardContent className="flex items-center gap-6">
           <FormControl size="small" className="w-52">
             <TextField
-                size="small"
-                placeholder="Search Payment"
-                variant="outlined"
-                className="max-w-xs"
-                value={searchTerm}
-                onChange={handleSearch}
-                />
+              size="small"
+              placeholder="Search Payment"
+              variant="outlined"
+              className="max-w-xs"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
           </FormControl>
           
           <div className="flex-grow"></div>
@@ -228,7 +243,7 @@ const CreditIn = () => {
           </Button>
         </CardContent>
       </Card>
-
+    
       {/* Invoices Table */}
       <TableContainer component={Paper} variant="outlined" className="mt-6">
         <Table>
@@ -244,7 +259,7 @@ const CreditIn = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {invoices.map((invoice, index) => (
+            {filteredInvoices.map((invoice, index) => (
               <TableRow key={index} hover>
                 <TableCell>{invoice.id}</TableCell>
                 <TableCell>{invoice.customer}</TableCell>
