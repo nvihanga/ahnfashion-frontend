@@ -1,189 +1,113 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Drawer,
-  TextField,
-  Button,
-  Typography,
-  IconButton,
-  Box,
-  Divider,
-  Stack
-} from '@mui/material';
-import { MdClose } from 'react-icons/md';
+import React, { useState } from "react";
+import { Drawer, TextField, Button, IconButton } from "@mui/material";
+import { MdAdd, MdDelete } from "react-icons/md";
 
-const EditDrawer = ({ open, onClose, item, onSave }) => {
-  const [formData, setFormData] = useState({
-    customerId: '',
-    customerCode: '',
-    customerName: '',
-    customerEmail: '',
-    customerPhoneNo: [''],
-    customerAddress: '',
-    customerNote: ''
+const EditDrawerCustomer = ({ open, onClose, item, onSave }) => {
+  const [customer, setCustomer] = useState({
+    ...item,
+    phoneNumbers: item.phoneNumbers || [""]
   });
 
-  useEffect(() => {
-    if (item) {
-      setFormData({
-        ...item,
-        customerPhoneNo: [...item.customerPhoneNo] // Create a copy of the array
-      });
-    }
-  }, [item]);
-
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setCustomer({ ...customer, [e.target.name]: e.target.value });
   };
 
-  const handlePhoneChange = (index, value) => {
-    const updatedPhones = [...formData.customerPhoneNo];
-    updatedPhones[index] = value;
-    setFormData({
-      ...formData,
-      customerPhoneNo: updatedPhones
-    });
+  const handlePhoneNumberChange = (index, value) => {
+    const updatedPhoneNumbers = [...customer.phoneNumbers];
+    updatedPhoneNumbers[index] = value;
+    setCustomer({ ...customer, phoneNumbers: updatedPhoneNumbers });
   };
 
-  const addPhoneField = () => {
-    setFormData({
-      ...formData,
-      customerPhoneNo: [...formData.customerPhoneNo, '']
-    });
+  const handleAddPhoneNumber = () => {
+    setCustomer({ ...customer, phoneNumbers: [...customer.phoneNumbers, ""] });
   };
 
-  const removePhoneField = (index) => {
-    const updatedPhones = [...formData.customerPhoneNo];
-    updatedPhones.splice(index, 1);
-    setFormData({
-      ...formData,
-      customerPhoneNo: updatedPhones
-    });
+  const handleRemovePhoneNumber = (index) => {
+    const updatedPhoneNumbers = customer.phoneNumbers.filter((_, i) => i !== index);
+    setCustomer({ ...customer, phoneNumbers: updatedPhoneNumbers });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
+  const handleSubmit = () => {
+    onSave(customer);
   };
 
   return (
-    <Drawer
-      anchor="right"
-      open={open}
-      onClose={onClose}
-      sx={{
-        '& .MuiDrawer-paper': {
-          width: '400px',
-          padding: '20px',
-          boxSizing: 'border-box',
-        },
-      }}
-    >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">Edit Customer</Typography>
-        <IconButton onClick={onClose}>
-          <MdClose />
-        </IconButton>
-      </Box>
-      
-      <Divider sx={{ mb: 3 }} />
-      
-      <form onSubmit={handleSubmit}>
-        <Stack spacing={3}>
+      <Drawer anchor="right" open={open} onClose={onClose}>
+        <div className="p-4 w-80">
+          <h2>Edit Customer</h2>
           <TextField
-            name="customerCode"
-            label="Customer Code"
-            value={formData.customerCode}
-            onChange={handleChange}
-            fullWidth
-            required
-            disabled // Usually codes are not editable
+              label="Customer Code"
+              name="customerCode"
+              value={customer.customerCode}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
           />
-          
           <TextField
-            name="customerName"
-            label="Customer Name"
-            value={formData.customerName}
-            onChange={handleChange}
-            fullWidth
-            required
+              label="Name"
+              name="customerName"
+              value={customer.customerName}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
           />
-          
           <TextField
-            name="customerEmail"
-            label="Email"
-            type="email"
-            value={formData.customerEmail}
-            onChange={handleChange}
-            fullWidth
-            required
+              label="Email"
+              name="email"
+              value={customer.email}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
           />
-          
-          <Box>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>Phone Numbers</Typography>
-            {formData.customerPhoneNo.map((phone, index) => (
-              <Box key={index} sx={{ display: 'flex', mb: 1 }}>
-                <TextField
-                  value={phone}
-                  onChange={(e) => handlePhoneChange(index, e.target.value)}
-                  fullWidth
-                  label={`Phone ${index + 1}`}
-                  sx={{ mr: 1 }}
-                />
-                <Button 
-                  variant="outlined" 
-                  color="error" 
-                  onClick={() => removePhoneField(index)}
-                  disabled={formData.customerPhoneNo.length <= 1}
-                >
-                  Remove
-                </Button>
-              </Box>
+          <div>
+            <label>Phone Numbers</label>
+            {customer.phoneNumbers.map((phone, index) => (
+                <div key={index} className="flex items-center gap-2 mt-2">
+                  <TextField
+                      label={`Phone ${index + 1}`}
+                      value={phone}
+                      onChange={(e) => handlePhoneNumberChange(index, e.target.value)}
+                      fullWidth
+                      margin="normal"
+                  />
+                  <IconButton onClick={() => handleRemovePhoneNumber(index)} color="error">
+                    <MdDelete />
+                  </IconButton>
+                </div>
             ))}
-            <Button 
-              variant="outlined" 
-              onClick={addPhoneField} 
-              sx={{ mt: 1 }}
+            <Button
+                variant="outlined"
+                startIcon={<MdAdd />}
+                onClick={handleAddPhoneNumber}
+                className="mt-2"
             >
-              Add Phone Number
+              Add Phone
             </Button>
-          </Box>
-          
+          </div>
           <TextField
-            name="customerAddress"
-            label="Address"
-            value={formData.customerAddress}
-            onChange={handleChange}
-            fullWidth
-            multiline
-            rows={2}
+              label="Address"
+              name="address"
+              value={customer.address}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
           />
-          
           <TextField
-            name="customerNote"
-            label="Notes"
-            value={formData.customerNote}
-            onChange={handleChange}
-            fullWidth
-            multiline
-            rows={3}
+              label="Notes"
+              name="notes"
+              value={customer.notes}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              multiline
+              rows={3}
           />
-          
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, gap: 2 }}>
-            <Button variant="outlined" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="contained" color="primary">
-              Save Changes
-            </Button>
-          </Box>
-        </Stack>
-      </form>
-    </Drawer>
+          <Button variant="contained" color="primary" onClick={handleSubmit} className="mt-4">
+            Save
+          </Button>
+        </div>
+      </Drawer>
   );
 };
 
-export default EditDrawer;
+export default EditDrawerCustomer;

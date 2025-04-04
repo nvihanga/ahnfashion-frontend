@@ -11,6 +11,7 @@ import SupplierList from "../components/supplier/list/supplier";
 import CustomerForm from "../components/Customer/Add/NewCustomer.jsx";
 import CustomerList from "../components/Customer/List/customer.jsx";
 import CashOut from "../pages/CashOut/CashOut.jsx";
+import CashOutList from "../pages/CashOut/CashOutList.jsx";
 
 const Login = lazy(() => import("../pages/authentication/LoginPage"));
 const AdminDashboard = lazy(() => import("../pages/dashboard/AdminDashboard"));
@@ -141,6 +142,11 @@ const AppRoutes = () => {
               <Route
                 path={ROUTES.PROTECTED.CASH.CASHOUT}
                 element={<CashOut />}
+              />
+
+              <Route
+                  path={ROUTES.PROTECTED.CASH.LIST}
+                  element={<CashOutList />}
               />
 
               <Route
