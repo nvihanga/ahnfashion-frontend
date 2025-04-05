@@ -10,11 +10,17 @@
 //   Paper,
 //   Typography,
 //   CircularProgress,
-//   Grid,
 //   Collapse,
 //   Box,
+//   Dialog,
+//   DialogActions,
+//   DialogContent,
+//   DialogContentText,
+//   DialogTitle,
+//   Button,
 // } from "@mui/material";
 // import { MdEdit, MdDelete, MdExpandMore, MdExpandLess } from "react-icons/md";
+// import { ChevronLeft, ChevronRight } from 'lucide-react';
 // import EditDrawer from "./editDrawer";
 // import { useState, useEffect } from "react";
 // import axios from "axios";
@@ -38,6 +44,10 @@
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState("");
 //   const [expandedRow, setExpandedRow] = useState(null);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [rowsPerPage, setRowsPerPage] = useState(5);
+//   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+//   const [itemToDelete, setItemToDelete] = useState(null);
 
 //   useEffect(() => {
 //     fetchFinishedGoods();
@@ -78,15 +88,28 @@
 //     setDrawerOpen(true);
 //   };
 
-//   const handleDeleteClick = async (good) => {
-//     if (!window.confirm("Are you sure you want to delete this item?")) return;
+//   const handleDeleteClick = (good) => {
+//     setItemToDelete(good);
+//     setDeleteDialogOpen(true);
+//   };
+
+//   const handleDeleteConfirm = async () => {
+//     if (!itemToDelete) return;
 //     try {
-//       await axios.delete(`http://localhost:8085/api/v1/finishedGood/delete/${good.finishId}`);
-//       setFinishedGoods((prevGoods) => prevGoods.filter((item) => item.finishId !== good.finishId));
+//       await axios.delete(`http://localhost:8085/api/v1/finishedGood/delete/${itemToDelete.finishId}`);
+//       setFinishedGoods((prevGoods) => prevGoods.filter((item) => item.finishId !== itemToDelete.finishId));
+//       setDeleteDialogOpen(false);
+//       setItemToDelete(null);
 //     } catch (error) {
 //       console.error("Error deleting finished good:", error);
 //       alert("Failed to delete item");
+//       setDeleteDialogOpen(false);
 //     }
+//   };
+
+//   const handleDeleteCancel = () => {
+//     setDeleteDialogOpen(false);
+//     setItemToDelete(null);
 //   };
 
 //   const handleDrawerClose = () => {
@@ -109,11 +132,30 @@
 //     }
 //   };
 
-//   // Filter finished goods based on search input
+//   // Filter and pagination logic
 //   const filteredGoods = finishedGoods.filter((good) =>
 //     good.finishId.toString().toLowerCase().includes(search) ||
 //     good.finishName.toLowerCase().includes(search)
 //   );
+
+//   const startIndex = (currentPage - 1) * rowsPerPage;
+//   const endIndex = startIndex + rowsPerPage;
+//   const displayedGoods = filteredGoods.slice(startIndex, endIndex);
+
+//   const calculatePaginationDisplay = () => {
+//     if (filteredGoods.length === 0) return '0-0 of 0';
+//     const start = startIndex + 1;
+//     const end = Math.min(endIndex, filteredGoods.length);
+//     return `${start}-${end} of ${filteredGoods.length}`;
+//   };
+
+//   const handlePrevPage = () => currentPage > 1 && setCurrentPage(p => p - 1);
+//   const handleNextPage = () => endIndex < filteredGoods.length && setCurrentPage(p => p + 1);
+
+//   const handleSearch = (e) => {
+//     setSearch(e.target.value.toLowerCase());
+//     setCurrentPage(1);
+//   };
 
 //   return (
 //     <div className="p-6">
@@ -122,65 +164,246 @@
 //         label="Search" 
 //         variant="outlined" 
 //         value={search} 
-//         onChange={(e) => setSearch(e.target.value.toLowerCase())} 
+//         onChange={handleSearch}
 //         fullWidth 
 //         margin="normal" 
 //         placeholder="Search by Style Number or Name"
 //       />
 
 //       {loading ? <CircularProgress /> : error ? <Typography color="error">{error}</Typography> : (
-//         <TableContainer component={Paper} elevation={3} className="mt-4">
-//           <Table>
-//             <TableHead>
-//               <TableRow>
-//                 <TableCell></TableCell>
-//                 <TableCell><b>STYLE NUMBER</b></TableCell>
-//                 <TableCell><b>NAME</b></TableCell>
-//                 <TableCell><b>DESCRIPTION</b></TableCell>
-//                 <TableCell><b>TOTAL QUANTITY</b></TableCell>
-//                 <TableCell align="center"><b>ACTION</b></TableCell>
-//               </TableRow>
-//             </TableHead>
-//             <TableBody>
-//               {filteredGoods.map((good) => (
-//                 <>
-//                   <TableRow key={good.finishId} onClick={() => setExpandedRow(expandedRow === good.finishId ? null : good.finishId)}>
-//                     <TableCell>{expandedRow === good.finishId ? <MdExpandLess /> : <MdExpandMore />}</TableCell>
-//                     <TableCell>{good.finishId}</TableCell>
-//                     <TableCell>{good.finishName}</TableCell>
-//                     <TableCell>{good.finishDescription}</TableCell>
-//                     <TableCell>{calculateTotalVariantQuantity(good.finishedGoodVariants)}</TableCell>
-//                     <TableCell>
-//                       <IconButton color="info" onClick={() => handleEditClick(good)}><MdEdit /></IconButton>
-//                       <IconButton color="error" onClick={() => handleDeleteClick(good)}><MdDelete /></IconButton>
-//                     </TableCell>
-//                   </TableRow>
-//                   <TableRow>
-//                     <TableCell colSpan={6} style={{ padding: 0 }}>
-//                       <Collapse in={expandedRow === good.finishId} timeout="auto" unmountOnExit>
-//                         <Box sx={{ margin: 1 }}>
-//                           <Typography variant="h6">Variant Details</Typography>
-//                           <Table size="small">
-//                             <TableBody>
-//                               {good.finishedGoodVariants.map((variant) => (
-//                                 <TableRow key={variant.size}>
-//                                   <TableCell>{variant.sizeLabel}</TableCell>
-//                                   <TableCell>{variant.quantityInStock}</TableCell>
-//                                   <TableCell>Rs. {variant.unitPrice.toFixed(2)}</TableCell>
+//         <>
+//           <TableContainer component={Paper} elevation={3} className="mt-4">
+//             <Table>
+//               <TableHead>
+//                 <TableRow>
+//                   <TableCell></TableCell>
+//                   <TableCell><b>STYLE NUMBER</b></TableCell>
+//                   <TableCell><b>NAME</b></TableCell>
+//                   <TableCell><b>DESCRIPTION</b></TableCell>
+//                   <TableCell><b>TOTAL QUANTITY</b></TableCell>
+//                   <TableCell align="center"><b>ACTION</b></TableCell>
+//                 </TableRow>
+//               </TableHead>
+//               <TableBody>
+//                 {displayedGoods.map((good) => (
+//                   <>
+//                     <TableRow key={good.finishId} onClick={() => setExpandedRow(expandedRow === good.finishId ? null : good.finishId)}>
+//                       <TableCell>{expandedRow === good.finishId ? <MdExpandLess /> : <MdExpandMore />}</TableCell>
+//                       <TableCell>{good.finishId}</TableCell>
+//                       <TableCell>{good.finishName}</TableCell>
+//                       <TableCell>{good.finishDescription}</TableCell>
+//                       <TableCell>{calculateTotalVariantQuantity(good.finishedGoodVariants)}</TableCell>
+//                       <TableCell>
+//                         <IconButton color="info" onClick={(e) => {e.stopPropagation(); handleEditClick(good)}}><MdEdit /></IconButton>
+//                         <IconButton color="error" onClick={(e) => {e.stopPropagation(); handleDeleteClick(good)}}><MdDelete /></IconButton>
+//                       </TableCell>
+//                     </TableRow>
+//                     <TableRow>
+//                       <TableCell colSpan={6} style={{ padding: 0 }}>
+//                         <Collapse in={expandedRow === good.finishId} timeout="auto" unmountOnExit>
+//                           <Box 
+//                             sx={{ 
+//                               margin: 2, 
+//                               backgroundColor: '#f8fafc', 
+//                               display: 'flex', 
+//                               flexDirection: 'column', 
+//                               alignItems: 'center', 
+//                               padding: 2,
+//                               borderRadius: 1,
+//                               boxShadow: '0 1px 3px rgba(0,0,0,0.12)'
+//                             }}
+//                           >
+//                             <Typography 
+//                               variant="h6" 
+//                               sx={{ 
+//                                 color: '#1e293b', 
+//                                 fontWeight: 600, 
+//                                 mb: 2,
+//                                 textAlign: 'center'
+//                               }}
+//                             >
+//                             </Typography>
+//                             <Table 
+//                               size="small" 
+//                               sx={{ 
+//                                 backgroundColor: '#ffffff', 
+//                                 width: 'auto', 
+//                                 maxWidth: '600px', // Adjust as needed
+//                                 border: '1px solid #e2e8f0',
+//                                 borderRadius: 1
+//                               }}
+//                             >
+//                               <TableHead>
+//                                 <TableRow sx={{ backgroundColor: '#f1f5f9' }}>
+//                                   <TableCell 
+//                                     align="center"
+//                                     sx={{ 
+//                                       color: '#475569', 
+//                                       fontWeight: 600, 
+//                                       borderBottom: '1px solid #e2e8f0',
+//                                       padding: '8px 16px'
+//                                     }}
+//                                   >
+//                                     Size
+//                                   </TableCell>
+//                                   <TableCell 
+//                                     align="center"
+//                                     sx={{ 
+//                                       color: '#475569', 
+//                                       fontWeight: 600, 
+//                                       borderBottom: '1px solid #e2e8f0',
+//                                       padding: '8px 16px'
+//                                     }}
+//                                   >
+//                                     Quantity
+//                                   </TableCell>
+//                                   <TableCell 
+//                                     align="center"
+//                                     sx={{ 
+//                                       color: '#475569', 
+//                                       fontWeight: 600, 
+//                                       borderBottom: '1px solid #e2e8f0',
+//                                       padding: '8px 16px'
+//                                     }}
+//                                   >
+//                                     Unit Price
+//                                   </TableCell>
 //                                 </TableRow>
-//                               ))}
-//                             </TableBody>
-//                           </Table>
-//                         </Box>
-//                       </Collapse>
-//                     </TableCell>
-//                   </TableRow>
-//                 </>
-//               ))}
-//             </TableBody>
-//           </Table>
-//         </TableContainer>
+//                               </TableHead>
+//                               <TableBody>
+//                                 {good.finishedGoodVariants.map((variant) => (
+//                                   <TableRow 
+//                                     key={variant.size}
+//                                     sx={{ 
+//                                       '&:hover': { backgroundColor: '#f8fafc' },
+//                                       borderBottom: '1px solid #f1f5f9'
+//                                     }}
+//                                   >
+//                                     <TableCell 
+//                                       align="center"
+//                                       sx={{ 
+//                                         color: '#1e293b', 
+//                                         borderBottom: 'none',
+//                                         padding: '8px 160px'
+//                                       }}
+//                                     >
+//                                       {variant.sizeLabel}
+//                                     </TableCell>
+//                                     <TableCell 
+//                                       align="center"
+//                                       sx={{ 
+//                                         color: '#1e293b', 
+//                                         borderBottom: 'none',
+//                                         padding: '8px 160px'
+//                                       }}
+//                                     >
+//                                       {variant.quantityInStock}
+//                                     </TableCell>
+//                                     <TableCell 
+//                                       align="center"
+//                                       sx={{ 
+//                                         color: '#1e293b', 
+//                                         borderBottom: 'none',
+//                                         padding: '8px 160px'
+//                                       }}
+//                                     >
+//                                       Rs.{variant.unitPrice.toFixed(2)}
+//                                     </TableCell>
+//                                   </TableRow>
+//                                 ))}
+//                               </TableBody>
+//                             </Table>
+//                           </Box>
+//                         </Collapse>
+//                       </TableCell>
+//                     </TableRow>
+//                   </>
+//                 ))}
+//               </TableBody>
+//             </Table>
+//           </TableContainer>
+
+//           {/* Pagination */}
+//           <div className="flex justify-between items-center px-4 py-3 border-t">
+//             <div className="flex items-center gap-2">
+//               Rows per page:
+//               <select
+//                 className="border rounded p-1"
+//                 value={rowsPerPage}
+//                 onChange={(e) => {
+//                   setRowsPerPage(Number(e.target.value));
+//                   setCurrentPage(1);
+//                 }}
+//               >
+//                 <option value={5}>5</option>
+//                 <option value={10}>10</option>
+//                 <option value={20}>20</option>
+//               </select>
+//             </div>
+//             <div className="flex items-center gap-4">
+//               <span className="text-sm text-gray-600">
+//                 {calculatePaginationDisplay()}
+//               </span>
+//               <div className="flex gap-2">
+//                 <button 
+//                   onClick={handlePrevPage} 
+//                   disabled={currentPage === 1}
+//                   className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent"
+//                 >
+//                   <ChevronLeft className="h-5 w-5" />
+//                 </button>
+//                 <button 
+//                   onClick={handleNextPage} 
+//                   disabled={(currentPage * rowsPerPage) >= filteredGoods.length}
+//                   className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent"
+//                 >
+//                   <ChevronRight className="h-5 w-5" />
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         </>
 //       )}
+
+//       {/* Delete Confirmation Dialog */}
+//       <Dialog
+//         open={deleteDialogOpen}
+//         onClose={handleDeleteCancel}
+//         aria-labelledby="alert-dialog-title"
+//         aria-describedby="alert-dialog-description"
+//       >
+//         <DialogTitle id="alert-dialog-title" sx={{ color: '#1e293b', fontWeight: 600 }}>
+//           {"Confirm Deletion"}
+//         </DialogTitle>
+//         <DialogContent>
+//           <DialogContentText id="alert-dialog-description" sx={{ color: '#475569' }}>
+//             Are you sure you want to delete the item "{itemToDelete?.finishName}" (Style Number: {itemToDelete?.finishId})? 
+//             This action cannot be undone.
+//           </DialogContentText>
+//         </DialogContent>
+//         <DialogActions>
+//           <Button 
+//             onClick={handleDeleteCancel} 
+//             sx={{ 
+//               color: '#475569',
+//               '&:hover': { backgroundColor: '#f1f5f9' }
+//             }}
+//           >
+//             Cancel
+//           </Button>
+//           <Button 
+//             onClick={handleDeleteConfirm} 
+//             variant="contained"
+//             sx={{ 
+//               backgroundColor: '#dc2626',
+//               '&:hover': { backgroundColor: '#b91c1c' }
+//             }}
+//             autoFocus
+//           >
+//             Delete
+//           </Button>
+//         </DialogActions>
+//       </Dialog>
 
 //       {selectedItem && <EditDrawer open={drawerOpen} onClose={handleDrawerClose} item={selectedItem} onSave={handleSave} />}
 //     </div>
@@ -188,6 +411,8 @@
 // };
 
 // export default FinishedGoodList;
+
+
 
 import {
   IconButton,
@@ -201,9 +426,14 @@ import {
   Paper,
   Typography,
   CircularProgress,
-  Grid,
   Collapse,
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
 } from "@mui/material";
 import { MdEdit, MdDelete, MdExpandMore, MdExpandLess } from "react-icons/md";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -232,6 +462,8 @@ const FinishedGoodList = () => {
   const [expandedRow, setExpandedRow] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   useEffect(() => {
     fetchFinishedGoods();
@@ -272,15 +504,28 @@ const FinishedGoodList = () => {
     setDrawerOpen(true);
   };
 
-  const handleDeleteClick = async (good) => {
-    if (!window.confirm("Are you sure you want to delete this item?")) return;
+  const handleDeleteClick = (good) => {
+    setItemToDelete(good);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!itemToDelete) return;
     try {
-      await axios.delete(`http://localhost:8085/api/v1/finishedGood/delete/${good.finishId}`);
-      setFinishedGoods((prevGoods) => prevGoods.filter((item) => item.finishId !== good.finishId));
+      await axios.delete(`http://localhost:8085/api/v1/finishedGood/delete/${itemToDelete.finishId}`);
+      setFinishedGoods((prevGoods) => prevGoods.filter((item) => item.finishId !== itemToDelete.finishId));
+      setDeleteDialogOpen(false);
+      setItemToDelete(null);
     } catch (error) {
       console.error("Error deleting finished good:", error);
       alert("Failed to delete item");
+      setDeleteDialogOpen(false);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setItemToDelete(null);
   };
 
   const handleDrawerClose = () => {
@@ -306,7 +551,8 @@ const FinishedGoodList = () => {
   // Filter and pagination logic
   const filteredGoods = finishedGoods.filter((good) =>
     good.finishId.toString().toLowerCase().includes(search) ||
-    good.finishName.toLowerCase().includes(search)
+    good.finishName.toLowerCase().includes(search) ||
+    (good.finishDescription && good.finishDescription.toLowerCase().includes(search))
   );
 
   const startIndex = (currentPage - 1) * rowsPerPage;
@@ -325,7 +571,7 @@ const FinishedGoodList = () => {
 
   const handleSearch = (e) => {
     setSearch(e.target.value.toLowerCase());
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   return (
@@ -338,7 +584,7 @@ const FinishedGoodList = () => {
         onChange={handleSearch}
         fullWidth 
         margin="normal" 
-        placeholder="Search by Style Number or Name"
+        placeholder="Search by Style Number, Name, or Description"
       />
 
       {loading ? <CircularProgress /> : error ? <Typography color="error">{error}</Typography> : (
@@ -372,15 +618,114 @@ const FinishedGoodList = () => {
                     <TableRow>
                       <TableCell colSpan={6} style={{ padding: 0 }}>
                         <Collapse in={expandedRow === good.finishId} timeout="auto" unmountOnExit>
-                          <Box sx={{ margin: 1 }}>
-                            <Typography variant="h6">Variant Details</Typography>
-                            <Table size="small">
+                          <Box 
+                            sx={{ 
+                              margin: 2, 
+                              backgroundColor: '#f8fafc', 
+                              display: 'flex', 
+                              flexDirection: 'column', 
+                              alignItems: 'center', 
+                              padding: 2,
+                              borderRadius: 1,
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.12)'
+                            }}
+                          >
+                            <Typography 
+                              variant="h6" 
+                              sx={{ 
+                                color: '#1e293b', 
+                                fontWeight: 600, 
+                                mb: 2,
+                                textAlign: 'center'
+                              }}
+                            >
+                            </Typography>
+                            <Table 
+                              size="small" 
+                              sx={{ 
+                                backgroundColor: '#ffffff', 
+                                width: 'auto', 
+                                maxWidth: '600px',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: 1
+                              }}
+                            >
+                              <TableHead>
+                                <TableRow sx={{ backgroundColor: '#f1f5f9' }}>
+                                  <TableCell 
+                                    align="center"
+                                    sx={{ 
+                                      color: '#475569', 
+                                      fontWeight: 600, 
+                                      borderBottom: '1px solid #e2e8f0',
+                                      padding: '8px 16px'
+                                    }}
+                                  >
+                                    Size
+                                  </TableCell>
+                                  <TableCell 
+                                    align="center"
+                                    sx={{ 
+                                      color: '#475569', 
+                                      fontWeight: 600, 
+                                      borderBottom: '1px solid #e2e8f0',
+                                      padding: '8px 16px'
+                                    }}
+                                  >
+                                    Quantity
+                                  </TableCell>
+                                  <TableCell 
+                                    align="center"
+                                    sx={{ 
+                                      color: '#475569', 
+                                      fontWeight: 600, 
+                                      borderBottom: '1px solid #e2e8f0',
+                                      padding: '8px 16px'
+                                    }}
+                                  >
+                                    Unit Price
+                                  </TableCell>
+                                </TableRow>
+                              </TableHead>
                               <TableBody>
                                 {good.finishedGoodVariants.map((variant) => (
-                                  <TableRow key={variant.size}>
-                                    <TableCell>{variant.sizeLabel}</TableCell>
-                                    <TableCell>{variant.quantityInStock}</TableCell>
-                                    <TableCell>Rs. {variant.unitPrice.toFixed(2)}</TableCell>
+                                  <TableRow 
+                                    key={variant.size}
+                                    sx={{ 
+                                      '&:hover': { backgroundColor: '#f8fafc' },
+                                      borderBottom: '1px solid #f1f5f9'
+                                    }}
+                                  >
+                                    <TableCell 
+                                      align="center"
+                                      sx={{ 
+                                        color: '#1e293b', 
+                                        borderBottom: 'none',
+                                        padding: '8px 160px'
+                                      }}
+                                    >
+                                      {variant.sizeLabel}
+                                    </TableCell>
+                                    <TableCell 
+                                      align="center"
+                                      sx={{ 
+                                        color: '#1e293b', 
+                                        borderBottom: 'none',
+                                        padding: '8px 160px'
+                                      }}
+                                    >
+                                      {variant.quantityInStock}
+                                    </TableCell>
+                                    <TableCell 
+                                      align="center"
+                                      sx={{ 
+                                        color: '#1e293b', 
+                                        borderBottom: 'none',
+                                        padding: '8px 160px'
+                                      }}
+                                    >
+                                      Rs.{variant.unitPrice.toFixed(2)}
+                                    </TableCell>
                                   </TableRow>
                                 ))}
                               </TableBody>
@@ -436,6 +781,46 @@ const FinishedGoodList = () => {
           </div>
         </>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title" sx={{ color: '#1e293b', fontWeight: 600 }}>
+          {"Confirm Deletion"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description" sx={{ color: '#475569' }}>
+            Are you sure you want to delete the item "{itemToDelete?.finishName}" (Style Number: {itemToDelete?.finishId})? 
+            This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={handleDeleteCancel} 
+            sx={{ 
+              color: '#475569',
+              '&:hover': { backgroundColor: '#f1f5f9' }
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteConfirm} 
+            variant="contained"
+            sx={{ 
+              backgroundColor: '#dc2626',
+              '&:hover': { backgroundColor: '#b91c1c' }
+            }}
+            autoFocus
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {selectedItem && <EditDrawer open={drawerOpen} onClose={handleDrawerClose} item={selectedItem} onSave={handleSave} />}
     </div>
