@@ -46,29 +46,38 @@ const InvoiceModal = ({ open, onClose, invoiceData, orders, paymentDetails }) =>
 
   const handleSendEmail = async () => {
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch('/api/send-invoice', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: invoiceData.customerEmail,
-          invoiceData,
-          orders,
-          paymentDetails
-        }),
-      });
-
+      if (!invoiceData?.orderId) {
+        alert("Error: Order ID is missing.");
+        return;
+      }
+  
+      const response = await fetch(
+        `http://localhost:8085/api/salesorders/send-invoice/${invoiceData.orderId}`, 
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: invoiceData.customerEmail,
+            invoiceData,
+            orders,
+            paymentDetails,
+          }),
+        }
+      );
+  
       if (response.ok) {
-        alert('Invoice sent successfully!');
+        alert("Invoice sent successfully!");
       } else {
-        throw new Error('Failed to send email');
+        const errorMessage = await response.text(); // Get error message from backend
+        throw new Error(errorMessage || "Failed to send email");
       }
     } catch (error) {
-      alert('Error sending email: ' + error.message);
+      alert("Error sending email: " + error.message);
     }
   };
+  
 
   const totalAmount = orders.reduce((sum, order) => 
     sum + parseFloat(order.price.replace('Rs. ', '')), 0).toFixed(2);

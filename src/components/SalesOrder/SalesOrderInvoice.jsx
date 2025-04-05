@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ROUTES } from "../../config/routes";
 import PaymentDrawer from "./PaymentDrawer";
 import InvoiceModal from "./InvoiveModal";
+import EditDrawer from "./EditDrawer";
+import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
+import Notification from "./Notification";
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import {
@@ -62,6 +65,21 @@ const SalesOrderInvoice = () => {
   const [isPaymentDrawerOpen, setIsPaymentDrawerOpen] = useState(false);
   const location = useLocation();
 
+  // Edit drawer state
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
+  const [editingOrder, setEditingOrder] = useState(null);
+  
+  // Delete confirmation dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState(null);
+  
+  // Notification state
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+
   const handleDiscard = () => {
     navigate(ROUTES.PROTECTED.SALES_ORDER.ADD);
   };
@@ -114,6 +132,67 @@ const SalesOrderInvoice = () => {
       setAvailableDescriptions([]);
     }
   }, [formData.styleNo]);
+
+  const handleEditClick = (order, index) => {
+    setEditingOrder({ ...order, index });
+    setIsEditDrawerOpen(true);
+  };
+  
+  const handleDeleteClick = (order, index) => {
+    setOrderToDelete({ ...order, index });
+    setDeleteDialogOpen(true);
+  };
+  
+  const handleConfirmDelete = () => {
+    if (orderToDelete !== null) {
+      const newOrders = [...orders];
+      newOrders.splice(orderToDelete.index, 1);
+      setOrders(newOrders);
+      
+      setNotification({
+        open: true,
+        message: 'Item deleted successfully',
+        severity: 'success'
+      });
+    }
+    setDeleteDialogOpen(false);
+    setOrderToDelete(null);
+  };
+  
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setOrderToDelete(null);
+  };
+  
+  const handleCloseNotification = () => {
+    setNotification({
+      ...notification,
+      open: false
+    });
+  };
+  
+  const handleUpdateOrder = (updatedOrder) => {
+    if (!editingOrder || editingOrder.index === undefined) {
+      console.error("No order to update or missing index");
+      return;
+    }
+    
+    // Create a new array instead of modifying the existing one
+    const newOrders = [...orders];
+    newOrders[editingOrder.index] = updatedOrder;
+    
+    // Update the state with the new array
+    setOrders(newOrders);
+    
+    setNotification({
+      open: true,
+      message: 'Item updated successfully',
+      severity: 'success'
+    });
+    
+    setIsEditDrawerOpen(false);
+    setEditingOrder(null);
+  };
 
   const handlePublish = () => {
     if (paymentDetails) {
@@ -229,7 +308,7 @@ const SalesOrderInvoice = () => {
               Discard
             </Button>
             <Button variant="contained" color="primary" className="w-32" onClick={handlePublish}>
-              Publish
+              Create
             </Button>
           </div>
         </div>
@@ -348,21 +427,21 @@ const SalesOrderInvoice = () => {
                   <TableCell>Rs. {order.rate}</TableCell>
                   <TableCell>{order.price}</TableCell>
                   <TableCell>
-                  <IconButton
-                    color="info"
-                    id="edit"
-                    onClick={() => handleEditClick(raw)}
-                  >
-                    <MdEdit />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    id="delete"
-                    onClick={() => handleDeleteClick(raw)}
-                  >
-                    <MdDelete />
-                  </IconButton>
-                </TableCell>
+                    <IconButton
+                      color="info"
+                      id="edit"
+                      onClick={() => handleEditClick(order, index)}
+                    >
+                      <MdEdit />
+                    </IconButton>
+                    <IconButton
+                      color="error"
+                      id="delete"
+                      onClick={() => handleDeleteClick(order, index)}
+                    >
+                      <MdDelete />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -393,6 +472,32 @@ const SalesOrderInvoice = () => {
           invoiceData={formData}
           orders={orders}
           paymentDetails={paymentDetails}
+        />
+
+        {/* Edit Drawer Component */}
+        <EditDrawer
+          open={isEditDrawerOpen}
+          onClose={() => setIsEditDrawerOpen(false)}
+          order={editingOrder}
+          styleData={styleData}
+          styleNumbers={styleNumbers}
+          onUpdate={handleUpdateOrder}
+        />
+        
+        {/* Delete Confirmation Dialog Component */}
+        <DeleteConfirmationDialog
+          open={deleteDialogOpen}
+          onClose={handleCancelDelete}
+          order={orderToDelete}
+          onConfirm={handleConfirmDelete}
+        />
+        
+        {/* Notification Component */}
+        <Notification
+          open={notification.open}
+          message={notification.message}
+          severity={notification.severity}
+          onClose={handleCloseNotification}
         />
 
         <div className="flex items-center justify-between p-4 mt-6 text-2xl bg-gray-100 rounded-lg">
