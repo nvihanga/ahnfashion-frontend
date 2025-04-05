@@ -166,7 +166,7 @@ const NewItem = () => {
         <h1 className="font-bold">Add New Item</h1>
         <div className="flex gap-5">
           <button
-            className="px-6 py-2 bg-blue-500 text-white rounded-full"
+            className="px-6 py-2 bg-blue-500 text-white rounded"
             onClick={handleAddNewItem}
             aria-label="Submit form"
           >
