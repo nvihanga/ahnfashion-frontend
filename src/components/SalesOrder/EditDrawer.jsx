@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Drawer,
   Box,
@@ -27,10 +27,14 @@ const EditDrawer = ({
   });
   const [editInputValue, setEditInputValue] = useState('');
   const [editAvailableDescriptions, setEditAvailableDescriptions] = useState([]);
+  
+  // Use a ref to track if we've already initialized with this order
+  const initializedOrderRef = useRef(null);
 
-  // Initialize form when drawer opens with order data
+  // Initialize form ONLY when drawer opens with a new order
   useEffect(() => {
-    if (order) {
+    // Only initialize if order has changed or we haven't initialized yet
+    if (order && (initializedOrderRef.current !== order.styleNo + order.qty + order.size)) {
       setEditFormData({
         styleNo: order.styleNo,
         description: order.description,
@@ -39,35 +43,45 @@ const EditDrawer = ({
         rate: order.rate.toString()
       });
       setEditInputValue(styleData[order.styleNo]?.label || '');
+      
+      // Store the order identity to avoid re-initializing the same order
+      initializedOrderRef.current = order.styleNo + order.qty + order.size;
     }
-  }, [order, styleData]);
+  }, [order, styleData, open]); // Add 'open' to dependencies to re-initialize when drawer opens
+
+  // Reset the ref when drawer closes
+  useEffect(() => {
+    if (!open) {
+      initializedOrderRef.current = null;
+    }
+  }, [open]);
 
   // Update available descriptions when style number changes
   useEffect(() => {
     if (editFormData.styleNo && styleData[editFormData.styleNo]) {
       setEditAvailableDescriptions(styleData[editFormData.styleNo].descriptions);
-      // Reset description when style changes if it's not in the new descriptions list
-      if (!styleData[editFormData.styleNo].descriptions.includes(editFormData.description)) {
-        setEditFormData(prev => ({...prev, description: ''}));
-      }
     } else {
       setEditAvailableDescriptions([]);
     }
   }, [editFormData.styleNo, styleData]);
 
   const handleEditInputChange = (e) => {
-    setEditFormData({
-      ...editFormData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    console.log(`Changing ${name} to ${value}`);
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleEditStyleChange = (event, newValue) => {
-    setEditFormData({
-      ...editFormData,
+    setEditFormData(prev => ({
+      ...prev,
       styleNo: newValue ? newValue.id : '',
-      description: '' // Reset description when style changes
-    });
+      // Only reset description if changing to a different style
+      description: prev.styleNo !== (newValue?.id || '') ? '' : prev.description
+    }));
+    setEditInputValue(newValue ? newValue.label : '');
   };
 
   const handleUpdateOrder = () => {
@@ -80,6 +94,8 @@ const EditDrawer = ({
     const rate = parseFloat(editFormData.rate).toFixed(2);
     const totalPrice = (parseFloat(rate) * quantity).toFixed(2);
     
+    console.log("Updating order with:", editFormData);
+    
     const updatedOrder = {
       styleNo: editFormData.styleNo,
       description: editFormData.description,
@@ -91,7 +107,9 @@ const EditDrawer = ({
     
     // Pass the updated order to the parent component
     onUpdate(updatedOrder);
-    onClose();
+    
+    // Reset the ref to allow re-initialization for a new order
+    initializedOrderRef.current = null;
   };
 
   const filterOptions = (options, { inputValue }) => {
@@ -149,9 +167,6 @@ const EditDrawer = ({
             )}
             isOptionEqualToValue={(option, value) => option.id === value?.id}
             blurOnSelect
-            ListboxProps={{
-              style: { maxHeight: '200px' }
-            }}
           />
           
           <Select
