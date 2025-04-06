@@ -16,9 +16,15 @@ import {
   MenuItem,
   Select,
   FormControl,
-  InputLabel,
+  Drawer,
+  Box,
+  Divider,
+  Grid,
+  List,
+  ListItem,
+  ListItemText,
 } from '@mui/material';
-import { ReceiptLong } from '@mui/icons-material';
+import { ReceiptLong, Close, ShoppingBag } from '@mui/icons-material';
 
 const SalesOrderList = () => {
   const [dateRange, setDateRange] = useState({
@@ -27,7 +33,8 @@ const SalesOrderList = () => {
   });
 
   const [selectedCustomer, setSelectedCustomer] = useState("");
-
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   // Sample customers for the dropdown
   const customers = ["Ambiga Textiles", "Chathura Enterprices", "Customer 3"];
@@ -38,19 +45,52 @@ const SalesOrderList = () => {
     totalCreditAmount: 'Rs. 30,000',
   };
 
+  // Sample order details data
+  const orderDetailsData = {
+    1: {
+      orderId: 1,
+      customer: 'Ambiga Textiles',
+      date: '2024-02-12',
+      totalAmount: 'Rs. 2,000',
+      paymentMethod: 'Cash',
+      paymentStatus: 'Paid',
+      items: [
+        { id: 101, name: 'Cotton Fabric', quantity: 5, unitPrice: 'Rs. 300', total: 'Rs. 1,500' },
+        { id: 102, name: 'Thread Spool', quantity: 10, unitPrice: 'Rs. 50', total: 'Rs. 500' }
+      ],
+      address: '123 Textile Road, Colombo',
+      contactNumber: '+94 77 123 4567'
+    },
+    2: {
+      orderId: 2,
+      customer: 'Chathura Enterprices',
+      date: '2024-02-10',
+      totalAmount: 'Rs. 4,000',
+      paymentMethod: 'Credit',
+      paymentStatus: 'Pending',
+      items: [
+        { id: 201, name: 'Silk Fabric', quantity: 2, unitPrice: 'Rs. 1,500', total: 'Rs. 3,000' },
+        { id: 202, name: 'Buttons', quantity: 50, unitPrice: 'Rs. 20', total: 'Rs. 1,000' }
+      ],
+      address: '456 Enterprise Ave, Kandy',
+      contactNumber: '+94 77 987 6543'
+    }
+  };
+
   const [salesData] = useState([
     {
-      id1: 1,
-      customer1: 'Ambiga Textiles',
-      toPay1: 'Rs. 2,000',
-      paymentMethod1: 'Cash',
-      placeDate1: '2024-02-12'
-    ,
-      id2: 2,
-      customer2: 'Chathura Enterprices',
-      toPay2: 'Rs. 4,000',
-      paymentMethod2: 'Credit',
-      placeDate2: '2024-02-10'
+      id: 1,
+      customer: 'Ambiga Textiles',
+      toPay: 'Rs. 2,000',
+      paymentMethod: 'Cash',
+      placeDate: '2024-02-12'
+    },
+    {
+      id: 2,
+      customer: 'Chathura Enterprices',
+      toPay: 'Rs. 4,000',
+      paymentMethod: 'Credit',
+      placeDate: '2024-02-10'
     }
   ]);
   
@@ -70,24 +110,32 @@ const SalesOrderList = () => {
   const handleShow = () => {
     let filteredData = salesData;
 
-  // Filter by customer name if a specific customer is selected
-  if (selectedCustomer) {
-    filteredData = salesData.filter(
-      (row) => row.customer1 === selectedCustomer || row.customer2 === selectedCustomer
-    );
-  }
-  
-  // Filter by date range
-  if (dateRange.startDate && dateRange.endDate) {
-    filteredData = filteredData.filter(
-      (row) =>
-        ((row.customer1 === selectedCustomer || row.customer2 === selectedCustomer) && 
-        ((row.placeDate1 >= dateRange.startDate && row.placeDate1 <= dateRange.endDate) || 
-        (row.placeDate2 >= dateRange.startDate && row.placeDate2 <= dateRange.endDate)))
-    );
-  }
-  console.log('Filtered Data:', filteredData);
-  setFilteredSalesData(filteredData);
+    // Filter by customer name if a specific customer is selected
+    if (selectedCustomer) {
+      filteredData = salesData.filter(
+        (row) => row.customer === selectedCustomer
+      );
+    }
+    
+    // Filter by date range
+    if (dateRange.startDate && dateRange.endDate) {
+      filteredData = filteredData.filter(
+        (row) => 
+          row.placeDate >= dateRange.startDate && 
+          row.placeDate <= dateRange.endDate
+      );
+    }
+    
+    setFilteredSalesData(filteredData);
+  };
+
+  const handleRowClick = (orderId) => {
+    setSelectedOrder(orderDetailsData[orderId]);
+    setDrawerOpen(true);
+  };
+
+  const closeDrawer = () => {
+    setDrawerOpen(false);
   };
 
   return (
@@ -97,7 +145,6 @@ const SalesOrderList = () => {
         {[
           { title: 'Total Paid Amount', value: summaryData.totalPaidAmount },
           { title: 'Total Credit Amount', value: summaryData.totalCreditAmount },
-          //{ title: 'Total To Pay', value: summaryData.totalToPay }
         ].map((item, index) => (
           <Card key={index} variant="outlined">
             <CardContent className="flex items-center justify-between p-4">
@@ -120,7 +167,7 @@ const SalesOrderList = () => {
       {/* Date Range Filter */}
       <Card variant="outlined">
         <CardContent className="flex items-center gap-6">
-        <FormControl size="small" className="w-52">
+          <FormControl size="small" className="w-52">
             <Select
               value={selectedCustomer}
               onChange={handleCustomerChange}
@@ -134,13 +181,6 @@ const SalesOrderList = () => {
               ))}
             </Select>
           </FormControl>
-          {/*<TextField
-            size="small"
-            placeholder="Search Customer..."
-            variant="outlined"
-            className="max-w-xs"
-          />
-          */}
           <div className="flex-grow"></div>
           <TextField
             size="small"
@@ -159,13 +199,13 @@ const SalesOrderList = () => {
             onChange={handleDateChange('endDate')}
             className="w-40"
           />
-            <Button 
-              variant="contained"
-              color="primary"
-              onClick={handleShow}
-            >
-              Show
-            </Button>
+          <Button 
+            variant="contained"
+            color="primary"
+            onClick={handleShow}
+          >
+            Show
+          </Button>
         </CardContent>
       </Card>
 
@@ -182,29 +222,116 @@ const SalesOrderList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredSalesData.map((row1) => (
-              <TableRow key={row1.id}>
-                <TableCell>{row1.id1}</TableCell>
-                <TableCell>{row1.customer1}</TableCell>
-                <TableCell>{row1.toPay1}</TableCell>
-                <TableCell>{row1.paymentMethod1}</TableCell>
-                <TableCell>{row1.placeDate1}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-          <TableBody>
-            {salesData.map((row2) => (
-              <TableRow key={row2.id}>
-                <TableCell>{row2.id2}</TableCell>
-                <TableCell>{row2.customer2}</TableCell>
-                <TableCell>{row2.toPay2}</TableCell>
-                <TableCell>{row2.paymentMethod2}</TableCell>
-                <TableCell>{row2.placeDate2}</TableCell>
+            {filteredSalesData.map((row) => (
+              <TableRow 
+                key={row.id} 
+                hover
+                onClick={() => handleRowClick(row.id)}
+                style={{ cursor: 'pointer' }}
+              >
+                <TableCell>{row.id}</TableCell>
+                <TableCell>{row.customer}</TableCell>
+                <TableCell>{row.toPay}</TableCell>
+                <TableCell>{row.paymentMethod}</TableCell>
+                <TableCell>{row.placeDate}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Right Drawer for Order Details */}
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={closeDrawer}
+        PaperProps={{
+          sx: { width: '40%' }
+        }}
+      >
+        {selectedOrder && (
+          <Box sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" component="div" sx={{ display: 'flex', alignItems: 'center' }}>
+                <ShoppingBag sx={{ mr: 1 }} /> Order Details
+              </Typography>
+              <IconButton onClick={closeDrawer} edge="end">
+                <Close />
+              </IconButton>
+            </Box>
+            
+            <Divider sx={{ mb: 3 }} />
+            
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Typography variant="subtitle2" color="textSecondary">Invoice Number</Typography>
+                <Typography variant="body1" sx={{ mb: 2 }}>{selectedOrder.orderId}</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="subtitle2" color="textSecondary">Date</Typography>
+                <Typography variant="body1" sx={{ mb: 2 }}>{selectedOrder.date}</Typography>
+              </Grid>
+            </Grid>
+
+            <Typography variant="subtitle2" color="textSecondary">Customer</Typography>
+            <Typography variant="body1" sx={{ mb: 2 }}>{selectedOrder.customer}</Typography>
+
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Typography variant="subtitle2" color="textSecondary">Payment Method</Typography>
+                <Typography variant="body1" sx={{ mb: 2 }}>{selectedOrder.paymentMethod}</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="subtitle2" color="textSecondary">Payment Status</Typography>
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    mb: 2,
+                    color: selectedOrder.paymentStatus === 'Paid' ? 'green' : 'orange'
+                  }}
+                >
+                  {selectedOrder.paymentStatus}
+                </Typography>
+              </Grid>
+            </Grid>
+
+            <Typography variant="subtitle2" color="textSecondary">Total Amount</Typography>
+            <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 2 }}>{selectedOrder.totalAmount}</Typography>
+
+            <Typography variant="subtitle2" color="textSecondary">Shipping Address</Typography>
+            <Typography variant="body1" sx={{ mb: 2 }}>{selectedOrder.address}</Typography>
+
+            <Typography variant="subtitle2" color="textSecondary">Contact Number</Typography>
+            <Typography variant="body1" sx={{ mb: 3 }}>{selectedOrder.contactNumber}</Typography>
+
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2 }}>Order Items</Typography>
+            <TableContainer component={Paper} variant="outlined">
+              <Table size="small">
+                <TableHead>
+                  <TableRow style={{ backgroundColor: "#f5f5f5" }}>
+                    <TableCell>Item ID</TableCell>
+                    <TableCell>Item Name</TableCell>
+                    <TableCell align="right">Quantity</TableCell>
+                    <TableCell align="right">Unit Price</TableCell>
+                    <TableCell align="right">Total</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {selectedOrder.items.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.id}</TableCell>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell align="right">{item.quantity}</TableCell>
+                      <TableCell align="right">{item.unitPrice}</TableCell>
+                      <TableCell align="right">{item.total}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        )}
+      </Drawer>
     </div>
   );
 };

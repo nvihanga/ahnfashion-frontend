@@ -6,6 +6,8 @@ import EditUserModal from '../../components/setting/EditUserModal';
 import ViewUserModal from '../../components/setting/ViewUserModal';
 import AddUserModal from '../../components/setting/AddUserModal';
 import { useAuth } from '../../hooks/useAuth';
+import userApi from '../../api/userApi';
+import ConfirmationDialog from '../../components/setting/ConfirmationDialog';
 
 const Setting = () => {
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -17,116 +19,83 @@ const Setting = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
-  //const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]);
   const { user } = useAuth();
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch('/api/v1/user/get-all-user');
-        setUsers(response.data.data);
-      } catch (error) {
-        console.error('Fetch users error:', error);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [selectedDeleteIds, setSelectedDeleteIds] = useState([]);
+  const [isBulkDelete, setIsBulkDelete] = useState(false);
+
+
+useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const response = await userApi.getAll();
+      if (response.status !== 200) {
+        throw new Error('Failed to fetch users');
       }
+      
+      const backendUsers = response.data.data.map(user => ({
+        id: user.userId,
+        username: user.username,
+        name: user.name,
+        email: user.email,
+        phone: user.contactNo?.join(', ') || '',
+        role: user.role,
+        status: user.active ? 'active' : 'inactive',
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }));
+      setUsers(backendUsers);
+    } catch (error) {
+      console.error('Fetch users error:', error);
+      alert('Failed to load users. Check network connection');
+    }
+  };
+  if (user?.role === 'admin') fetchUsers();
+}, [user]);
+
+  // Update the getUserById API call mapping
+const handleView = async (user) => {
+  try {
+    const response = await userApi.getById(user.id);
+    const userDetails = {
+      ...response.data.data,
+      id: response.data.data.userId,
+      status: response.data.data.active ? 'active' : 'inactive',
+      phone: response.data.data.contactNo?.join(', ') || ''
     };
-    if(user?.role === 'admin') fetchUsers();
-  }, [user]);
-
-  const handleView = (user) => {
-    setSelectedUser(user);
+    setSelectedUser(userDetails);
     setIsViewOpen(true);
-  };
-  const [users] = useState([
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    alert('Failed to load user details');
+  }
+};
 
-    {
-      id: 1,
-      username: 'admin',
-      name: 'Thilina',
-      email: 'thilina@gmail.com',
-      phone: '0779873456',
-      role: 'admin',
-      status: 'active',
-      createdAt: '2023-01-15',
-      updatedAt: '2023-12-01',
-      password: 'thilina566'
-    },
-    {
-      id: 1,
-      username: 'admin',
-      name: 'Supun',
-      email: 'supun@gmail.com',
-      phone: '0775123980',
-      role: 'admin',
-      status: 'active',
-      createdAt: '2023-01-15',
-      updatedAt: '2023-12-01',
-      password: 'supun789'
-    },
-    {
-      id: 1,
-      username: 'inventory',
-      name: 'Nethmi',
-      email: 'nethmi@gmail.com',
-      phone: '0712346780',
-      role: 'inventory',
-      status: 'active',
-      createdAt: '2023-01-15',
-      updatedAt: '2023-12-01',
-      password: 'nethmi908'
-    },
-    {
-      id: 1,
-      username: 'sales',
-      name: 'Sudhari',
-      email: 'sudhari@gmail.com',
-      phone: '0713567908',
-      role: 'sales',
-      status: 'active',
-      createdAt: '2023-01-15',
-      updatedAt: '2023-12-01',
-      password: 'sudhari765'
-    },
-    {
-      id: 1,
-      username: 'admin',
-      name: 'John Doe',
-      email: 'john@example.com',
-      phone: '123-456-7890',
-      role: 'admin',
-      status: 'active',
-      createdAt: '2023-01-15',
-      updatedAt: '2023-12-01',
-      password: 'securepassword'
-    },
-    {
-      id: 1,
-      username: 'admin',
-      name: 'Ishani',
-      email: 'ishani@gmail.com',
-      phone: '0754123789',
-      role: 'admin',
-      status: 'active',
-      createdAt: '2023-01-15',
-      updatedAt: '2023-12-01',
-      password: 'ishani789'
-    },
-    // Add more mock users as needed
-  ]);
-  const handleAddUser = (newUser) => {
-    // In a real app, you would make an API call here
-    setUsers(prev => [...prev, newUser]);
+  const handleAddUser = async (newUser) => {
+    try {
+      const userData = {
+        username: newUser.username,
+        name: newUser.name,
+        email: newUser.email,
+        password: newUser.password,
+        contactNo: [newUser.phone], // Convert string to array
+        role: newUser.role
+      };
+  
+      const response = await userApi.createUser(userData);
+      // Add the created user with proper mapping
+      setUsers(prev => [...prev, {
+        ...response.data.data,
+        id: response.data.data.userId,
+        phone: response.data.data.contactNo.join(', ')
+      }]);
+    } catch (error) {
+      console.error('Error details:', error.response?.data);
+      alert(error.response?.data?.message || error.message);
+    }
   };
 
-  // Filter users based on search query
-  
-//   const handleAddUser = async (newUser) => {
-//     try {
-//       await api.post('/api/v1/user/register', newUser);
-//       // Refresh user list
-//     } catch (error) {
-//       console.error('Error adding user:', error);
-//     }
-//   };
-  
   useEffect(() => {
     const filtered = users.filter(user =>
       Object.values(user).some(value =>
@@ -168,45 +137,125 @@ const Setting = () => {
     setIsEditOpen(true);
   };
 
-  const handleDelete = (user) => {
-    console.log('Delete user:', user); // Implement actual delete logic
+
+  const handleDelete = (userToDelete) => {
+    setSelectedDeleteIds([userToDelete.id]);
+    setIsBulkDelete(false);
+    setDeleteConfirmationOpen(true);
   };
 
-  const handleSave = (updatedUser) => {
-    console.log('Save user:', updatedUser); // Implement actual save logic
-    setIsEditOpen(false);
+  const handleDeleteSelected = () => {
+    if (selectedUsers.length === 0) return;
+    setSelectedDeleteIds([...selectedUsers]);
+    setIsBulkDelete(true);
+    setDeleteConfirmationOpen(true);
   };
+
+  // Add actual delete handler
+  const handleConfirmDelete = async () => {
+    try {
+      const results = await Promise.allSettled(
+        selectedDeleteIds.map(id => userApi.deleteUser(id))
+      );
+
+      const failedDeletions = results.filter(r => r.status === 'rejected');
+      if (failedDeletions.length > 0) {
+        throw new Error(`${failedDeletions.length} deletions failed`);
+      }
+
+      setUsers(prev => prev.filter(user => !selectedDeleteIds.includes(user.id)));
+      setSelectedUsers(prev => prev.filter(id => !selectedDeleteIds.includes(id)));
+      setDeleteConfirmationOpen(false);
+    } catch (error) {
+      console.error('Error deleting users:', error);
+      alert(`Partial failure: ${error.message}`);
+    }
+  };
+
+// Update delete button in UserSearchHeader:
+<button
+  className="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50"
+  disabled={selectedUsers.length === 0}
+  onClick={handleDeleteSelected}
+>
+  Delete Selected
+</button>
+
+  const handleSave = async (updatedUser) => {
+    try {
+      const userData = {
+        username: updatedUser.username,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        contactNo: [updatedUser.phone], // Convert string to array
+        role: updatedUser.role,
+        password: updatedUser.password
+      };
+  
+      const response = await userApi.updateUser(updatedUser.id, userData);
+      // Update with mapped data
+      setUsers(prev =>
+        prev.map(user =>
+          user.id === updatedUser.id ? {
+            ...response.data.data,
+            id: response.data.data.userId,
+            phone: response.data.data.contactNo?.join(', ') || ''
+          } : user
+        )
+      );
+      setIsEditOpen(false);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert(error.response?.data?.message || 'Error updating user');
+    }
+  };
+
 
   const handlePrevPage = () => currentPage > 1 && setCurrentPage(p => p - 1);
   const handleNextPage = () => endIndex < filteredUsers.length && setCurrentPage(p => p + 1);
 
   return (
     <div className="p-6 overflow-hidden">
-      <UserSearchHeader 
+      < div className = "flex justify-between items-center mb-6" >
+        <p className="font-bold text-[18px]" >User Management</p>
+        
+      </div>
+      <div style={{ width: '100%', height: '2px', backgroundColor: '#ddd', margin: '0 0 20px 0' }}></div>
+
+
+      <ConfirmationDialog
+        open={deleteConfirmationOpen}
+        onClose={() => setDeleteConfirmationOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Delete"
+        message={`Are you sure you want to delete ${isBulkDelete ? 'selected' : 'this'} user${selectedDeleteIds.length > 1 ? 's' : ''}?`}
+      />
+      <UserSearchHeader
         searchQuery={searchQuery}
         handleSearch={handleSearch}
         selectedUsers={selectedUsers}
         onAdd={() => setIsAddOpen(true)}
+        onDeleteSelected={handleDeleteSelected}
       />
 
-<AddUserModal 
+      <AddUserModal
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}
         handleAdd={handleAddUser}
       />
 
-    <div className="max-w-full">
-    <UserTable
-        displayedUsers={displayedUsers}
-        selectedUsers={selectedUsers}
-        handleSelectAll={handleSelectAll}
-        handleSelectUser={handleSelectUser}
-        handleEdit={handleEdit}
-        handleView={handleView}
-        handleDelete={handleDelete}
-      />
+      <div className="max-w-full">
+        <UserTable
+          displayedUsers={displayedUsers}
+          selectedUsers={selectedUsers}
+          handleSelectAll={handleSelectAll}
+          handleSelectUser={handleSelectUser}
+          handleEdit={handleEdit}
+          handleView={handleView}
+          handleDelete={handleDelete}
+        />
       </div>
-      <ViewUserModal 
+      <ViewUserModal
         isOpen={isViewOpen}
         onClose={() => setIsViewOpen(false)}
         user={selectedUser}
@@ -223,7 +272,7 @@ const Setting = () => {
         calculatePaginationDisplay={calculatePaginationDisplay}
       />
 
-      <EditUserModal 
+      <EditUserModal
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
         selectedUser={selectedUser}
