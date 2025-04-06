@@ -11,6 +11,9 @@ import SupplierList from "../components/supplier/list/supplier";
 import CustomerForm from "../components/Customer/Add/NewCustomer.jsx";
 import CustomerList from "../components/Customer/List/customer.jsx";
 import CashOut from "../pages/CashOut/CashOut.jsx";
+import CashOutList from "../pages/CashOut/CashOutList.jsx";
+
+
 
 const Login = lazy(() => import("../pages/authentication/LoginPage"));
 const AdminDashboard = lazy(() => import("../pages/dashboard/AdminDashboard"));
@@ -32,25 +35,35 @@ const FinishedGoodsAdd = lazy(() => import("../pages/FinishedGoods/AddList"));
 const FinishedGoodsStockAdd = lazy(() =>
   import("../pages/FinishedGoods/AddStock")
 );
+const History = lazy(() => import("../components/finished-good/History/history.jsx"));
 
-//
-//const FinishedGoodsAdd = lazy(() => import("../pages/FinishedGoods/AddList"));
+
 const SuppiersAdd = lazy(() => import("../pages/Suppliers/AddList"));
-//const SupplierList = lazy(() => import("../pages/Suppliers/List"));
-//
 
 const PurchaseOrderAdd = lazy(() => import("../pages/purchase-order/Add"));
 const PurchaseOrderList = lazy(() => import("../pages/purchase-order/List"));
+const PurchaseOrderCreateGrn = lazy(() =>
+  import("../pages/purchase-order/CreateGRN.jsx")
+);
+const PurchaseOrderGrnList = lazy(() =>
+  import("../pages/purchase-order/GRNList")
+);
 
 const SalesOrderAdd = lazy(() => import("../pages/SalesOrder/AddOrder"));
 const SalesOrderList = lazy(() => import("../pages/SalesOrder/List"));
 
 
+const CashIn = lazy(() => import("../pages/PaymentIn/CashInList"));
+const CreditIn = lazy(() => import("../pages/PaymentIn/CreditInList"));
+const ChequeIn = lazy(() => import("../pages/PaymentIn/ChequeInList"));
+
+const CashOutSup = lazy(() => import("../pages/PaymentOut/CashOutList"));
+const CreditOut = lazy(() => import("../pages/PaymentOut/CreditOutList"));
+const ChequeOut = lazy(() => import("../pages/PaymentOut/ChequeOutList"));
+
 const Setting = lazy(() => import("../pages/settings/Setting"));
 
-
 const SalesOrderInvoice = lazy(() => import("../pages/SalesOrder/Invoice"));
-
 
 const PrivateRoutesWrapper = () => {
   const { user, loading } = useAuth();
@@ -111,6 +124,12 @@ const AppRoutes = () => {
                 path={ROUTES.PROTECTED.FINISHED_GOODS.STOCK_ADD}
                 element={<FinishedGoodsStockAdd />}
               />
+              <Route
+                path={ROUTES.PROTECTED.FINISHED_GOODS.HISTORY}
+                element={<History />}
+              />
+
+          
 
               <Route
                 path={ROUTES.PROTECTED.SUPPLIERS.LIST}
@@ -138,12 +157,25 @@ const AppRoutes = () => {
               />
 
               <Route
+                  path={ROUTES.PROTECTED.CASH.LIST}
+                  element={<CashOutList />}
+              />
+
+              <Route
                 path={ROUTES.PROTECTED.PURCHASE_ORDER.ADD}
                 element={<PurchaseOrderAdd />}
               />
               <Route
                 path={ROUTES.PROTECTED.PURCHASE_ORDER.LIST}
                 element={<PurchaseOrderList />}
+              />
+              <Route
+                path={ROUTES.PROTECTED.PURCHASE_ORDER.CREATE_GRN}
+                element={<PurchaseOrderCreateGrn />}
+              />
+              <Route
+                path={ROUTES.PROTECTED.PURCHASE_ORDER.GRN_LIST}
+                element={<PurchaseOrderGrnList />}
               />
             </Route>
 
@@ -160,16 +192,39 @@ const AppRoutes = () => {
               element={<SalesOrderInvoice />}
             />
 
+            <Route
+              path={ROUTES.PROTECTED.PAYMENT_IN.CASH}
+              element={<CashIn />}
+            />
+            <Route
+              path={ROUTES.PROTECTED.PAYMENT_IN.CHEQUE}
+              element={<ChequeIn />}
+            />
+            <Route
+              path={ROUTES.PROTECTED.PAYMENT_IN.CREDIT}
+              element={<CreditIn />}
+            />
+
+            <Route
+              path={ROUTES.PROTECTED.PAYMENT_OUT.CASH}
+              element={<CashOutSup />}
+            />
+            <Route
+              path={ROUTES.PROTECTED.PAYMENT_OUT.CHEQUE}
+              element={<ChequeOut />}
+            />
+            <Route
+              path={ROUTES.PROTECTED.PAYMENT_OUT.CREDIT}
+              element={<CreditOut />}
+            />
+
             {/* Admin-only Routes */}
             <Route element={<AdminRoute />}>
               <Route
                 path={ROUTES.PROTECTED.DASHBOARD.ADMIN}
                 element={<AdminDashboard />}
               />
-              <Route 
-                path={ROUTES.PROTECTED.SETTING}
-                element={<Setting/>}
-              />
+              <Route path={ROUTES.PROTECTED.SETTING} element={<Setting />} />
             </Route>
 
             {/* Shared Sales/Admin Routes */}

@@ -1,37 +1,40 @@
 import {
   Button,
   FormControl,
-  InputLabel,
   TextField,
-  Select,
-  MenuItem,
   FormHelperText,
+  Autocomplete,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-
-const productNameArray = [
-  { id: 1, name: "Buttons" },
-  { id: 2, name: "Threads" },
-  { id: 3, name: "Fabrics" },
-  { id: 4, name: "Labels" },
-];
+import { getRawMaterials } from "../../api/rawmaterial/api";
+import Toast from "../../common/Toast";
+import { removeRawMaterialStock } from "../../api/rawmaterial-stock/api";
 
 const RawMaterialStockAdd = ({ setStockList, stockList }) => {
   const [productName, setProductName] = useState("");
-
   const [quantity, setQuantity] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(null);
   const [errors, setErrors] = useState({});
 
+  const [productNameOptions, setProductNameOptions] = useState([]);
+
+  const [toast, setToast] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
+
+  const handleCloseToast = () => {
+    setToast((prev) => ({ ...prev, open: false }));
+  };
+
   const validateForm = () => {
     let errors = {};
-
     if (!productName) errors.productName = "Product Name is required";
-
     if (!quantity || isNaN(quantity) || quantity <= 0)
       errors.quantity = "Quantity must be a positive number";
     if (!date) errors.date = "Date is required";
@@ -41,17 +44,47 @@ const RawMaterialStockAdd = ({ setStockList, stockList }) => {
     return Object.keys(errors).length === 0;
   };
 
+  useEffect(() => {
+    const fetchRawMaterials = async () => {
+      try {
+        const response = await getRawMaterials();
+
+        setToast({
+          open: true,
+          severity: "success",
+          message: "Raw materials fetched successfully",
+        });
+
+        setProductNameOptions(
+          Array.isArray(response.data) ? response.data : []
+        );
+      } catch (error) {
+        setToast({
+          open: true,
+          severity: "error",
+          message:
+            error.response?.data && typeof error.response.data === "object"
+              ? error.response.data.errorMessage ||
+                JSON.stringify(error.response.data)
+              : error.response?.data ||
+                error.message ||
+                "Failed to fetch raw materials",
+        });
+      }
+    };
+    fetchRawMaterials();
+  }, []);
+
   const handleAddToList = () => {
     if (!validateForm()) return;
 
-    const selectedProduct = productNameArray.find(
-      (product) => product.name === productName
+    const selectedProduct = productNameOptions.find(
+      (product) => product.rawName === productName
     );
 
     const stock = {
-      productName: selectedProduct.name,
-      productId: selectedProduct.id,
-
+      productName: selectedProduct.rawName,
+      productId: selectedProduct.rawId,
       description: description,
       quantity: quantity,
       date: date ? date.toDate() : null, // Convert Dayjs object to JavaScript Date object
@@ -60,7 +93,6 @@ const RawMaterialStockAdd = ({ setStockList, stockList }) => {
     setStockList([...stockList, stock]);
 
     setProductName("");
-
     setQuantity("");
     setDescription("");
     setDate(null);
@@ -69,13 +101,40 @@ const RawMaterialStockAdd = ({ setStockList, stockList }) => {
 
   const handlePublish = () => {
     console.log(stockList);
-  };
+    const handlePublish = async () => {
+      if (stockList.length === 0) {
+        setToast({
+          open: true,
+          severity: "error",
+          message: "No items to publish",
+        });
+        return;
+      }
 
-  const handleProductNameChange = (e) => {
-    setProductName(e.target.value);
-    if (errors.productName) {
-      setErrors((prevErrors) => ({ ...prevErrors, productName: "" }));
-    }
+      try {
+        await removeRawMaterialStock(stockList);
+        setToast({
+          open: true,
+          severity: "success",
+          message: "Stock remove successfully",
+        });
+        setStockList([]);
+      } catch (error) {
+        setToast({
+          open: true,
+          severity: "error",
+          message:
+            error.response?.data && typeof error.response.data === "object"
+              ? error.response.data.errorMessage ||
+                JSON.stringify(error.response.data)
+              : error.response?.data ||
+                error.message ||
+                "Failed to remove stock",
+        });
+      }
+    };
+
+    handlePublish();
   };
 
   const handleQuantityChange = (e) => {
@@ -96,35 +155,38 @@ const RawMaterialStockAdd = ({ setStockList, stockList }) => {
     <div className="w-full">
       <div className="flex flex-row justify-between">
         <h1>
-          <strong>Stock Add</strong>
+          <strong>Stock Remove</strong>
         </h1>
         <Button variant="contained" onClick={handlePublish}>
-          Publish
+          Remove From Main Stock
         </Button>
       </div>
       <div className="flex flex-row justify-between mt-5">
         <div className="w-4/5">
           <div>
             <FormControl fullWidth error={!!errors.productName}>
-              <InputLabel id="product_name">Product Name</InputLabel>
-              <Select
-                id="product_name"
-                value={productName}
-                label="Product Name"
-                onChange={handleProductNameChange}
-              >
-                {productNameArray.map((name) => (
-                  <MenuItem key={name.id} value={name.name}>
-                    {name.name}
-                  </MenuItem>
-                ))}
-              </Select>
+              <Autocomplete
+                options={
+                  Array.isArray(productNameOptions) ? productNameOptions : []
+                }
+                getOptionLabel={(option) => option.rawName}
+                onChange={(event, value) => {
+                  const productName = value ? value.rawName : "";
+                  setProductName(productName);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select Product Name"
+                    variant="outlined"
+                  />
+                )}
+              />
               {errors.productName && (
                 <FormHelperText>{errors.productName}</FormHelperText>
               )}
             </FormControl>
           </div>
-
           <div className="mt-5">
             <FormControl fullWidth>
               <TextField
@@ -170,6 +232,12 @@ const RawMaterialStockAdd = ({ setStockList, stockList }) => {
           </Button>
         </div>
       </div>
+      <Toast
+        open={toast.open}
+        handleClose={handleCloseToast}
+        severity={toast.severity}
+        message={toast.message}
+      />
     </div>
   );
 };

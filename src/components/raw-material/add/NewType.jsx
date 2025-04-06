@@ -1,15 +1,54 @@
 import { Button, FormControl, TextField } from "@mui/material";
 import { useState } from "react";
+import { addRawMaterialType } from "../../api/rawmaterial/api";
+import Toast from "../../common/Toast";
 
 const NewType = () => {
   const [addNewType, setAddNewType] = useState("");
   const [errors, setErrors] = useState({});
 
-  const handleSubmit = () => {
+  const [toast, setToast] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
+
+  const handleCloseToast = () => {
+    setToast((prev) => ({ ...prev, open: false }));
+  };
+
+  const handleSubmit = async () => {
+    const validateForm = () => {
+      let tempErrors = {};
+      if (!addNewType) tempErrors.addNewType = "Type is Required";
+      setErrors(tempErrors);
+      return Object.keys(tempErrors).length === 0;
+    };
+
     if (!validateForm()) return;
-    console.log(addNewType);
-    setAddNewType("");
-    setErrors({});
+
+    try {
+      const result = await addRawMaterialType(addNewType);
+      setToast({
+        open: true,
+        severity: "success",
+        message: "Raw material type added successfully :" + result.data,
+      });
+      setAddNewType("");
+      setErrors({});
+    } catch (error) {
+      setToast({
+        open: true,
+        severity: "error",
+        message:
+          error.response?.data && typeof error.response.data === "object"
+            ? error.response.data.errorMessage ||
+              JSON.stringify(error.response.data)
+            : error.response?.data ||
+              error.message ||
+              "Failed to add raw material type",
+      });
+    }
   };
 
   const handleReset = () => {
@@ -17,17 +56,14 @@ const NewType = () => {
     setErrors({});
   };
 
-  const validateForm = () => {
-    let errors = {};
-
-    if (!addNewType) errors.addNewType = "Type  is Required";
-    setErrors(errors);
-
-    return Object.keys(errors).length === 0;
-  };
-
   return (
     <div className="w-full mt-10 px-10 py-8">
+      <Toast
+        open={toast.open}
+        handleClose={handleCloseToast}
+        severity={toast.severity}
+        message={toast.message}
+      />
       <div className="flex flex-row justify-between">
         <div>
           <h1 className="font-bold">Add New Type</h1>

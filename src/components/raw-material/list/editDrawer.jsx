@@ -5,35 +5,21 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import { MdClose } from "react-icons/md";
-import { useState } from "react";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Autocomplete, FormControl, Typography } from "@mui/material";
 import PropTypes from "prop-types";
-
-const productTypes = [
-  { id: 1, name: "Buttons" },
-  { id: 2, name: "Threads" },
-  { id: 3, name: "Fabrics" },
-  { id: 4, name: "Labels" },
-];
-
-const suppliers = [
-  { id: 1, name: "Naturub Industries (Pvt) Ltd" },
-  { id: 2, name: "CIB Accessories" },
-  { id: 3, name: "Chathura Enterprices" },
-  { id: 4, name: "Sanko Texttiles" },
-];
 
 export default function EditDrawer({
   open,
   onClose,
   item,
   onSave,
-  newRawMaterial,
-  setNewRawMaterial,
+  supplierOptions,
+  rawMaterialTypeOptions,
 }) {
   const [formData, setFormData] = useState(item);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setFormData(item);
   }, [item]);
 
@@ -42,11 +28,24 @@ export default function EditDrawer({
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSave = () => {
-    const updatedRawMaterials = newRawMaterial.map((material) =>
-      material.id === formData.id ? formData : material
+  const selectedProductType = React.useMemo(() => {
+    if (!rawMaterialTypeOptions?.length || !formData?.rawType) return null;
+    return (
+      rawMaterialTypeOptions.find(
+        (type) => type.rawTypeId === formData.rawType
+      ) || null
     );
-    setNewRawMaterial(updatedRawMaterials);
+  }, [formData?.rawType, rawMaterialTypeOptions]);
+
+  const selectedSuppliers = React.useMemo(() => {
+    if (!supplierOptions?.length || !formData?.supplierId) return [];
+    return supplierOptions.filter((supplier) =>
+      formData.supplierId.includes(supplier.supplierId)
+    );
+  }, [formData?.supplierId, supplierOptions]);
+
+  const handleSave = () => {
+    console.log("Updated Form Data:", formData);
     onSave(formData);
     onClose();
   };
@@ -62,57 +61,118 @@ export default function EditDrawer({
         </Box>
         <TextField
           label="Product Name"
-          name="productName"
-          value={formData.productName}
+          name="rawName"
+          value={formData?.rawName || ""}
           onChange={handleChange}
           fullWidth
           margin="normal"
         />
         <FormControl fullWidth>
-          <InputLabel id="Product_Type">Product Type</InputLabel>
-          <Select
-            label="Product_Type"
-            name="productType"
-            value={formData.type}
-            onChange={handleChange}
-          >
-            {productTypes.map((type) => (
-              <MenuItem key={type.id} value={type.name}>
-                {type.name}
-              </MenuItem>
-            ))}
-          </Select>
+          <Autocomplete
+            options={rawMaterialTypeOptions || []}
+            getOptionLabel={(option) => option?.rawTypeName || ""}
+            value={selectedProductType}
+            onChange={(event, newValue) => {
+              setFormData((prev) => ({
+                ...prev,
+                rawType: newValue ? newValue.rawTypeId : "",
+              }));
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Product Type"
+                placeholder="Select Product Type"
+                variant="outlined"
+              />
+            )}
+            renderOption={(props, option) => (
+              <Box component="li" {...props}>
+                <Box>
+                  <Typography variant="body1">{option.rawTypeName}</Typography>
+                </Box>
+              </Box>
+            )}
+            isOptionEqualToValue={(option, value) =>
+              option && value && option.rawTypeName === value.rawTypeName
+            }
+            disablePortal
+            fullWidth
+            margin="normal"
+          />
         </FormControl>
         <TextField
           label="Quantity"
-          name="quantity"
-          value={formData.quantity}
+          name="rawQuantity"
+          value={formData?.rawQuantity || ""}
           onChange={handleChange}
           fullWidth
           margin="normal"
         />
         <FormControl fullWidth>
-          <InputLabel id="Product_Type">Supplier</InputLabel>
-          <Select
-            label="Supplier"
-            name="supplier"
-            value={formData.supplier}
-            onChange={handleChange}
-          >
-            {suppliers.map((type) => (
-              <MenuItem key={type.id} value={type.name}>
-                {type.name}
-              </MenuItem>
-            ))}
-          </Select>
+          <Autocomplete
+            multiple
+            options={supplierOptions || []}
+            getOptionLabel={(option) => option?.supplierName || ""}
+            value={selectedSuppliers}
+            onChange={(event, newValue) => {
+              setFormData((prev) => ({
+                ...prev,
+                supplierId: newValue
+                  ? newValue.map((supplier) => supplier.supplierId)
+                  : [],
+              }));
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Suppliers"
+                placeholder="Select Suppliers"
+                variant="outlined"
+              />
+            )}
+            renderOption={(props, option) => (
+              <Box component="li" {...props}>
+                <Box>
+                  <Typography variant="body1">{option.supplierName}</Typography>
+                </Box>
+              </Box>
+            )}
+            isOptionEqualToValue={(option, value) =>
+              option && value && option.supplierId === value.supplierId
+            }
+            disablePortal
+            fullWidth
+            margin="normal"
+          />
         </FormControl>
         <TextField
           label="Price"
-          name="price"
-          value={formData.price}
+          name="rawPrice"
+          value={formData?.rawPrice || ""}
           onChange={handleChange}
           fullWidth
           margin="normal"
+        />
+        <TextField
+          label="Minimum Stock Level"
+          name="rawMinimumStockLevel"
+          value={formData?.rawMinimumStockLevel || ""}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          type="number"
+        />
+        <TextField
+          label="Description"
+          name="rawDescription"
+          value={formData?.rawDescription || ""}
+          onChange={handleChange}
+          fullWidth
+          margin="normal"
+          multiline
+          rows={4}
+          variant="outlined"
         />
         <Button
           variant="contained"
@@ -132,6 +192,7 @@ EditDrawer.propTypes = {
   onClose: PropTypes.func.isRequired,
   item: PropTypes.object.isRequired,
   onSave: PropTypes.func.isRequired,
-  newRawMaterial: PropTypes.object,
-  setNewRawMaterial: PropTypes.func,
+  setNewRawMaterial: PropTypes.func.isRequired,
+  supplierOptions: PropTypes.array.isRequired,
+  rawMaterialTypeOptions: PropTypes.array.isRequired,
 };

@@ -1,3 +1,5 @@
+import customerApi from "../../../api/customerApi"; // Adjust the import path as necessary
+
 import {
     IconButton,
     Table,
@@ -10,105 +12,50 @@ import {
     Button,
     Paper,
     Typography,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
 } from "@mui/material";
 import { MdEdit, MdDelete } from "react-icons/md";
-import EditDrawer from "./editDrawer";
+import EditDrawer from "./EditDrawer"; // Ensure correct path
 import { useState, useEffect } from "react";
 import axios from "axios";
 
 const CustomerList = () => {
-    // Sample data for demonstration
-    const sampleCustomers = [
-        {
-            customerId: 1,
-            customerCode: "CUST001",
-            customerName: "Ambiga Textiles",
-            customerEmail: "ambiga@example.com",
-            customerPhoneNo: ["555-123-4567", "555-987-6543"],
-            customerAddress: "123 Main St, Colombo",
-            customerNote: "Prefers email communication. Regular customer since 2020."
-        },
-        {
-            customerId: 2,
-            customerCode: "CUST002",
-            customerName: "Chathura Enterprises",
-            customerEmail: "chathura@example.com",
-            customerPhoneNo: ["555-234-5678"],
-            customerAddress: "456 Main st, Colombo",
-            customerNote: "Corporate account. Net 30 payment terms."
-        },
-        {
-            customerId: 3,
-            customerCode: "CUST003",
-            customerName: "Sanko Textiles",
-            customerEmail: "sanko@example.com",
-            customerPhoneNo: ["555-345-6789", "555-222-3333"],
-            customerAddress: "789 Main st, Maharagama",
-            customerNote: "Tech industry client. Interested in bulk orders."
-        },
-        {
-            customerId: 4,
-            customerCode: "CUST004",
-            customerName: "Sarah Williams",
-            customerEmail: "sarah.w@example.com",
-            customerPhoneNo: ["555-456-7890"],
-            customerAddress: "101 Main st, Maharagama",
-            customerNote: "Seasonal buyer. Usually orders in Q4."
-        },
-        {
-            customerId: 5,
-            customerCode: "CUST005",
-            customerName: "Robert Enterprises",
-            customerEmail: "robert.g@example.com",
-            customerPhoneNo: ["555-567-8901"],
-            customerAddress: "234 Maple Lane, Maharagama",
-            customerNote: "VIP customer. Special pricing applies."
-        },
-        {
-            customerId: 6,
-            customerCode: "CUST006",
-            customerName: "Lisa Taylor",
-            customerEmail: "lisa.t@example.com",
-            customerPhoneNo: ["555-678-9012", "555-444-5555"],
-            customerAddress: "567 Main Rd, Maharagama",
-            customerNote: "Prefers phone contact. Do not email marketing materials."
-        },
-        {
-            customerId: 7,
-            customerCode: "CUST007",
-            customerName: "Brown",
-            customerEmail: "david.b@example.com",
-            customerPhoneNo: ["555-789-0123"],
-            customerAddress: "890 Main st, Colombo",
-            customerNote: "New customer as of January 2025."
-        }
-    ];
-
-    const [customers, setCustomers] = useState(sampleCustomers);
+    const [customers, setCustomers] = useState([]);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [search, setSearch] = useState("");
     const [viewDetails, setViewDetails] = useState(false);
+    
+    // Add states for delete confirmation
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [customerToDelete, setCustomerToDelete] = useState(null);
 
-    // Keep the useEffect but modify it to only attempt API fetch if in production
     useEffect(() => {
-        // In a real environment, you would fetch from API
-        // For demo, we'll use the sample data
-        if (process.env.NODE_ENV === 'production') {
-            fetchCustomers();
-        }
+        fetchCustomers();
     }, []);
 
     const fetchCustomers = () => {
-        axios
-            .get("http://localhost:8085/api/v1/customer/all")
+        customerApi.getAll()
             .then((response) => {
-                setCustomers(response.data);
+                // Map backend fields to frontend structure
+                const formattedCustomers = response.data.map(customer => ({
+                    customerId: customer.id,
+                    customerCode: customer.customerCode,
+                    customerName: customer.customerName,
+                    customerEmail: customer.email,
+                    customerPhoneNo: customer.phoneNumbers,
+                    customerAddress: customer.address,
+                    customerNote: customer.notes
+                }));
+                setCustomers(formattedCustomers);
             })
             .catch((error) => {
                 console.error("Error fetching customers:", error);
-                // Fallback to sample data if API fails
-                setCustomers(sampleCustomers);
+                alert("Failed to load customers");
             });
     };
 
@@ -117,20 +64,34 @@ const CustomerList = () => {
         setDrawerOpen(true);
     };
 
-    const handleDeleteClick = (customerId) => {
-        // For demo, just update the local state
-        setCustomers(customers.filter((customer) => customer.customerId !== customerId));
+    // Modified to show confirmation dialog
+    const handleDeleteClick = (customer) => {
+        setCustomerToDelete(customer);
+        setDeleteDialogOpen(true);
+    };
+
+    // New function to handle actual deletion after confirmation
+    const confirmDelete = () => {
+        if (!customerToDelete) return;
         
-        // In production, would call API
-        if (process.env.NODE_ENV === 'production') {
-            axios
-                .delete(`http://localhost:8085/api/v1/customer/delete/${customerId}`)
-                .catch((error) => {
-                    console.error("Error deleting customer:", error);
-                    // Restore the deleted customer if API call fails
-                    fetchCustomers();
-                });
-        }
+        customerApi.delete(customerToDelete.customerId)
+            .then(() => {
+                setCustomers(customers.filter((c) => c.customerId !== customerToDelete.customerId));
+                setDeleteDialogOpen(false);
+                setCustomerToDelete(null);
+            })
+            .catch((error) => {
+                console.error("Error deleting customer:", error);
+                fetchCustomers(); // Refresh if there's an error
+                setDeleteDialogOpen(false);
+                setCustomerToDelete(null);
+            });
+    };
+
+    // Cancel deletion
+    const cancelDelete = () => {
+        setDeleteDialogOpen(false);
+        setCustomerToDelete(null);
     };
 
     const handleDrawerClose = () => {
@@ -139,24 +100,24 @@ const CustomerList = () => {
     };
 
     const handleSave = (updatedCustomer) => {
-        // For demo, just update the local state
-        setCustomers(customers.map(customer => 
-            customer.customerId === updatedCustomer.customerId ? updatedCustomer : customer
-        ));
-        setDrawerOpen(false);
-        
-        // In production, would call API
-        if (process.env.NODE_ENV === 'production') {
-            axios
-                .put(`http://localhost:8085/api/v1/customer/update/${updatedCustomer.customerId}`, updatedCustomer)
-                .then(() => {
-                    fetchCustomers(); // Refresh list after update
-                })
-                .catch((error) => {
-                    console.error("Error updating customer:", error);
-                });
-        }
-        setSelectedCustomer(null);
+        // Prepare data in backend DTO format
+        const backendData = {
+            customerCode: updatedCustomer.customerCode,
+            customerName: updatedCustomer.customerName,
+            email: updatedCustomer.customerEmail,
+            phoneNumbers: updatedCustomer.customerPhoneNo,
+            address: updatedCustomer.customerAddress,
+            notes: updatedCustomer.customerNote
+        };
+
+        customerApi.update(updatedCustomer.customerId, backendData)
+            .then(() => {
+                fetchCustomers(); 
+                setDrawerOpen(false);
+            })
+            .catch((error) => {
+                console.error("Error updating customer:", error);
+            });
     };
 
     const handleSearch = (event) => {
@@ -178,10 +139,9 @@ const CustomerList = () => {
         customer.customerCode.toLowerCase().includes(search.toLowerCase())
     );
 
-    // Table header style for gray background
     const headerStyle = {
-        backgroundColor: '#f5f5f5',  // Light gray background
-        fontWeight: 'bold'
+        backgroundColor: "#f5f5f5",
+        fontWeight: "bold",
     };
 
     return (
@@ -270,7 +230,6 @@ const CustomerList = () => {
                                                 color="info"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    setSelectedCustomer(customer);
                                                     handleEditClick(customer);
                                                 }}
                                             >
@@ -280,7 +239,7 @@ const CustomerList = () => {
                                                 color="error"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    handleDeleteClick(customer.customerId);
+                                                    handleDeleteClick(customer);
                                                 }}
                                             >
                                                 <MdDelete />
@@ -293,6 +252,59 @@ const CustomerList = () => {
                     </TableContainer>
                 </>
             )}
+            
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={cancelDelete}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title" className="bg-red-50 text-red-700">
+                    Confirm Customer Deletion
+                </DialogTitle>
+                <DialogContent className="mt-4">
+                    <DialogContentText id="alert-dialog-description">
+                        <div className="flex items-center mb-4">
+                            <div className="bg-red-100 p-2 rounded-full mr-3">
+                                <MdDelete className="text-red-600 text-xl" />
+                            </div>
+                            <span className="font-semibold">
+                                You are about to delete a customer record
+                            </span>
+                        </div>
+                        
+                        <p className="mb-4">
+                            Are you sure you want to delete customer <span className="font-bold">{customerToDelete?.customerName}</span> ({customerToDelete?.customerCode})?
+                        </p>
+                        
+                        <div className="bg-yellow-50 p-3 rounded-md border-l-4 border-yellow-400">
+                            <p className="text-yellow-800">
+                                Warning: This action cannot be undone. All data associated with this customer will be permanently removed from the system.
+                            </p>
+                        </div>
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions className="p-4 flex justify-end space-x-2">
+                    <Button 
+                        onClick={cancelDelete} 
+                        variant="outlined"
+                        className="px-4 py-2"
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        onClick={confirmDelete} 
+                        variant="contained" 
+                        color="error" 
+                        className="px-4 py-2"
+                        autoFocus
+                    >
+                        Delete Customer
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            
             {selectedCustomer && (
                 <EditDrawer
                     open={drawerOpen}
