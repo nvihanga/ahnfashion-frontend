@@ -289,7 +289,7 @@ export default function GRNForm() {
               Sub Total:
             </span>
             <span className="font-bold text-lg w-32 text-right">
-              {subTotal.toFixed(2)}
+              Rs.{subTotal.toFixed(2)}
             </span>
           </div>
         </div>
