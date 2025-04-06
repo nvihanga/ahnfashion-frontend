@@ -108,7 +108,7 @@ function InvoiceInformation() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-white rounded-lg shadow">
+    <div className="w-full mx-auto p-6 bg-white rounded-lg shadow">
       <h1 className="text-2xl font-bold mb-6 px-5">Add New Invoice Details</h1>
 
       <div className="bg-blue-50 py-6 rounded-lg mb-8 px-5 ">
@@ -224,22 +224,18 @@ function InvoiceInformation() {
         ))}
       </div>
 
-      <div className="flex flex-col items-end mb-6">
+      <div className="flex flex-col items-end mb-6 font-bold">
         <div className="w-full max-w-xs">
           <div className="flex justify-between py-2">
             <span>Sub Total:</span>
-            <span>{subTotal}</span>
-          </div>
-          <div className="flex justify-between py-2 font-bold">
-            <span>Grand Total:</span>
-            <span>{grandTotal.toFixed(2)}</span>
+            <span>{subTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-end gap-4">
+      <div className="flex justify-end gap-24">
         <button
-          className="px-6 py-2 bg-blue-500 text-white rounded-full"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
           onClick={handleCreate}
         >
           Create Invoice
