@@ -1,22 +1,137 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import DialogBox from "./dialogBox";
+import { getRawMaterials, getSuppliers } from "../../api/rawmaterial/api";
+import Toast from "../../common/Toast";
+import Select from "react-select";
+import { addPurchaseOrder } from "../../api/purchase-order/api";
 
 function InvoiceInformation() {
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
+  const [supplierOptions, setSupplierOptions] = useState([]);
+  const [productNameOptions, setProductNameOptions] = useState([]);
 
   const [invoiceItems, setInvoiceItems] = useState([
-    { id: 1, name: "", unitPrice: 0, units: 1, totalCost: 0 },
+    { id: 1, rawId: "", unitPrice: 0, units: 1, totalCost: 0 },
   ]);
+
+  const [toast, setToast] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
+  const handleCloseToast = () => {
+    setToast((prev) => ({ ...prev, open: false }));
+  };
+
+  const [errors, setErrors] = useState({
+    invoiceNo: "",
+    date: "",
+    supplier: "",
+    items: "",
+  });
+
+  const validateForm = () => {
+    const newErrors = {
+      invoiceNo: "",
+      date: "",
+      supplier: "",
+      items: "",
+    };
+
+    let isValid = true;
+
+    if (!invoiceDetails.invoiceNo.trim()) {
+      newErrors.invoiceNo = "Invoice number is required";
+      isValid = false;
+    }
+
+    if (!invoiceDetails.date) {
+      newErrors.date = "Date is required";
+      isValid = false;
+    }
+
+    if (!invoiceDetails.supplier) {
+      newErrors.supplier = "Supplier is required";
+      isValid = false;
+    }
+
+    const hasValidItem = invoiceItems.some(
+      (item) => item.rawId && item.units > 0 && item.unitPrice > 0
+    );
+    if (!hasValidItem) {
+      newErrors.items = "At least one item with valid details is required";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const response = await getSuppliers();
+        console.log("Suppliers response:", response);
+
+        setToast({
+          open: true,
+          severity: "success",
+          message: "Suppliers fetched successfully",
+        });
+
+        setSupplierOptions(Array.isArray(response) ? response : []);
+      } catch (error) {
+        setToast({
+          open: true,
+          severity: "error",
+          message:
+            error.response?.data && typeof error.response.data === "object"
+              ? error.response.data.errorMessage ||
+                JSON.stringify(error.response.data)
+              : error.response?.data ||
+                error.message ||
+                "Failed to fetch suppliers",
+        });
+      }
+    };
+    fetchSuppliers();
+  }, []);
+
+  useEffect(() => {
+    const fetchRawMaterials = async () => {
+      try {
+        const response = await getRawMaterials();
+
+        setToast({
+          open: true,
+          severity: "success",
+          message: "Raw materials fetched successfully",
+        });
+
+        setProductNameOptions(
+          Array.isArray(response.data) ? response.data : []
+        );
+      } catch (error) {
+        setToast({
+          open: true,
+          severity: "error",
+          message:
+            error.response?.data && typeof error.response.data === "object"
+              ? error.response.data.errorMessage ||
+                JSON.stringify(error.response.data)
+              : error.response?.data ||
+                error.message ||
+                "Failed to fetch raw materials",
+        });
+      }
+    };
+    fetchRawMaterials();
+  }, []);
 
   const [invoiceDetails, setInvoiceDetails] = useState({
     invoiceNo: "",
-    date: new Date().toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }),
+    date: new Date().toISOString().split("T")[0], // Format: YYYY-MM-DD
     supplier: "",
   });
 
@@ -26,33 +141,51 @@ function InvoiceInformation() {
   );
   const grandTotal = subTotal;
 
+  const formattedSupplierOptions = supplierOptions.map((supplier) => ({
+    value: supplier.supplierId,
+    label: supplier.supplierName,
+  }));
+
+  const formattedRawMaterialOptions = productNameOptions.map((product) => ({
+    value: product.rawId,
+    label: product.rawName,
+    price: product.rawPrice,
+  }));
+
   const handleItemChange = (id, field, value) => {
     setInvoiceItems((prevItems) =>
       prevItems.map((item) => {
         if (item.id === id) {
-          const updatedItem = { ...item, [field]: value };
+          const updatedItem = { ...item };
 
-          // Recalculate total cost if unit price or units change
-          if (field === "unitPrice" || field === "units") {
-            const unitPrice =
-              field === "unitPrice"
-                ? Number.parseFloat(value) || 0
-                : Number.parseFloat(item.unitPrice) || 0;
-            const units =
-              field === "units"
-                ? Number.parseFloat(value) || 0
-                : Number.parseFloat(item.units) || 0;
-            updatedItem.totalCost = unitPrice * units;
+          if (field === "rawId") {
+            const selectedValue = value ? value.value : "";
+            updatedItem[field] = selectedValue;
+
+            if (value) {
+              updatedItem.unitPrice = value.price;
+              updatedItem.totalCost = value.price * updatedItem.units;
+            }
+          } else {
+            updatedItem[field] = value;
+            if (field === "unitPrice" || field === "units") {
+              const unitPrice =
+                field === "unitPrice"
+                  ? Number.parseFloat(value) || 0
+                  : Number.parseFloat(item.unitPrice) || 0;
+              const units =
+                field === "units"
+                  ? Number.parseFloat(value) || 0
+                  : Number.parseFloat(item.units) || 0;
+              updatedItem.totalCost = unitPrice * units;
+            }
           }
-
           return updatedItem;
         }
         return item;
       })
     );
   };
-
-  //cancel function eka hadanna ona. eka run wenna ona dialog box eke yes ebuwama thiyana state siyalla initial state ekata enna ona.
 
   const addNewItem = () => {
     const newId =
@@ -61,7 +194,7 @@ function InvoiceInformation() {
         : 1;
     setInvoiceItems([
       ...invoiceItems,
-      { id: newId, name: "", unitPrice: 0, units: 1, totalCost: 0 },
+      { id: newId, rawId: "", unitPrice: 0, units: 1, totalCost: 0 },
     ]);
   };
 
@@ -69,85 +202,158 @@ function InvoiceInformation() {
     if (invoiceItems.length > 1) {
       setInvoiceItems(invoiceItems.filter((item) => item.id !== id));
     } else {
-      // If it's the last item, just clear it instead of removing
       setInvoiceItems([
-        { id: 1, name: "", unitPrice: 0, units: 1, totalCost: 0 },
+        { id: 1, rawId: "", unitPrice: 0, units: 1, totalCost: 0 },
       ]);
     }
   };
 
   const handleCancelClick = () => {
     setInvoiceItems([
-      { id: 1, name: "", unitPrice: 0, units: 1, totalCost: 0 },
+      { id: 1, rawId: "", unitPrice: 0, units: 1, totalCost: 0 },
     ]);
+
     setInvoiceDetails({
       invoiceNo: "",
-      date: new Date().toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      supplier: "",
+      date: "",
+      supplier: null,
     });
+
+    setErrors({
+      invoiceNo: "",
+      date: "",
+      supplier: "",
+      items: "",
+    });
+
     setDialogBoxOpen(false);
   };
 
   const handleDetailsChange = (field, value) => {
-    setInvoiceDetails({ ...invoiceDetails, [field]: value });
+    if (field === "supplier") {
+      setInvoiceDetails({
+        ...invoiceDetails,
+        [field]: value ? value.value : "",
+      });
+    } else if (field === "date") {
+      setInvoiceDetails({
+        ...invoiceDetails,
+        date: value || new Date().toISOString().split("T")[0],
+      });
+    } else {
+      setInvoiceDetails({ ...invoiceDetails, [field]: value });
+    }
   };
 
-  function handleCreate() {
-    const invoice = {
-      ...invoiceDetails,
-      items: invoiceItems,
-      subTotal: subTotal,
-      grandTotal: grandTotal,
+  async function handleCreate() {
+    if (!validateForm()) {
+      setToast({
+        open: true,
+        severity: "error",
+        message: "Please fill in all required fields",
+      });
+      return;
+    }
+
+    const formattedInvoice = {
+      invoiceNumber: invoiceDetails.invoiceNo,
+      supplierId: parseInt(invoiceDetails.supplier),
+      purchaseOrderDate: new Date(
+        invoiceDetails.date + "T00:00:00"
+      ).toISOString(),
+      purchaseOrderTotal: grandTotal,
+      purchaseOrderItems: invoiceItems.map((item) => ({
+        rawId: item.rawId ? Number(item.rawId) : null,
+        rawUnitPrice: parseFloat(item.unitPrice),
+        rawUnits: parseFloat(item.units),
+        itemTotal: item.totalCost,
+      })),
     };
-    console.log(invoice);
+
+    try {
+      const response = await addPurchaseOrder(formattedInvoice);
+      console.log("Purchase order created:", response);
+      setToast({
+        open: true,
+        severity: "success",
+        message: "Purchase order created successfully",
+      });
+      handleCancelClick();
+    } catch (error) {
+      console.error("Error creating purchase order:", error);
+      setToast({
+        open: true,
+        severity: "error",
+        message:
+          error.response?.data?.errorMessage ||
+          error.message ||
+          "Failed to create purchase order",
+      });
+    }
   }
 
   return (
     <div className="w-full mx-auto p-6 bg-white rounded-lg shadow">
       <h1 className="text-2xl font-bold mb-6 px-5">Add New Invoice Details</h1>
 
-      <div className="bg-blue-50 py-6 rounded-lg mb-8 px-5 ">
+      <div className="bg-blue-50 py-6 rounded-lg mb-8 px-5">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block font-medium mb-2">Invoice No </label>
+            <label className="block font-medium mb-2">
+              Invoice No <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
-              className="w-full p-2 border rounded"
+              className={`w-full p-2 border rounded ${
+                errors.invoiceNo ? "border-red-500" : ""
+              }`}
               value={invoiceDetails.invoiceNo}
               onChange={(e) => handleDetailsChange("invoiceNo", e.target.value)}
             />
+            {errors.invoiceNo && (
+              <p className="text-red-500 text-sm mt-1">{errors.invoiceNo}</p>
+            )}
           </div>
           <div>
-            <label className="block font-medium mb-2">Date</label>
+            <label className="block font-medium mb-2">
+              Date <span className="text-red-500">*</span>
+            </label>
             <input
               type="date"
-              className="w-full p-2 border rounded"
+              className={`w-full p-2 border rounded ${
+                errors.date ? "border-red-500" : ""
+              }`}
               value={invoiceDetails.date}
               onChange={(e) => handleDetailsChange("date", e.target.value)}
             />
+            {errors.date && (
+              <p className="text-red-500 text-sm mt-1">{errors.date}</p>
+            )}
           </div>
           <div>
-            <label className="block font-medium mb-2">Supplier</label>
-            <select
-              className="w-full p-2 border rounded"
-              value={invoiceDetails.supplier}
-              onChange={(e) => handleDetailsChange("supplier", e.target.value)}
-            >
-              <option value="Kamal">Kamal</option>
-              <option value="Jhon">John</option>
-              <option value="Doe">Doe</option>
-            </select>
+            <label className="block font-medium mb-2">
+              Supplier <span className="text-red-500">*</span>
+            </label>
+            <Select
+              className={`w-full ${errors.supplier ? "border-red-500" : ""}`}
+              value={formattedSupplierOptions.find(
+                (option) => option.value === invoiceDetails.supplier
+              )}
+              onChange={(value) => handleDetailsChange("supplier", value)}
+              options={formattedSupplierOptions}
+              isClearable
+              placeholder="Search supplier..."
+            />
+            {errors.supplier && (
+              <p className="text-red-500 text-sm mt-1">{errors.supplier}</p>
+            )}
           </div>
         </div>
       </div>
 
       <div className="mb-4 px-5">
         <div className="grid grid-cols-12 gap-4 font-medium py-2 border-b">
+          <div className="col-span-1"></div>
           <div className="col-span-5">Item Name</div>
           <div className="col-span-2">Unit Price</div>
           <div className="col-span-2">Units</div>
@@ -170,21 +376,17 @@ function InvoiceInformation() {
             </div>
             <div className="col-span-4">
               <div className="text-xs text-gray-500">Item Name</div>
-              <select
-                className="w-full p-2 border rounded"
-                value={item.name}
-                onChange={(e) =>
-                  handleItemChange(item.id, "name", e.target.value)
-                }
-              >
-                <option value="Buttons" selected>
-                  Buttons
-                </option>
-                <option value="Treads">Treads</option>
-                <option value="Fabrics">Fabrics</option>
-              </select>
+              <Select
+                className="w-full"
+                value={formattedRawMaterialOptions.find(
+                  (option) => option.value === item.rawId
+                )}
+                onChange={(value) => handleItemChange(item.id, "rawId", value)}
+                options={formattedRawMaterialOptions}
+                isClearable
+                placeholder="Search item..."
+              />
             </div>
-
             <div className="col-span-2">
               <div className="text-xs text-gray-500">Unit Price</div>
               <input
@@ -196,7 +398,6 @@ function InvoiceInformation() {
                 }
               />
             </div>
-
             <div className="col-span-2">
               <div className="text-xs text-gray-500">Units</div>
               <input
@@ -222,13 +423,16 @@ function InvoiceInformation() {
             </div>
           </div>
         ))}
+        {errors.items && (
+          <p className="text-red-500 text-sm mt-2">{errors.items}</p>
+        )}
       </div>
 
       <div className="flex flex-col items-end mb-6 font-bold">
         <div className="w-full max-w-xs">
           <div className="flex justify-between py-2">
             <span>Sub Total:</span>
-            <span>{subTotal.toFixed(2)}</span>
+            <span>Rs.{subTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -241,7 +445,7 @@ function InvoiceInformation() {
           Create Invoice
         </button>
         <button
-          className="px-6 py-2 bg-red-400 text-white rounded-full"
+          className="px-6 py-2 bg-red-400 text-white rounded"
           onClick={() => setDialogBoxOpen(true)}
         >
           Cancel
@@ -252,6 +456,12 @@ function InvoiceInformation() {
         openProp={dialogBoxOpen}
         onCloseProp={() => setDialogBoxOpen(false)}
         handleCancelProp={() => handleCancelClick()}
+      />
+      <Toast
+        open={toast.open}
+        handleClose={handleCloseToast}
+        severity={toast.severity}
+        message={toast.message}
       />
     </div>
   );

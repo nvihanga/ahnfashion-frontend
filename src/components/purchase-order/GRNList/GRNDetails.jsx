@@ -133,10 +133,10 @@ export default function GRNDetails({
                       {item.quantity}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      ${item.unitPrice.toFixed(2)}
+                      {item.unitPrice.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      ${item.totalPrice.toFixed(2)}
+                      Rs.{item.totalPrice.toFixed(2)}
                     </td>
                   </tr>
                 ))}
@@ -149,7 +149,7 @@ export default function GRNDetails({
           <div className="flex justify-between w-64 border-t pt-2">
             <span className="font-medium">Total Amount:</span>
             <span className="font-bold">
-              ${selectedGRN.totalAmount.toFixed(2)}
+              Rs.{selectedGRN.totalAmount.toFixed(2)}
             </span>
           </div>
           <div className="flex justify-between w-64 mt-2">
