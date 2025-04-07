@@ -1,6 +1,7 @@
 import customerApi from "../../../api/customerApi"; // Adjust the import path as necessary
 
 import {
+import {
     IconButton,
     Table,
     TableBody,
@@ -75,6 +76,9 @@ const CustomerList = () => {
         if (!customerToDelete) return;
         
         customerApi.delete(customerToDelete.customerId)
+
+        axios
+            .delete(`http://localhost:8085/api/v1/customer/delete/${customerToDelete.customerId}`)
             .then(() => {
                 setCustomers(customers.filter((c) => c.customerId !== customerToDelete.customerId));
                 setDeleteDialogOpen(false);
@@ -134,9 +138,10 @@ const CustomerList = () => {
         setSelectedCustomer(null);
     };
 
+    // 🔍 Filter by name or email
     const filteredCustomers = customers.filter((customer) =>
         customer.customerName.toLowerCase().includes(search.toLowerCase()) ||
-        customer.customerCode.toLowerCase().includes(search.toLowerCase())
+        customer.customerEmail.toLowerCase().includes(search.toLowerCase())
     );
 
     const headerStyle = {
@@ -191,7 +196,7 @@ const CustomerList = () => {
                         <h1 className="text-xl">Search</h1>
                         <TextField
                             id="search"
-                            label="Search by Name or Customer Code"
+                            label="Search by Name or Email"
                             variant="outlined"
                             value={search}
                             onChange={handleSearch}
@@ -252,8 +257,7 @@ const CustomerList = () => {
                     </TableContainer>
                 </>
             )}
-            
-            {/* Delete Confirmation Dialog */}
+
             <Dialog
                 open={deleteDialogOpen}
                 onClose={cancelDelete}
@@ -273,11 +277,11 @@ const CustomerList = () => {
                                 You are about to delete a customer record
                             </span>
                         </div>
-                        
+
                         <p className="mb-4">
                             Are you sure you want to delete customer <span className="font-bold">{customerToDelete?.customerName}</span> ({customerToDelete?.customerCode})?
                         </p>
-                        
+
                         <div className="bg-yellow-50 p-3 rounded-md border-l-4 border-yellow-400">
                             <p className="text-yellow-800">
                                 Warning: This action cannot be undone. All data associated with this customer will be permanently removed from the system.
@@ -286,17 +290,17 @@ const CustomerList = () => {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions className="p-4 flex justify-end space-x-2">
-                    <Button 
-                        onClick={cancelDelete} 
+                    <Button
+                        onClick={cancelDelete}
                         variant="outlined"
                         className="px-4 py-2"
                     >
                         Cancel
                     </Button>
-                    <Button 
-                        onClick={confirmDelete} 
-                        variant="contained" 
-                        color="error" 
+                    <Button
+                        onClick={confirmDelete}
+                        variant="contained"
+                        color="error"
                         className="px-4 py-2"
                         autoFocus
                     >
@@ -304,7 +308,7 @@ const CustomerList = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-            
+
             {selectedCustomer && (
                 <EditDrawer
                     open={drawerOpen}
