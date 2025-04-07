@@ -64,7 +64,7 @@ const CustomerForm = () => {
         };
 
         try {
-            await customerApi.create(customerData); // Adjust the API call as necessary
+            await customerApi.create(customerData); 
             setSuccess(true);
             setCustomer(initialCustomerState);
         } catch (error) {

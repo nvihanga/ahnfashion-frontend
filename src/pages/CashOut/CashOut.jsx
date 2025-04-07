@@ -1,8 +1,8 @@
 import { Button, TextField } from "@mui/material";
 import { useState } from "react";
-import axios from "axios";
 import { useSnackbar } from "notistack";
 import { format } from "date-fns";
+import cashOutApi from '../../api/cashOutApi'; 
 
 const initialCashOutState = {
   reason: "",
@@ -40,7 +40,7 @@ const CashOutForm = ({ refreshList }) => {
     };
 
     try {
-      await axios.post("http://localhost:8085/api/v1/cashout", cashOutData);
+      await cashOutApi.create(cashOutData); // Use the API's create method
       enqueueSnackbar("Cash out recorded successfully!", {
         variant: "success",
       });
@@ -94,7 +94,7 @@ const CashOutForm = ({ refreshList }) => {
         helperText={errors.amount || "Enter amount"}
         InputProps={{
           inputProps: { min: 0 },
-          startAdornment: <span style={{ marginRight: 4 }}>රු</span>,
+          startAdornment: <span style={{ marginRight: 4 }}>Rs.</span>,
         }}
       />
       <TextField

@@ -16,7 +16,6 @@ import { MdClose } from "react-icons/md";
 const EditDrawer = ({ open, onClose, item, onSave }) => {
     const [formData, setFormData] = useState({
         customerId: "",
-        customerCode: "",
         customerName: "",
         customerEmail: "",
         customerPhoneNo: [""],
@@ -29,7 +28,9 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
         if (item) {
             setFormData({
                 ...item,
-                customerPhoneNo: [...item.customerPhoneNo],
+                customerPhoneNo: Array.isArray(item.customerPhoneNo) 
+                    ? [...item.customerPhoneNo] 
+                    : [item.customerPhoneNo || ""],
             });
         }
     }, [item]);
@@ -59,12 +60,15 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
     };
 
     const removePhoneField = (index) => {
-        const updatedPhones = [...formData.customerPhoneNo];
-        updatedPhones.splice(index, 1);
-        setFormData({
-            ...formData,
-            customerPhoneNo: updatedPhones,
-        });
+        if (formData.customerPhoneNo.length > 1) {
+            const updatedPhones = formData.customerPhoneNo.filter((_, i) => i !== index);
+            setFormData({
+                ...formData,
+                customerPhoneNo: updatedPhones
+            });
+            // Note: We don't call onSave here anymore, and we don't close the drawer
+            // The changes will be saved only when clicking "Save Changes"
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -72,8 +76,7 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
         try {
             await onSave(formData);
             setSuccess(true);
-            // Optional: Close drawer after a delay
-            // setTimeout(() => onClose(), 1500);
+            onClose(); // Close drawer only after successful save
         } catch (error) {
             console.error("Error saving customer data:", error);
         }
@@ -108,15 +111,6 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
 
                 <form onSubmit={handleSubmit}>
                     <Stack spacing={3}>
-                        <TextField
-                            name="customerCode"
-                            label="Customer Code"
-                            value={formData.customerCode}
-                            onChange={handleChange}
-                            fullWidth
-                            required
-                        />
-
                         <TextField
                             name="customerName"
                             label="Customer Name"

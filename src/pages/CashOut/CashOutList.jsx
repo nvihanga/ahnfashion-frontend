@@ -1,20 +1,31 @@
-import {
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    TextField, Paper
-} from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper } from "@mui/material";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { format } from "date-fns";
+import cashOutApi from '../../api/cashOutApi';
 
 const CashOutList = () => {
     const [cashOuts, setCashOuts] = useState([]);
     const [search, setSearch] = useState("");
 
-    const fetchCashOuts = () => {
-        axios.get("http://localhost:8085/api/v1/cashout")
-            .then(res => setCashOuts(res.data))
-            .catch(err => console.error("Failed to fetch:", err));
-    };
+    const fetchCashOuts = async () => {
+        try {
+          const response = await cashOutApi.getAll();
+          console.log("Full API Response:", response);
+          if (response.data && Array.isArray(response.data)) {
+            setCashOuts(response.data);
+          } else {
+            console.error("Unexpected response format:", response);
+            setCashOuts([]);
+          }
+        } catch (err) {
+          console.error("Failed to fetch:", err);
+          if (err.response) {
+            console.error("Response status:", err.response.status);
+            console.error("Response data:", err.response.data);
+          }
+          setCashOuts([]);
+        }
+      };
 
     useEffect(() => {
         fetchCashOuts();
@@ -47,7 +58,7 @@ const CashOutList = () => {
                             <TableRow key={co.id}>
                                 <TableCell>{format(new Date(co.date), 'yyyy-MM-dd')}</TableCell>
                                 <TableCell>{co.reason}</TableCell>
-                                <TableCell>රු {co.amount.toFixed(2)}</TableCell>
+                                <TableCell>Rs. {co.amount.toFixed(2)}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
