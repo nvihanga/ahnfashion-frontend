@@ -1,5 +1,11 @@
+import PurchaseOrderTable from "../../components/purchase-order/list/purchaseOrderTable";
+
 const List = () => {
-  return <div className="m-8">List</div>;
+  return (
+    <div className="mt-8">
+      <PurchaseOrderTable />
+    </div>
+  );
 };
 
 export default List;

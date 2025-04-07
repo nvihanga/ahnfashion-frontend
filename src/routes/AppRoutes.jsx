@@ -42,6 +42,12 @@ const SuppiersAdd = lazy(() => import("../pages/Suppliers/AddList"));
 
 const PurchaseOrderAdd = lazy(() => import("../pages/purchase-order/Add"));
 const PurchaseOrderList = lazy(() => import("../pages/purchase-order/List"));
+const PurchaseOrderCreateGrn = lazy(() =>
+  import("../pages/purchase-order/CreateGRN.jsx")
+);
+const PurchaseOrderGrnList = lazy(() =>
+  import("../pages/purchase-order/GRNList")
+);
 
 const SalesOrderAdd = lazy(() => import("../pages/SalesOrder/AddOrder"));
 const SalesOrderList = lazy(() => import("../pages/SalesOrder/List"));
@@ -163,6 +169,14 @@ const AppRoutes = () => {
                 path={ROUTES.PROTECTED.PURCHASE_ORDER.LIST}
                 element={<PurchaseOrderList />}
               />
+              <Route
+                path={ROUTES.PROTECTED.PURCHASE_ORDER.CREATE_GRN}
+                element={<PurchaseOrderCreateGrn />}
+              />
+              <Route
+                path={ROUTES.PROTECTED.PURCHASE_ORDER.GRN_LIST}
+                element={<PurchaseOrderGrnList />}
+              />
             </Route>
 
             <Route
@@ -210,10 +224,7 @@ const AppRoutes = () => {
                 path={ROUTES.PROTECTED.DASHBOARD.ADMIN}
                 element={<AdminDashboard />}
               />
-              <Route 
-                path={ROUTES.PROTECTED.SETTING}
-                element={<Setting/>}
-              />
+              <Route path={ROUTES.PROTECTED.SETTING} element={<Setting />} />
             </Route>
 
             {/* Shared Sales/Admin Routes */}

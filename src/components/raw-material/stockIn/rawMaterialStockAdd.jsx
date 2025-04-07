@@ -1,29 +1,17 @@
 import {
   Button,
   FormControl,
-  InputLabel,
   TextField,
-  Select,
-  MenuItem,
   FormHelperText,
+  Autocomplete,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-
-const productNameArray = [
-  { id: 1, name: "Buttons" },
-  { id: 2, name: "Threads" },
-  { id: 3, name: "Fabrics" },
-  { id: 4, name: "Labels" },
-];
-const supplierArray = [
-  { id: 1, name: "Naturub Industries (Pvt) Ltd" },
-  { id: 2, name: "CIB Accessories" },
-  { id: 3, name: "Chathura Enterprices" },
-  { id: 4, name: "Sanko Texttiles" },
-];
+import { getRawMaterials, getSuppliers } from "../../api/rawmaterial/api";
+import Toast from "../../common/Toast";
+import { addRawMaterialStock } from "../../api/rawmaterial-stock/api";
 
 const RawMaterialStockAdd = ({ setStockList, stockList }) => {
   const [productName, setProductName] = useState("");
@@ -32,6 +20,19 @@ const RawMaterialStockAdd = ({ setStockList, stockList }) => {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(null);
   const [errors, setErrors] = useState({});
+
+  const [supplierOptions, setSupplierOptions] = useState([]);
+  const [productNameOptions, setProductNameOptions] = useState([]);
+
+  const [toast, setToast] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
+
+  const handleCloseToast = () => {
+    setToast((prev) => ({ ...prev, open: false }));
+  };
 
   const validateForm = () => {
     let errors = {};
@@ -47,20 +48,82 @@ const RawMaterialStockAdd = ({ setStockList, stockList }) => {
     return Object.keys(errors).length === 0;
   };
 
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const response = await getSuppliers();
+
+        setToast({
+          open: true,
+          severity: "success",
+          message: "Suppliers fetched successfully",
+        });
+
+        setSupplierOptions(Array.isArray(response) ? response : []);
+      } catch (error) {
+        setToast({
+          open: true,
+          severity: "error",
+          message:
+            error.response?.data && typeof error.response.data === "object"
+              ? error.response.data.errorMessage ||
+                JSON.stringify(error.response.data)
+              : error.response?.data ||
+                error.message ||
+                "Failed to fetch suppliers",
+        });
+      }
+    };
+    fetchSuppliers();
+  }, []);
+
+  useEffect(() => {
+    const fetchRawMaterials = async () => {
+      try {
+        const response = await getRawMaterials();
+
+        setToast({
+          open: true,
+          severity: "success",
+          message: "Raw materials fetched successfully",
+        });
+
+        setProductNameOptions(
+          Array.isArray(response.data) ? response.data : []
+        );
+      } catch (error) {
+        setToast({
+          open: true,
+          severity: "error",
+          message:
+            error.response?.data && typeof error.response.data === "object"
+              ? error.response.data.errorMessage ||
+                JSON.stringify(error.response.data)
+              : error.response?.data ||
+                error.message ||
+                "Failed to fetch raw materials",
+        });
+      }
+    };
+    fetchRawMaterials();
+  }, []);
+
   const handleAddToList = () => {
     if (!validateForm()) return;
 
-    const selectedProduct = productNameArray.find(
-      (product) => product.name === productName
+    const selectedProduct = productNameOptions.find(
+      (product) => product.rawName === productName
     );
 
-    const selectedSupplier = supplierArray.find((sup) => sup.name === supplier);
+    const selectedSupplier = supplierOptions.find(
+      (sup) => sup.supplierName === supplier
+    );
 
     const stock = {
-      productName: selectedProduct.name,
-      productId: selectedProduct.id,
-      supplier: selectedSupplier.name,
-      supplierId: selectedSupplier.id,
+      productName: selectedProduct.rawName,
+      productId: selectedProduct.rawId,
+      supplier: selectedSupplier.supplierName,
+      supplierId: selectedSupplier.supplierId,
       description: description,
       quantity: quantity,
       date: date ? date.toDate() : null, // Convert Dayjs object to JavaScript Date object
@@ -78,20 +141,38 @@ const RawMaterialStockAdd = ({ setStockList, stockList }) => {
 
   const handlePublish = () => {
     console.log(stockList);
-  };
+    const handlePublish = async () => {
+      if (stockList.length === 0) {
+        setToast({
+          open: true,
+          severity: "error",
+          message: "No items to publish",
+        });
+        return;
+      }
 
-  const handleProductNameChange = (e) => {
-    setProductName(e.target.value);
-    if (errors.productName) {
-      setErrors((prevErrors) => ({ ...prevErrors, productName: "" }));
-    }
-  };
+      try {
+        await addRawMaterialStock(stockList);
+        setToast({
+          open: true,
+          severity: "success",
+          message: "Stock added successfully",
+        });
+        setStockList([]);
+      } catch (error) {
+        setToast({
+          open: true,
+          severity: "error",
+          message:
+            error.response?.data && typeof error.response.data === "object"
+              ? error.response.data.errorMessage ||
+                JSON.stringify(error.response.data)
+              : error.response?.data || error.message || "Failed to add stock",
+        });
+      }
+    };
 
-  const handleSupplierChange = (e) => {
-    setSupplier(e.target.value);
-    if (errors.supplier) {
-      setErrors((prevErrors) => ({ ...prevErrors, supplier: "" }));
-    }
+    handlePublish();
   };
 
   const handleQuantityChange = (e) => {
@@ -115,26 +196,30 @@ const RawMaterialStockAdd = ({ setStockList, stockList }) => {
           <strong>Stock Add</strong>
         </h1>
         <Button variant="contained" onClick={handlePublish}>
-          Publish
+          Add to Main Stock
         </Button>
       </div>
       <div className="flex flex-row justify-between mt-5">
         <div className="w-4/5">
           <div>
             <FormControl fullWidth error={!!errors.productName}>
-              <InputLabel id="product_name">Product Name</InputLabel>
-              <Select
-                id="product_name"
-                value={productName}
-                label="Product Name"
-                onChange={handleProductNameChange}
-              >
-                {productNameArray.map((name) => (
-                  <MenuItem key={name.id} value={name.name}>
-                    {name.name}
-                  </MenuItem>
-                ))}
-              </Select>
+              <Autocomplete
+                options={
+                  Array.isArray(productNameOptions) ? productNameOptions : []
+                }
+                getOptionLabel={(option) => option.rawName}
+                onChange={(event, value) => {
+                  const productName = value ? value.rawName : "";
+                  setProductName(productName);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select Product Name"
+                    variant="outlined"
+                  />
+                )}
+              />
               {errors.productName && (
                 <FormHelperText>{errors.productName}</FormHelperText>
               )}
@@ -143,19 +228,21 @@ const RawMaterialStockAdd = ({ setStockList, stockList }) => {
 
           <div className="mt-5">
             <FormControl fullWidth error={!!errors.supplier}>
-              <InputLabel id="supplier">Supplier</InputLabel>
-              <Select
-                id="supplier"
-                value={supplier}
-                label="Supplier"
-                onChange={handleSupplierChange}
-              >
-                {supplierArray.map((name) => (
-                  <MenuItem key={name.id} value={name.name}>
-                    {name.name}
-                  </MenuItem>
-                ))}
-              </Select>
+              <Autocomplete
+                options={Array.isArray(supplierOptions) ? supplierOptions : []}
+                getOptionLabel={(option) => option.supplierName}
+                onChange={(event, value) => {
+                  const supplierName = value ? value.supplierName : "";
+                  setSupplier(supplierName);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select Supplier"
+                    variant="outlined"
+                  />
+                )}
+              />
               {errors.supplier && (
                 <FormHelperText>{errors.supplier}</FormHelperText>
               )}
@@ -206,6 +293,12 @@ const RawMaterialStockAdd = ({ setStockList, stockList }) => {
           </Button>
         </div>
       </div>
+      <Toast
+        open={toast.open}
+        handleClose={handleCloseToast}
+        severity={toast.severity}
+        message={toast.message}
+      />
     </div>
   );
 };
