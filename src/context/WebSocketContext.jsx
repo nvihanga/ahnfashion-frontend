@@ -11,6 +11,7 @@ export const WebSocketProvider = ({ children }) => {
   const [stompClient, setStompClient] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [productPerformance, setProductPerformance] = useState([]);
   const { user } = useAuth();
   const location = useLocation();
 
@@ -31,9 +32,10 @@ export const WebSocketProvider = ({ children }) => {
       });
 
       client.onConnect = () => {
+        // Existing subscriptions
         client.subscribe('/topic/notifications', (message) => {
           const newNotification = JSON.parse(message.body);
-          const userRole = user.role.toUpperCase(); // Match backend role format
+          const userRole = user.role.toUpperCase();
           const notificationRoles = newNotification.roles
             ? newNotification.roles.split(',').map(role => role.trim().toUpperCase())
             : [];
@@ -45,11 +47,18 @@ export const WebSocketProvider = ({ children }) => {
 
         client.subscribe('/topic/total-revenue', (message) => {
           const revenue = parseFloat(message.body);
-          console.log('Received total revenue:', revenue); // Add logging for debugging
           setTotalRevenue(revenue);
         });
+
+        // New product performance subscription
+        client.subscribe('/topic/product-performance', (message) => {
+          const performanceData = JSON.parse(message.body);
+          setProductPerformance(performanceData);
+        });
+
+        // Request initial data
         client.publish({ destination: '/app/request-total-revenue' });
-      
+        client.publish({ destination: '/app/request-product-performance' });
       };
 
       client.activate();
@@ -62,7 +71,13 @@ export const WebSocketProvider = ({ children }) => {
   }, [user?.token]);
 
   return (
-    <WebSocketContext.Provider value={{ notifications, setNotifications,totalRevenue }}>
+    <WebSocketContext.Provider value={{ 
+      notifications, 
+      setNotifications,
+      totalRevenue,
+      productPerformance,
+      stompClient
+    }}>
       {children}
     </WebSocketContext.Provider>
   );

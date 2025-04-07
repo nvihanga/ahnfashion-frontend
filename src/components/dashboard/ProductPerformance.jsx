@@ -3,8 +3,9 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 
 const ResponsiveBarChart = ({
   data,
-  title = 'Top Selling Products',
+  title = 'Product Performance',
   barColor = '#3B82F6',
+  revenueColor = '#10B981',
   borderRadius = [4, 4, 4, 4],
   textColor = '#4B5563',
   tooltipBackground = '#ffffff',
@@ -29,6 +30,10 @@ const ResponsiveBarChart = ({
 
   // Sort data by sold units (descending)
   const sortedData = [...data].sort((a, b) => b.sold - a.sold);
+
+  // Calculate totals
+  const totalSold = sortedData.reduce((sum, p) => sum + p.sold, 0);
+  const totalRevenue = sortedData.reduce((sum, p) => sum + (p.revenue || 0), 0);
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-sm border border-gray-100">
@@ -59,11 +64,23 @@ const ResponsiveBarChart = ({
             />
             
             <YAxis 
+              yAxisId="left"
               tick={{ 
                 fill: textColor,
                 fontSize: isMobile ? 10 : 12
               }}
               tickFormatter={(value) => `${value}${isMobile ? '' : ' units'}`}
+              width={isMobile ? 60 : 80}
+            />
+
+            <YAxis 
+              yAxisId="right"
+              orientation="right"
+              tick={{ 
+                fill: textColor,
+                fontSize: isMobile ? 10 : 12
+              }}
+              tickFormatter={(value) => `$${value.toLocaleString()}`}
               width={isMobile ? 60 : 80}
             />
             
@@ -75,13 +92,28 @@ const ResponsiveBarChart = ({
                 color: textColor,
                 fontSize: isMobile ? 12 : 14
               }}
-              formatter={(value) => [`${value} units`, 'Sold']}
-              itemStyle={{ color: barColor }}
+              formatter={(value, name) => {
+                if (name === 'Units Sold') return [value, name];
+                if (name === 'Revenue') return [`$${value.toFixed(2)}`, name];
+              }}
+              itemStyle={{ padding: 0 }}
             />
 
             <Bar 
+              yAxisId="left"
               dataKey="sold"
+              name="Units Sold"
               fill={barColor}
+              radius={borderRadius}
+              barSize={barSize}
+              animationDuration={400}
+            />
+
+            <Bar 
+              yAxisId="right"
+              dataKey="revenue"
+              name="Revenue"
+              fill={revenueColor}
               radius={borderRadius}
               barSize={barSize}
               animationDuration={400}
@@ -94,36 +126,17 @@ const ResponsiveBarChart = ({
         <span className="hidden md:inline">
           Showing top {sortedData.length} products | 
         </span>
-        Total {sortedData.reduce((sum, p) => sum + p.sold, 0)} units sold
+        <div className="mt-1">
+          <span className="mr-4">Total Sold: {totalSold} units</span>
+          <span>Total Revenue: ${totalRevenue.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })}</span>
+        </div>
       </div>
     </div>
   );
 };
 
-// Example usage
-const ProductPerformance = () => {
-  const productData = [
-    { product: 'Summer Dress', sold: 320 },
-    { product: 'Winter Coat', sold: 285 },
-    { product: 'Casual Shirt', sold: 245 },
-    { product: 'Formal Pants', sold: 210 },
-    { product: 'Evening Gown', sold: 180 },
-    { product: 'Denim Jacket', sold: 170 },
-    { product: 'Sports T-shirt', sold: 160 },
-    { product: 'Silk Scarf', sold: 150 },
-    { product: 'Leather Handbag', sold: 140 },
-    { product: 'Woolen Sweater', sold: 130 },
-  ];
-
-  return (
-    <ResponsiveBarChart
-      data={productData}
-      barColor="#3B82F6"
-      borderRadius={[6, 6, 6, 6]}
-      textColor="#334155"
-      tooltipBackground="#f8fafc"
-    />
-  );
-};
 
 export default ProductPerformance;

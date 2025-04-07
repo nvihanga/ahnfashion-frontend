@@ -1,6 +1,4 @@
-import customerApi from "../../../api/customerApi"; // Adjust the import path as necessary
-
-import {
+import customerApi from "../../../api/customerApi.js";
 import {
     IconButton,
     Table,
@@ -20,7 +18,7 @@ import {
     DialogActions,
 } from "@mui/material";
 import { MdEdit, MdDelete } from "react-icons/md";
-import EditDrawer from "./EditDrawer"; // Ensure correct path
+import EditDrawer from "./editDrawer.jsx";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -30,8 +28,6 @@ const CustomerList = () => {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [search, setSearch] = useState("");
     const [viewDetails, setViewDetails] = useState(false);
-    
-    // Add states for delete confirmation
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [customerToDelete, setCustomerToDelete] = useState(null);
 
@@ -42,10 +38,8 @@ const CustomerList = () => {
     const fetchCustomers = () => {
         customerApi.getAll()
             .then((response) => {
-                // Map backend fields to frontend structure
                 const formattedCustomers = response.data.map(customer => ({
                     customerId: customer.id,
-                    customerCode: customer.customerCode,
                     customerName: customer.customerName,
                     customerEmail: customer.email,
                     customerPhoneNo: customer.phoneNumbers,
@@ -65,20 +59,15 @@ const CustomerList = () => {
         setDrawerOpen(true);
     };
 
-    // Modified to show confirmation dialog
     const handleDeleteClick = (customer) => {
         setCustomerToDelete(customer);
         setDeleteDialogOpen(true);
     };
 
-    // New function to handle actual deletion after confirmation
     const confirmDelete = () => {
         if (!customerToDelete) return;
-        
-        customerApi.delete(customerToDelete.customerId)
 
-        axios
-            .delete(`http://localhost:8085/api/v1/customer/delete/${customerToDelete.customerId}`)
+        customerApi.delete(customerToDelete.customerId)
             .then(() => {
                 setCustomers(customers.filter((c) => c.customerId !== customerToDelete.customerId));
                 setDeleteDialogOpen(false);
@@ -86,13 +75,12 @@ const CustomerList = () => {
             })
             .catch((error) => {
                 console.error("Error deleting customer:", error);
-                fetchCustomers(); // Refresh if there's an error
+                fetchCustomers();
                 setDeleteDialogOpen(false);
                 setCustomerToDelete(null);
             });
     };
 
-    // Cancel deletion
     const cancelDelete = () => {
         setDeleteDialogOpen(false);
         setCustomerToDelete(null);
@@ -104,9 +92,7 @@ const CustomerList = () => {
     };
 
     const handleSave = (updatedCustomer) => {
-        // Prepare data in backend DTO format
         const backendData = {
-            customerCode: updatedCustomer.customerCode,
             customerName: updatedCustomer.customerName,
             email: updatedCustomer.customerEmail,
             phoneNumbers: updatedCustomer.customerPhoneNo,
@@ -116,7 +102,7 @@ const CustomerList = () => {
 
         customerApi.update(updatedCustomer.customerId, backendData)
             .then(() => {
-                fetchCustomers(); 
+                fetchCustomers();
                 setDrawerOpen(false);
             })
             .catch((error) => {
@@ -163,10 +149,6 @@ const CustomerList = () => {
                         <Table>
                             <TableBody>
                                 <TableRow>
-                                    <TableCell><b>Customer Code</b></TableCell>
-                                    <TableCell>{selectedCustomer.customerCode}</TableCell>
-                                </TableRow>
-                                <TableRow>
                                     <TableCell><b>Name</b></TableCell>
                                     <TableCell>{selectedCustomer.customerName}</TableCell>
                                 </TableRow>
@@ -210,7 +192,6 @@ const CustomerList = () => {
                             <TableHead style={headerStyle}>
                                 <TableRow>
                                     <TableCell style={headerStyle}><b>NO</b></TableCell>
-                                    <TableCell style={headerStyle}><b>CUSTOMER CODE</b></TableCell>
                                     <TableCell style={headerStyle}><b>NAME</b></TableCell>
                                     <TableCell style={headerStyle}><b>EMAIL</b></TableCell>
                                     <TableCell style={headerStyle}><b>PHONE NUMBER</b></TableCell>
@@ -226,7 +207,6 @@ const CustomerList = () => {
                                         hover
                                     >
                                         <TableCell>{index + 1}</TableCell>
-                                        <TableCell>{customer.customerCode}</TableCell>
                                         <TableCell>{customer.customerName}</TableCell>
                                         <TableCell>{customer.customerEmail}</TableCell>
                                         <TableCell>{customer.customerPhoneNo.join(", ")}</TableCell>
@@ -279,7 +259,7 @@ const CustomerList = () => {
                         </div>
 
                         <p className="mb-4">
-                            Are you sure you want to delete customer <span className="font-bold">{customerToDelete?.customerName}</span> ({customerToDelete?.customerCode})?
+                            Are you sure you want to delete customer <span className="font-bold">{customerToDelete?.customerName}</span>?
                         </p>
 
                         <div className="bg-yellow-50 p-3 rounded-md border-l-4 border-yellow-400">

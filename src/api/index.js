@@ -12,7 +12,7 @@ const createApi = (basePath) => {
 
   instance.interceptors.request.use(config => {
     const storedAuth = JSON.parse(sessionStorage.getItem('user'));
-    const token = storedAuth?.user?.token;
+    const token = storedAuth?.user?.token || storedAuth?.token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

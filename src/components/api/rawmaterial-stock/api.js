@@ -1,35 +1,16 @@
-import axios from "axios";
-
-export const baseUrl = "http://localhost:8085";
-
-const headers = {
-  "Content-Type": "application/json",
-};
+import { rawMaterialStockApi } from '../../../api/rawMaterialApi';
 
 export const addRawMaterialStock = async (rawMaterialStockList) => {
-  const response = await axios.post(
-    `${baseUrl}/api/v1/rawMaterial/stock/add-batch`,
-    rawMaterialStockList,
-    { headers }
-  );
+  const response = await rawMaterialStockApi.post('/add-batch', rawMaterialStockList);
   return response.data;
 };
 
 export const removeRawMaterialStock = async (rawMaterialStockList) => {
-  const response = await axios.post(
-    `${baseUrl}/api/v1/rawMaterial/stock/remove-batch`,
-    rawMaterialStockList,
-    { headers }
-  );
+  const response = await rawMaterialStockApi.post('/remove-batch', rawMaterialStockList);
   return response.data;
 };
 
 export const getRawMaterialStock = async (rawMaterialId) => {
-  const response = await axios.get(
-    `${baseUrl}/api/v1/rawMaterial/stock-history/${rawMaterialId}`,
-    {
-      headers,
-    }
-  );
+  const response = await rawMaterialStockApi.get(`/stock-history/${rawMaterialId}`);
   return response.data;
 };

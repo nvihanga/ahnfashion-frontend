@@ -1,3 +1,5 @@
+import supplierApi from "../../../api/supplierApi";
+
 import {
   IconButton,
   Table,
@@ -41,8 +43,7 @@ const SupplierList = () => {
   }, []);
 
   const fetchSuppliers = () => {
-    axios
-      .get("http://localhost:8085/api/v1/supplier/all")
+    supplierApi.getAll()
       .then((response) => {
         setSuppliers(response.data);
       })
@@ -62,8 +63,7 @@ const SupplierList = () => {
   };
 
   const confirmDelete = () => {
-    axios
-      .delete(`http://localhost:8085/api/v1/supplier/delete/${deleteSupplierId}`)
+    supplierApi.delete(deleteSupplierId)
       .then(() => {
         setSuppliers(suppliers.filter((supplier) => supplier.supplierId !== deleteSupplierId));
         setOpenDeleteDialog(false);
@@ -80,8 +80,7 @@ const SupplierList = () => {
   };
 
   const handleSave = (updatedSupplier) => {
-    axios
-      .put(`http://localhost:8085/api/v1/supplier/update/${updatedSupplier.supplierId}`, updatedSupplier)
+    supplierApi.update(updatedSupplier.supplierId, updatedSupplier) 
       .then(() => {
         fetchSuppliers();
         setDrawerOpen(false);

@@ -1,7 +1,9 @@
+
 import { Button, TextField, IconButton } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { useState } from "react";
 import axios from "axios";
+import supplierApi from "../../../api/supplierApi"; 
 
 const initialSupplierState = {
   supplierCode: "",
@@ -65,7 +67,7 @@ const SupplierForm = () => {
 
   const checkSupplierCodeExists = async (code) => {
     try {
-      const response = await axios.get(`http://localhost:8085/api/v1/supplier/exists/${code}`);
+      const response = await supplierApi.checkCodeExists(code);
       return response.data.exists;
     } catch (error) {
       console.error("Error checking supplier code:", error);
@@ -95,13 +97,13 @@ const SupplierForm = () => {
           return;
         }
         
-        const response = await axios.post("http://localhost:8085/api/v1/supplier/save", supplierData);
+        const response = await supplierApi.create(supplierData);
         if (response.status === 200) {
           alert("Supplier added successfully");
           setSupplier(initialSupplierState);
         }
       } else {
-        const response = await axios.put(`http://localhost:8085/api/v1/supplier/update/${editingSupplierId}`, supplierData);
+        const response = await supplierApi.update(editingSupplierId, supplierData);
         if (response.status === 200) {
           alert("Supplier updated successfully");
           setSupplier(initialSupplierState);

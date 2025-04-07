@@ -1,6 +1,6 @@
 import createApi from './index';
 
-const supplierApi = createApi('supplier');
+export const supplierApi = createApi('supplier');
 
 export default {
   create: (data) => supplierApi.post('/save', data),

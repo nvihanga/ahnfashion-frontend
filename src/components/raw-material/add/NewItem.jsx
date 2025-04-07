@@ -7,11 +7,14 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import {
+import { 
   addRawMaterial,
   getRawMaterialTypes,
   getSuppliers,
-} from "../../api/rawmaterial/api";
+  getRawMaterials,
+  editRawMaterial,
+  deleteRawMaterial
+} from '../../api/rawmaterial/api';
 import Toast from "../../common/Toast";
 
 const NewItem = () => {
@@ -204,7 +207,7 @@ const NewItem = () => {
             getOptionLabel={(option) => option.rawTypeName}
             value={rawTypes.find(
               (type) => type.rawTypeId === product.productType
-            )}
+            ) || null}
             onChange={(event, newValue) => {
               setProduct((prev) => ({
                 ...prev,
@@ -254,11 +257,11 @@ const NewItem = () => {
       <div className="mt-5">
         <FormControl fullWidth error={!!errors.supplier}>
           <Autocomplete
-            options={suppliers}
+            options={suppliers || []}
             getOptionLabel={(option) => option.supplierName}
             value={suppliers.find(
               (type) => type.supplierId === product.supplier
-            )}
+            ) || null}
             onChange={(event, newValue) => {
               setProduct((prev) => ({
                 ...prev,
