@@ -15,14 +15,15 @@ import { useAuth } from '../../hooks/useAuth';
 
 const Header = () => {
     const [anchorMyAcc, setAnchorMyAcc] = useState(null);
-    const openMyAcc = Boolean(anchorMyAcc);
     const { logout } = useAuth();
     const navigate = useNavigate();
     const context = useContext(AppContext);
-    const {user} = useAuth();
+    const { user } = useAuth();
+
     const handleClickMyAcc = (event) => {
         setAnchorMyAcc(event.currentTarget);
     };
+
     const handleCloseMyAcc = () => {
         setAnchorMyAcc(null);
     };
@@ -33,24 +34,24 @@ const Header = () => {
     };
 
     return (
-
         <>
             <style>
                 {`
-          .MuiBadge-badge {
-            background: red !important;
-          }
-            
-        `}
+                .MuiBadge-badge {
+                    background: red !important;
+                }
+                `}
             </style>
-            <header className={`fixed top-0 left-0 right-0 z-10 w-full h-[auto] py-1 ${context.isSidebarOpen===true?'pl-[200px] md:pl-[240px] lg:pl-[260px]' : 'pl-5 md:pl-5 lg:pl-5'} pr-10 shadow-md bg-white flex items-center justify-between transition-all duration-300`}>
+            <header className={`fixed top-0 left-0 right-0 z-10 w-full h-[auto] py-1 ${context.isSidebarOpen ? 'pl-[200px] md:pl-[240px] lg:pl-[260px]' : 'pl-5 md:pl-5 lg:pl-5'} pr-10 shadow-md bg-white flex items-center justify-between transition-all duration-300`}>
                 <div className='part1'>
                     <Button 
-                        className='!w-[40px] !h-[40px] !rounded-full !min-w-[40px] !text-[rgba(0,0,0,0.8)]' onClick={() => context.setIsSidebarOpen(!context.isSidebarOpen)}>
-                            {
-                                context.isSidebarOpen === true ? <AiOutlineMenuFold className='text-[20px] text-[rgba(0,0,0,0.8)]' /> : <AiOutlineMenuUnfold className='text-[20px] text-[rgba(0,0,0,0.8)]' />
-                            }
-                        
+                        className='!w-[40px] !h-[40px] !rounded-full !min-w-[40px] !text-[rgba(0,0,0,0.8)]'
+                        onClick={() => context.setIsSidebarOpen(!context.isSidebarOpen)}>
+                        {
+                            context.isSidebarOpen
+                                ? <AiOutlineMenuFold className='text-[20px] text-[rgba(0,0,0,0.8)]' />
+                                : <AiOutlineMenuUnfold className='text-[20px] text-[rgba(0,0,0,0.8)]' />
+                        }
                     </Button>
                 </div>
 
@@ -67,7 +68,7 @@ const Header = () => {
                         <Menu
                             anchorEl={anchorMyAcc}
                             id="account-menu"
-                            open={openMyAcc}
+                            open={Boolean(anchorMyAcc)}
                             onClose={handleCloseMyAcc}
                             onClick={handleCloseMyAcc}
                             slotProps={{
@@ -119,37 +120,10 @@ const Header = () => {
                             </MenuItem>
                         </Menu>
                     </div>
-                    <Menu
-                        anchorEl={anchorMyAcc}
-                        open={openMyAcc}
-                        onClose={handleCloseMyAcc}
-                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                        sx={{ mt: 1 }}
-                    >
-                        <MenuItem onClick={handleCloseMyAcc}>
-                            <div className='flex items-center gap-3'>
-                                <div className='w-9 h-9 rounded-full overflow-hidden'>
-                                    <img src='https://www.w3schools.com/howto/img_avatar.png' alt='profile' className='w-full h-full object-cover' />
-                                </div>
-                                <div>
-                                    <h3 className='text-sm font-medium'>John Doe</h3>
-                                    <p className='text-xs text-gray-500'>Admin</p>
-                                </div>
-                            </div>
-                        </MenuItem>
-                        <Divider />
-                        <MenuItem onClick={handleSignOut} className='flex items-center gap-2'>
-                            <IoMdLogOut className='text-lg' />
-                            <span className='text-sm'>Sign Out</span>
-                        </MenuItem>
-                    </Menu>
                 </div>
-            </div>
-        </header>
+            </header>
+        </>
     );
 };
 
-export default Header
-
-
+export default Header;
