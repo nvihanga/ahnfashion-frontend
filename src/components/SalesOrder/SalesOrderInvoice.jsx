@@ -25,42 +25,9 @@ import {
   FormHelperText,
   IconButton
 } from '@mui/material';
+import axios from 'axios';
 
 const SalesOrderInvoice = () => {
-  // Sample style numbers with their related descriptions
-  const styleData = {
-    '756': {
-      label: 'Style 756',
-      descriptions: ['Sleeveless', 'Short Sleeve']
-    },
-    '748': {
-      label: 'Style 748',
-      descriptions: ['Zipper Front', 'Button Front']
-    },
-    '742': {
-      label: 'Style 742',
-      descriptions: ['V-Neck', 'Crew Neck']
-    },
-    '744': {
-      label: 'Style 744',
-      descriptions: ['Polo', 'Henley']
-    },
-    '738': {
-      label: 'Style 738',
-      descriptions: ['Cardigan', 'Pullover']
-    },
-    '760': {
-      label: 'Style 760',
-      descriptions: ['Tank Top', 'Muscle Tee']
-    },
-  };
-  
-  // Convert to array for Autocomplete
-  const styleNumbers = Object.entries(styleData).map(([id, data]) => ({
-    id,
-    label: data.label
-  }));
-  
   const navigate = useNavigate();
   const [isPaymentDrawerOpen, setIsPaymentDrawerOpen] = useState(false);
   const location = useLocation();
@@ -80,6 +47,11 @@ const SalesOrderInvoice = () => {
     severity: 'success'
   });
 
+  // State for finished goods from backend
+  const [finishedGoods, setFinishedGoods] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const handleDiscard = () => {
     navigate(ROUTES.PROTECTED.SALES_ORDER.ADD);
   };
@@ -89,9 +61,7 @@ const SalesOrderInvoice = () => {
   };
 
   const [orders, setOrders] = useState([
-    { styleNo: '756', description: 'Sleeveless', size: 'L', qty: '2', rate: '25.00', price: 'Rs. 50.00' },
-    { styleNo: '756', description: 'Short Sleeve', size: 'XL', qty: '1', rate: '23.06', price: 'Rs. 23.06' },
-    { styleNo: '748', description: 'Zipper Front', size: 'M', qty: '1', rate: '29.74', price: 'Rs. 29.74' }
+    // Initial orders can be empty or with sample data
   ]);
 
   const [formData, setFormData] = useState({
@@ -106,10 +76,32 @@ const SalesOrderInvoice = () => {
   });
 
   const [availableDescriptions, setAvailableDescriptions] = useState([]);
+  const [availableSizes, setAvailableSizes] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [open, setOpen] = useState(false);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState(null);
+
+  // Fetch finished goods from backend
+  useEffect(() => {
+    const fetchFinishedGoods = async () => {
+      try {
+        const response = await axios.get('http://localhost:8085/api/v1/finishedGood/all');
+        setFinishedGoods(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+        setNotification({
+          open: true,
+          message: 'Failed to fetch style data',
+          severity: 'error'
+        });
+      }
+    };
+
+    fetchFinishedGoods();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -122,16 +114,30 @@ const SalesOrderInvoice = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Update available descriptions when style number changes
+  // Update available descriptions and sizes when style number changes
   useEffect(() => {
-    if (formData.styleNo && styleData[formData.styleNo]) {
-      setAvailableDescriptions(styleData[formData.styleNo].descriptions);
-      // Reset description when style changes
-      setFormData(prev => ({...prev, description: ''}));
+    if (formData.styleNo) {
+      const selectedGood = finishedGoods.find(good => good.finishId === formData.styleNo);
+      if (selectedGood) {
+        setAvailableDescriptions([selectedGood.finishDescription]);
+        setAvailableSizes(selectedGood.finishedGoodVariants.map(variant => variant.size));
+        
+        // Auto-select the description if there's only one
+        if (selectedGood.finishDescription) {
+          setFormData(prev => ({
+            ...prev,
+            description: selectedGood.finishDescription
+          }));
+        }
+      } else {
+        setAvailableDescriptions([]);
+        setAvailableSizes([]);
+      }
     } else {
       setAvailableDescriptions([]);
+      setAvailableSizes([]);
     }
-  }, [formData.styleNo]);
+  }, [formData.styleNo, finishedGoods]);
 
   const handleEditClick = (order, index) => {
     setEditingOrder({ ...order, index });
@@ -177,11 +183,8 @@ const SalesOrderInvoice = () => {
       return;
     }
     
-    // Create a new array instead of modifying the existing one
     const newOrders = [...orders];
     newOrders[editingOrder.index] = updatedOrder;
-    
-    // Update the state with the new array
     setOrders(newOrders);
     
     setNotification({
@@ -218,7 +221,8 @@ const SalesOrderInvoice = () => {
     setFormData({
       ...formData,
       styleNo: newValue ? newValue.id : '',
-      description: '' // Reset description when style changes
+      description: '',
+      size: ''
     });
   };
 
@@ -226,13 +230,13 @@ const SalesOrderInvoice = () => {
     if (!inputValue) return [];
     
     const filtered = options.filter(option => 
-      option.id.toLowerCase().includes(inputValue.toLowerCase()) ||
+      option.id.toString().toLowerCase().includes(inputValue.toLowerCase()) ||
       option.label.toLowerCase().includes(inputValue.toLowerCase())
     );
 
     return filtered.sort((a, b) => {
-      const aStartsWithInput = a.id.toLowerCase().startsWith(inputValue.toLowerCase());
-      const bStartsWithInput = b.id.toLowerCase().startsWith(inputValue.toLowerCase());
+      const aStartsWithInput = a.id.toString().toLowerCase().startsWith(inputValue.toLowerCase());
+      const bStartsWithInput = b.id.toString().toLowerCase().startsWith(inputValue.toLowerCase());
       if (aStartsWithInput && !bStartsWithInput) return -1;
       if (!aStartsWithInput && bStartsWithInput) return 1;
       return 0;
@@ -245,7 +249,23 @@ const SalesOrderInvoice = () => {
       return;
     }
 
-    const rate = (Math.random() * 30 + 20).toFixed(2);
+    // Find the selected finished good to get the price
+    const selectedGood = finishedGoods.find(good => good.finishId === formData.styleNo);
+    if (!selectedGood) {
+      alert('Selected style not found');
+      return;
+    }
+
+    // Find the selected variant to get the exact price
+    const selectedVariant = selectedGood.finishedGoodVariants.find(
+      variant => variant.size === formData.size
+    );
+    if (!selectedVariant) {
+      alert('Selected size not found for this style');
+      return;
+    }
+
+    const rate = selectedVariant.unitPrice;
     const quantity = parseInt(formData.qty);
     const totalPrice = (parseFloat(rate) * quantity).toFixed(2);
 
@@ -254,7 +274,7 @@ const SalesOrderInvoice = () => {
       description: formData.description,
       size: formData.size,
       qty: formData.qty,
-      rate: rate,
+      rate: rate.toFixed(2),
       price: `Rs. ${totalPrice}`
     };
 
@@ -269,6 +289,20 @@ const SalesOrderInvoice = () => {
     }));
     setInputValue('');
   };
+
+  // Convert finished goods to format needed for Autocomplete
+  const styleNumbers = finishedGoods.map(good => ({
+    id: good.finishId,
+    label: `Style ${good.finishId} - ${good.finishName}`
+  }));
+
+  if (loading) {
+    return <div>Loading styles...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading styles: {error}</div>;
+  }
 
   return (
     <div className="max-w-6xl p-8 mx-auto">
@@ -370,15 +404,12 @@ const SalesOrderInvoice = () => {
             name="size"
             displayEmpty
             className="bg-gray-50"
+            disabled={!formData.styleNo}
           >
             <MenuItem value="">Size</MenuItem>
-            <MenuItem value="M">M</MenuItem>
-            <MenuItem value="L">L</MenuItem>
-            <MenuItem value="XL">XL</MenuItem>
-            <MenuItem value="2XL">2XL</MenuItem>
-            <MenuItem value="3XL">3XL</MenuItem>
-            <MenuItem value="4XL">4XL</MenuItem>
-            <MenuItem value="5XL">5XL</MenuItem>
+            {availableSizes.map((size, index) => (
+              <MenuItem key={index} value={size}>{size}</MenuItem>
+            ))}
           </Select>
 
           <TextField
@@ -474,17 +505,15 @@ const SalesOrderInvoice = () => {
           paymentDetails={paymentDetails}
         />
 
-        {/* Edit Drawer Component */}
         <EditDrawer
           open={isEditDrawerOpen}
           onClose={() => setIsEditDrawerOpen(false)}
           order={editingOrder}
-          styleData={styleData}
+          finishedGoods={finishedGoods}
           styleNumbers={styleNumbers}
           onUpdate={handleUpdateOrder}
         />
         
-        {/* Delete Confirmation Dialog Component */}
         <DeleteConfirmationDialog
           open={deleteDialogOpen}
           onClose={handleCancelDelete}
@@ -492,7 +521,6 @@ const SalesOrderInvoice = () => {
           onConfirm={handleConfirmDelete}
         />
         
-        {/* Notification Component */}
         <Notification
           open={notification.open}
           message={notification.message}
