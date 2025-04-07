@@ -1,39 +1,88 @@
 import {
   Button,
   FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
-  FormHelperText,
+  Autocomplete,
+  Box,
+  Typography,
 } from "@mui/material";
-import { useState } from "react";
-
-const productTypes = [
-  { id: 1, name: "Buttons" },
-  { id: 2, name: "Threads" },
-  { id: 3, name: "Fabrics" },
-  { id: 4, name: "Labels" },
-];
-
-const suppliers = [
-  { id: 1, name: "Naturub Industries (Pvt) Ltd" },
-  { id: 2, name: "CIB Accessories" },
-  { id: 3, name: "Chathura Enterprices" },
-  { id: 4, name: "Sanko Texttiles" },
-];
-
-const initialProductState = {
-  productName: "",
-  productType: "",
-  quantity: 0,
-  supplier: "",
-  price: 0,
-};
+import { useEffect, useState } from "react";
+import {
+  addRawMaterial,
+  getRawMaterialTypes,
+  getSuppliers,
+} from "../../api/rawmaterial/api";
+import Toast from "../../common/Toast";
 
 const NewItem = () => {
-  const [product, setProduct] = useState(initialProductState);
+  const [product, setProduct] = useState({});
   const [errors, setErrors] = useState({});
+  const [rawTypes, setRawTypes] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+
+  const [toast, setToast] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
+
+  const handleCloseToast = () => {
+    setToast((prev) => ({ ...prev, open: false }));
+  };
+
+  useEffect(() => {
+    const fetcRawTypes = async () => {
+      try {
+        const response = await getRawMaterialTypes();
+        setToast({
+          open: true,
+          severity: "success",
+          message: "Raw material types fetched successfully",
+        });
+        setRawTypes(response.data);
+      } catch (error) {
+        setToast({
+          open: true,
+          severity: "error",
+          message:
+            error.response?.data && typeof error.response.data === "object"
+              ? error.response.data.errorMessage ||
+                JSON.stringify(error.response.data)
+              : error.response?.data ||
+                error.message ||
+                "Failed to fetch raw material types",
+        });
+      }
+    };
+    fetcRawTypes();
+  }, []);
+
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const response = await getSuppliers();
+        setToast({
+          open: true,
+          severity: "success",
+          message: "Suppliers fetched successfully",
+        });
+        setSuppliers(response);
+      } catch (error) {
+        setToast({
+          open: true,
+          severity: "error",
+          message:
+            error.response?.data && typeof error.response.data === "object"
+              ? error.response.data.errorMessage ||
+                JSON.stringify(error.response.data)
+              : error.response?.data ||
+                error.message ||
+                "Failed to fetch suppliers",
+        });
+      }
+    };
+    fetchSuppliers();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,20 +102,61 @@ const NewItem = () => {
     if (!product.supplier) errors.supplier = "Supplier is required";
     if (!product.price || isNaN(product.price) || product.price <= 0)
       errors.price = "Price must be a positive number";
+    if (
+      !product.minimumStockLevel ||
+      isNaN(product.minimumStockLevel) ||
+      product.minimumStockLevel < 0
+    )
+      errors.minimumStockLevel =
+        "Minimum Stock Level must be a non-negative number";
 
     setErrors(errors);
 
     return Object.keys(errors).length === 0;
   };
 
-  const handleAddNewItem = () => {
+  const handleAddNewItem = async () => {
     if (!validateForm()) return;
-    console.log(product);
-    setProduct(initialProductState);
+
+    try {
+      console.log("product", product);
+      await addRawMaterial(product);
+      setToast({
+        open: true,
+        severity: "success",
+        message: "Raw material added successfully",
+      });
+      setProduct({
+        productName: "",
+        productType: "",
+        quantity: "",
+        supplier: "",
+        price: "",
+        minimumStockLevel: "",
+        description: "",
+      });
+    } catch (error) {
+      setToast({
+        open: true,
+        severity: "error",
+        message:
+          error.response?.data?.errorMessage ||
+          error.message ||
+          "Failed to add raw material",
+      });
+    }
   };
 
   const handleReset = () => {
-    setProduct(initialProductState);
+    setProduct({
+      productName: "",
+      productType: "",
+      quantity: "",
+      supplier: null,
+      price: "",
+      minimumStockLevel: "",
+      description: "",
+    });
     setErrors({});
   };
 
@@ -76,7 +166,7 @@ const NewItem = () => {
         <h1 className="font-bold">Add New Item</h1>
         <div className="flex gap-5">
           <button
-            className="px-6 py-2 bg-blue-500 text-white rounded-full"
+            className="px-6 py-2 bg-blue-500 text-white rounded"
             onClick={handleAddNewItem}
             aria-label="Submit form"
           >
@@ -109,22 +199,39 @@ const NewItem = () => {
       {/* Product Type */}
       <div className="mt-5">
         <FormControl fullWidth error={!!errors.productType}>
-          <InputLabel id="Product_Type">Product Type</InputLabel>
-          <Select
-            label="Product_Type"
-            name="productType"
-            value={product.productType}
-            onChange={handleChange}
-          >
-            {productTypes.map((type) => (
-              <MenuItem key={type.id} value={type.name}>
-                {type.name}
-              </MenuItem>
-            ))}
-          </Select>
-          {errors.productType && (
-            <FormHelperText>{errors.productType}</FormHelperText>
-          )}
+          <Autocomplete
+            options={rawTypes}
+            getOptionLabel={(option) => option.rawTypeName}
+            value={rawTypes.find(
+              (type) => type.rawTypeId === product.productType
+            )}
+            onChange={(event, newValue) => {
+              setProduct((prev) => ({
+                ...prev,
+                productType: newValue ? newValue.rawTypeId : "",
+              }));
+              if (errors.productType) {
+                setErrors((prevErrors) => ({ ...prevErrors, productType: "" }));
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Product Type"
+                placeholder="Select Product Type"
+                variant="outlined"
+                error={!!errors.productType}
+                helperText={errors.productType}
+              />
+            )}
+            renderOption={(props, option) => (
+              <Box component="li" {...props}>
+                <Box>
+                  <Typography variant="body1">{option.rawTypeName}</Typography>
+                </Box>
+              </Box>
+            )}
+          />
         </FormControl>
       </div>
 
@@ -146,22 +253,39 @@ const NewItem = () => {
       {/* Supplier */}
       <div className="mt-5">
         <FormControl fullWidth error={!!errors.supplier}>
-          <InputLabel id="Supplier">Supplier</InputLabel>
-          <Select
-            label="Supplier"
-            name="supplier"
-            value={product.supplier}
-            onChange={handleChange}
-          >
-            {suppliers.map((type) => (
-              <MenuItem key={type.id} value={type.name}>
-                {type.name}
-              </MenuItem>
-            ))}
-          </Select>
-          {errors.supplier && (
-            <FormHelperText>{errors.supplier}</FormHelperText>
-          )}
+          <Autocomplete
+            options={suppliers}
+            getOptionLabel={(option) => option.supplierName}
+            value={suppliers.find(
+              (type) => type.supplierId === product.supplier
+            )}
+            onChange={(event, newValue) => {
+              setProduct((prev) => ({
+                ...prev,
+                supplier: newValue ? newValue.supplierId : "",
+              }));
+              if (errors.supplier) {
+                setErrors((prevErrors) => ({ ...prevErrors, supplier: "" }));
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Supplier"
+                placeholder="Select Supplier"
+                variant="outlined"
+                error={!!errors.supplier}
+                helperText={errors.supplier}
+              />
+            )}
+            renderOption={(props, option) => (
+              <Box component="li" {...props}>
+                <Box>
+                  <Typography variant="body1">{option.supplierName}</Typography>
+                </Box>
+              </Box>
+            )}
+          />
         </FormControl>
       </div>
 
@@ -179,6 +303,26 @@ const NewItem = () => {
           helperText={errors.price}
         />
       </div>
+      <div className="mt-5">
+        <TextField
+          name="minimumStockLevel"
+          label="Minimum Stock Level"
+          type="number"
+          variant="outlined"
+          fullWidth
+          value={product.minimumStockLevel}
+          onChange={handleChange}
+          error={!!errors.minimumStockLevel}
+          helperText={errors.minimumStockLevel}
+        />
+      </div>
+
+      <Toast
+        open={toast.open}
+        handleClose={handleCloseToast}
+        severity={toast.severity}
+        message={toast.message}
+      />
     </div>
   );
 };

@@ -19,6 +19,7 @@ export const ROUTES = {
             LIST: '/finished-goods/list',
             ADD: '/finished-goods/add',
             STOCK_ADD: '/finished-goods/stock-add',
+            HISTORY: '/finished-goods/history',
         },
         CUSTOMERS: {
             LIST: '/customers/list',

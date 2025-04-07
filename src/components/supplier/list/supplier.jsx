@@ -1,4 +1,3 @@
-
 import {
   IconButton,
   Table,
@@ -13,8 +12,13 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
 import { MdEdit, MdDelete } from "react-icons/md";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import EditDrawer from "./editDrawer";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -25,8 +29,13 @@ const SupplierList = () => {
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [search, setSearch] = useState("");
   const [viewDetails, setViewDetails] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [deleteSupplierId, setDeleteSupplierId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Detect mobile screens
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   useEffect(() => {
     fetchSuppliers();
   }, []);
@@ -48,13 +57,20 @@ const SupplierList = () => {
   };
 
   const handleDeleteClick = (supplierId) => {
+    setDeleteSupplierId(supplierId);
+    setOpenDeleteDialog(true);
+  };
+
+  const confirmDelete = () => {
     axios
-      .delete(`http://localhost:8085/api/v1/supplier/delete/${supplierId}`)
+      .delete(`http://localhost:8085/api/v1/supplier/delete/${deleteSupplierId}`)
       .then(() => {
-        setSuppliers(suppliers.filter((supplier) => supplier.supplierId !== supplierId));
+        setSuppliers(suppliers.filter((supplier) => supplier.supplierId !== deleteSupplierId));
+        setOpenDeleteDialog(false);
       })
       .catch((error) => {
         console.error("Error deleting supplier:", error);
+        setOpenDeleteDialog(false);
       });
   };
 
@@ -67,7 +83,7 @@ const SupplierList = () => {
     axios
       .put(`http://localhost:8085/api/v1/supplier/update/${updatedSupplier.supplierId}`, updatedSupplier)
       .then(() => {
-        fetchSuppliers(); // Refresh list after update
+        fetchSuppliers();
         setDrawerOpen(false);
       })
       .catch((error) => {
@@ -78,6 +94,7 @@ const SupplierList = () => {
 
   const handleSearch = (event) => {
     setSearch(event.target.value);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   const handleRowClick = (supplier) => {
@@ -90,10 +107,25 @@ const SupplierList = () => {
     setSelectedSupplier(null);
   };
 
+  // Filter and pagination logic
   const filteredSuppliers = suppliers.filter((supplier) =>
     supplier.supplierName.toLowerCase().includes(search.toLowerCase()) ||
     supplier.supplierCode.toLowerCase().includes(search.toLowerCase())
   );
+
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const displayedSuppliers = filteredSuppliers.slice(startIndex, endIndex);
+
+  const calculatePaginationDisplay = () => {
+    if (filteredSuppliers.length === 0) return '0-0 of 0';
+    const start = startIndex + 1;
+    const end = Math.min(endIndex, filteredSuppliers.length);
+    return `${start}-${end} of ${filteredSuppliers.length}`;
+  };
+
+  const handlePrevPage = () => currentPage > 1 && setCurrentPage(p => p - 1);
+  const handleNextPage = () => endIndex < filteredSuppliers.length && setCurrentPage(p => p + 1);
 
   return (
     <>
@@ -163,14 +195,14 @@ const SupplierList = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredSuppliers.map((supplier, index) => (
+                {displayedSuppliers.map((supplier, index) => (
                   <TableRow
                     key={supplier.supplierId}
                     hover
                     onClick={() => handleRowClick(supplier)}
                     style={{ cursor: "pointer" }}
                   >
-                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{startIndex + index + 1}</TableCell>
                     <TableCell>{supplier.supplierCode}</TableCell>
                     <TableCell>{supplier.supplierName}</TableCell>
                     <TableCell>{supplier.supplierEmail}</TableCell>
@@ -201,8 +233,49 @@ const SupplierList = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {/* Pagination Component */}
+          <div className="flex justify-between items-center px-4 py-3 border-t">
+            <div className="flex items-center gap-2">
+              Rows per page:
+              <select
+                className="border rounded p-1"
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-600">
+                {calculatePaginationDisplay()}
+              </span>
+              <div className="flex gap-2">
+                <button 
+                  onClick={handlePrevPage} 
+                  disabled={currentPage === 1}
+                  className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button 
+                  onClick={handleNextPage} 
+                  disabled={(currentPage * rowsPerPage) >= filteredSuppliers.length}
+                  className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
         </>
       )}
+
       {selectedSupplier && (
         <EditDrawer
           open={drawerOpen}
@@ -211,11 +284,25 @@ const SupplierList = () => {
           onSave={handleSave}
         />
       )}
+
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this supplier?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={confirmDelete} color="secondary">
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
 
 export default SupplierList;
-
-
-

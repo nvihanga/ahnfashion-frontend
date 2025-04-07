@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import Button from "@mui/material/Button"
 import AHNLogo from "../../assets/images/AHNLogo.png";
-import { Link,NavLink,useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { Collapse } from "react-collapse";
 import { FaAngleDown } from "react-icons/fa6";
 import { RiDashboardHorizontalFill } from "react-icons/ri";
@@ -116,6 +116,11 @@ const Sidebar = () => {
           {
             label: "Stock Add",
             path: ROUTES.PROTECTED.FINISHED_GOODS.STOCK_ADD,
+            icon: <ImPlus className="text-[13px]" />,
+          },
+          {
+            label: "History",
+            path: ROUTES.PROTECTED.FINISHED_GOODS.HISTORY,
             icon: <ImPlus className="text-[13px]" />,
           },
         ],
@@ -509,7 +514,6 @@ const Sidebar = () => {
     ],
   };
 
-  
 
 
   const getDashboardPath = () => {
@@ -518,23 +522,23 @@ const Sidebar = () => {
       inventory: ROUTES.PROTECTED.DASHBOARD.INVENTORY,
       sales: ROUTES.PROTECTED.DASHBOARD.SALES,
     };
-    return rolePaths[user?.role] || ROUTES.PUBLIC.LOGIN;
+    return rolePaths[user?.role?.toLowerCase()] || ROUTES.PUBLIC.LOGIN;
   };
   const hasPermission = (roles) => roles.includes(user?.role);
 
   const renderMenuItems = () => {
-    
+    const userRole = user?.role?.toLowerCase();
     const currentPath = location.pathname;
     const currentRoleConfig = menuConfig[user?.role] || [];
     return currentRoleConfig.map((item, index) => {
-      if (!hasPermission(item.roles)) return null;
+      if (!item.roles.map(r => r.toLowerCase()).includes(userRole)) return null;
 
       if (item.type === "link") {
         const isActive = currentPath === item.path
         return (
           <li key={index}>
             <Link to={item.path}>
-              <Button className={`w-full !capitalize !justify-start flex gap-3 text-[13px] !text-[rgba(0,0,0,0.8)] !font-[600] items-center !py-2 hover:!bg-[#e4e4e4] ${isActive ? '!bg-blue-100' : '' }`}>
+              <Button className={`w-full !capitalize !justify-start flex gap-3 text-[13px] !text-[rgba(0,0,0,0.8)] !font-[600] items-center !py-2 hover:!bg-[#e4e4e4] ${isActive ? '!bg-blue-100' : ''}`}>
                 {item.icon}
                 <span className="text-[13px]">{item.label}</span>
               </Button>
@@ -549,7 +553,7 @@ const Sidebar = () => {
           <li key={index}>
             <Button
               className={`w-full !capitalize !justify-start flex gap-3 text-[13px] !text-[rgba(0,0,0,0.8)] !font-[600] items-center !py-2 hover:!bg-[#e4e4e4]
-                ${hasActiveChild ? '!bg-blue-100':''}`}
+                ${hasActiveChild ? '!bg-blue-100' : ''}`}
               onClick={() =>
                 setSubmenuIndex((prev) => (prev === index ? null : index))
               }
@@ -558,34 +562,32 @@ const Sidebar = () => {
               <span className="text-[13px]">{item.label}</span>
               <span className="ml-auto">
                 <FaAngleDown
-                  className={`transition-all ${
-                    submenuIndex === index ? "rotate-180" : ""
-                  }`}
+                  className={`transition-all ${submenuIndex === index ? "rotate-180" : ""
+                    }`}
                 />
               </span>
             </Button>
 
             <Collapse isOpened={submenuIndex === index || hasActiveChild}>
-            <ul className="w-full">
-              {item.subItems.map((subItem, subIndex) => {
-                const isSubActive = currentPath === subItem.path;
-                return (
-                  <li key={subIndex} className="w-full">
-                    <Link to={subItem.path}>
-                      <Button className={`!text-[rgba(0,0,0,0.8)] !capitalize !justify-start !w-full gap-3 !font-[600] items-center !py-2 hover:!bg-[#e4e4e4] !pl-8 ${
-                        isSubActive ? '!bg-blue-50 border-l-4 border-blue-200' : ''
-                      }`}>
-                        {subItem.icon}
-                        <span className="text-[13px] font-[600]">
-                          {subItem.label}
-                        </span>
-                      </Button>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </Collapse>
+              <ul className="w-full">
+                {item.subItems.map((subItem, subIndex) => {
+                  const isSubActive = currentPath === subItem.path;
+                  return (
+                    <li key={subIndex} className="w-full">
+                      <Link to={subItem.path}>
+                        <Button className={`!text-[rgba(0,0,0,0.8)] !capitalize !justify-start !w-full gap-3 !font-[600] items-center !py-2 hover:!bg-[#e4e4e4] !pl-8 ${isSubActive ? '!bg-blue-50 border-l-4 border-blue-200' : ''
+                          }`}>
+                          {subItem.icon}
+                          <span className="text-[13px] font-[600]">
+                            {subItem.label}
+                          </span>
+                        </Button>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Collapse>
           </li>
         );
       }
@@ -600,27 +602,41 @@ const Sidebar = () => {
           .ReactCollapse--collapse {
             transition: height 500ms;
           }
-         
-
-
-
-
-
+            .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #888 transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #888;
+          border-radius: 2px;
+        }
         `}
       </style>
       <div
-        className={`sidebar fixed top-0 left-0 z-50 bg-white h-full border-r border-[rgba(0,0,0,0.1)] py-2 px-4 overflow-y-auto ${
-          isSidebarOpen ? "w-[200px] md:w-[240px] lg:w-[260px]" : "w-0"
-        } transition-all duration-300 whitespace-nowrap`} 
+        className={`sidebar fixed top-0 left-0 z-50 bg-white h-screen border-r border-gray-200 ${isSidebarOpen ? "w-[260px]" : "w-0"} transition-all duration-300 flex flex-col`}
       >
-        <div className="py-2 w-full">
-          <Link to={getDashboardPath()}>
-            <img src={AHNLogo} className="w-[150px]" alt="Logo" />
-
-          </Link>
-        </div>
-        <ul className="mt-4">{renderMenuItems()}</ul>
+        <div className="logo-container relative h-24 p-4 bg-gradient-to-br mx-4 mt-4 flex justify-center items-center">
+          
+        <Link to={getDashboardPath()}
+        className="block transform transition-transform hover:scale-105">
+          <img 
+            src={AHNLogo} 
+            className="w-full h-auto max-w-[120px] object-contain" 
+            alt="Company Logo"
+          />
+        </Link>
+      
       </div>
+      <div className="menu-container flex-1 overflow-y-auto custom-scrollbar">
+        <ul className="py-2 px-3 space-y-1">
+          {renderMenuItems()}
+        </ul>
+      </div>
+      
+    </div>
     </>
   );
 };

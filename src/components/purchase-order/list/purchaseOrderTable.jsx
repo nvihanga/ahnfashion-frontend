@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Search,
   Filter,
@@ -15,6 +15,13 @@ import {
 
 import PurchaseOrderEdit from "./purchaseOrderEdit";
 import InvoiceDetailsModal from "./purchaseOrderDetails";
+import {
+  getPurchaseOrders,
+  sendPurchaseOrderEmail,
+  updatePurchaseOrder,
+  deletePurchaseOrder,
+} from "../../api/purchase-order/api";
+import Toast from "../../common/Toast";
 
 export default function PurchaseOrderTable() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,71 +29,52 @@ export default function PurchaseOrderTable() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [sendEmail, setSendEmail] = useState(null);
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editInvoice, setEditInvoice] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // Mock data
-  const [purchaseOrders, setPurchaseOrders] = useState([
-    {
-      id: "1",
-      invoiceNo: "INV-2023-001",
-      supplier: "Office Supplies Co.",
-      date: "Thu, Jan 12 2023",
-      total: 275,
-      status: "pending",
-    },
-    {
-      id: "2",
-      invoiceNo: "INV-2023-002",
-      supplier: "Tech Solutions Inc.",
-      date: "Thu, Jan 10 2023",
-      total: 89,
-      status: "sent",
-    },
-    {
-      id: "3",
-      invoiceNo: "INV-2023-003",
-      supplier: "Furniture Depot",
-      date: "Thu, Jan 12 2023",
-      total: 125,
-      status: "pending",
-    },
-    {
-      id: "4",
-      invoiceNo: "INV-2023-004",
-      supplier: "Cleaning Supplies Ltd.",
-      date: "Mon, Jan 16 2023",
-      total: 50,
-      status: "pending",
-    },
-    {
-      id: "5",
-      invoiceNo: "INV-2023-005",
-      supplier: "Electronics Wholesale",
-      date: "Wed, Jan 18 2023",
-      total: 650,
-      status: "sent",
-    },
-    {
-      id: "6",
-      invoiceNo: "INV-2023-006",
-      supplier: "Paper Products Inc.",
-      date: "Fri, Jan 20 2023",
-      total: 120,
-      status: "pending",
-    },
-  ]);
+  const [toast, setToast] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
 
-  // Filter purchase orders based on search term
+  const handleCloseToast = () => {
+    setToast((prev) => ({ ...prev, open: false }));
+  };
+
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
+
+  useEffect(() => {
+    const fetchPurchaseOrders = async () => {
+      try {
+        const response = await getPurchaseOrders();
+
+        setToast({
+          open: true,
+          severity: "success",
+          message: "Purchase orders fetched successfully",
+        });
+        setPurchaseOrders(response.data);
+        console.log(response.data);
+      } catch (error) {
+        setToast({
+          open: true,
+          severity: "error",
+          message: "Failed to fetch purchase orders" + error.message,
+        });
+      }
+    };
+    fetchPurchaseOrders();
+  }, []);
+
   const filteredOrders = purchaseOrders.filter(
     (order) =>
-      order.invoiceNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.supplier.toLowerCase().includes(searchTerm.toLowerCase())
+      order.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.supplierName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination
   const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const paginatedOrders = filteredOrders.slice(
@@ -94,42 +82,82 @@ export default function PurchaseOrderTable() {
     startIndex + rowsPerPage
   );
 
-  // Handle remove purchase order
-  const handleRemove = (id) => {
-    setPurchaseOrders(purchaseOrders.filter((order) => order.id !== id));
-    setConfirmDelete(null);
+  const handleRemove = async (id) => {
+    try {
+      await deletePurchaseOrder(id);
+      setPurchaseOrders(purchaseOrders.filter((order) => order.id !== id));
+      setToast({
+        open: true,
+        severity: "success",
+        message: "Purchase order deleted successfully",
+      });
+      const response = await getPurchaseOrders();
+      setPurchaseOrders(response.data);
+      setConfirmDelete(null);
+    } catch (error) {
+      setToast({
+        open: true,
+        severity: "error",
+        message: "Failed to delete purchase order: " + error.message,
+      });
+    }
   };
 
-  // Handle send invoice
-  const handleSendInvoice = (order) => {
-    setPurchaseOrders(
-      purchaseOrders.map((po) =>
-        po.id === order.id ? { ...po, status: "sent" } : po
-      )
-    );
-    setSendEmail(null);
+  const handleSendInvoice = async (order) => {
+    try {
+      await sendPurchaseOrderEmail(order.invoiceNumber);
+      setPurchaseOrders(
+        purchaseOrders.map((po) =>
+          po.id === order.id ? { ...po, status: "sent", sendCreated: true } : po
+        )
+      );
+      setToast({
+        open: true,
+        severity: "success",
+        message: "Purchase order email sent successfully",
+      });
+      setSendEmail(null);
+    } catch (error) {
+      setToast({
+        open: true,
+        severity: "error",
+        message: "Failed to send purchase order email: " + error.message,
+      });
+    }
   };
 
   const handleInvoiceClick = (order) => {
-    setSelectedInvoice(order);
+    setSelectedInvoiceId(order.purchaseOrderId);
     setIsModalOpen(true);
   };
 
   const handleEditClick = (order) => {
-    setEditInvoice(order);
+    setEditInvoice(order.purchaseOrderId);
     setIsEditModalOpen(true);
   };
 
-  const handleSaveEdit = (updatedInvoice) => {
-    setPurchaseOrders(
-      purchaseOrders.map((po) =>
-        po.id === updatedInvoice.id ? updatedInvoice : po
-      )
-    );
+  const handleSaveEdit = async (updatedInvoice) => {
+    try {
+      await updatePurchaseOrder(updatedInvoice);
+      const response = await getPurchaseOrders();
+      setPurchaseOrders(response.data);
+      setToast({
+        open: true,
+        severity: "success",
+        message: "Purchase order updated successfully",
+      });
+      setIsEditModalOpen(false);
+    } catch (error) {
+      setToast({
+        open: true,
+        severity: "error",
+        message: "Failed to update purchase order: " + error.message,
+      });
+    }
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4">
+    <div className="w-full  mx-auto p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Purchase Orders</h1>
         <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
@@ -179,34 +207,38 @@ export default function PurchaseOrderTable() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedOrders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
+              <tr key={order.purchaseOrderId} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap font-medium">
                   <button
                     className="text-blue-500 hover:text-blue-700"
                     onClick={() => handleInvoiceClick(order)}
                   >
-                    {order.invoiceNo}
+                    {order.invoiceNumber}
                   </button>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {order.supplier}
+                  {order.supplierName}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">{order.date}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {new Date(order.purchaseOrderDate).toLocaleDateString()}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      order.status === "pending"
+                      !order.sendCreated
                         ? "bg-yellow-100 text-yellow-800"
                         : "bg-green-100 text-green-800"
                     }`}
                   >
-                    {order.status === "pending" ? "Pending" : "Sent"}
+                    {!order.sendCreated ? "Pending" : "Sent"}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">${order.total}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  Rs.{order.purchaseOrderTotal.toLocaleString()}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <div className="flex justify-end space-x-2">
-                    {order.status === "pending" && (
+                    {order.sendCreated === false && (
                       <button
                         className="text-blue-500 hover:text-blue-700"
                         onClick={() => handleEditClick(order)}
@@ -216,20 +248,20 @@ export default function PurchaseOrderTable() {
                     )}
                     <button
                       className="text-red-500 hover:text-red-700"
-                      onClick={() => setConfirmDelete(order.id)}
+                      onClick={() => setConfirmDelete(order.purchaseOrderId)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                     <button
                       className={`${
-                        order.status === "sent"
+                        order.sendCreated === true
                           ? "text-gray-400 cursor-not-allowed"
                           : "text-blue-500 hover:text-blue-700"
                       }`}
                       onClick={() =>
                         order.status !== "sent" && setSendEmail(order)
                       }
-                      disabled={order.status === "sent"}
+                      disabled={order.sendCreated === true}
                     >
                       <Send className="h-4 w-4" />
                     </button>
@@ -350,8 +382,11 @@ export default function PurchaseOrderTable() {
       {/* View Invoice Modal */}
       <InvoiceDetailsModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        invoice={selectedInvoice}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedInvoiceId(null);
+        }}
+        invoice={selectedInvoiceId} // Changed from purchaseOrderId to invoice
       />
 
       {/* Edit Invoice Modal */}
@@ -360,6 +395,12 @@ export default function PurchaseOrderTable() {
         onClose={() => setIsEditModalOpen(false)}
         invoice={editInvoice}
         onSave={handleSaveEdit}
+      />
+      <Toast
+        open={toast.open}
+        handleClose={handleCloseToast}
+        severity={toast.severity}
+        message={toast.message}
       />
     </div>
   );
