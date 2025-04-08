@@ -307,9 +307,13 @@ export default function PurchaseOrderEdit({
         {/* Totals */}
         <div className="border-t pt-4">
           <div className="w-64 ml-auto">
+            <div className="flex justify-between py-2">
+              <span className="text-gray-600">Sub Total:</span>
+              <span className="font-medium">${subTotal.toFixed(2)}</span>
+            </div>
             <div className="flex justify-between py-2 border-t">
-              <span className="font-bold">Sub Total:</span>
-              <span className="font-bold">Rs.{grandTotal.toFixed(2)}</span>
+              <span className="font-bold">Grand Total:</span>
+              <span className="font-bold">${grandTotal.toFixed(2)}</span>
             </div>
           </div>
         </div>
