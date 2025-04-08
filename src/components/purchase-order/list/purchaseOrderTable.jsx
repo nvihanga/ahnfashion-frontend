@@ -6,7 +6,6 @@ import {
   Filter,
   Trash2,
   Send,
-  MoreVertical,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -234,11 +233,11 @@ export default function PurchaseOrderTable() {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  Rs.{order.purchaseOrderTotal.toLocaleString()}
+                  ${order.purchaseOrderTotal.toLocaleString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <div className="flex justify-end space-x-2">
-                    {order.sendCreated === false && (
+                    {order.sendCreated === true && (
                       <button
                         className="text-blue-500 hover:text-blue-700"
                         onClick={() => handleEditClick(order)}
@@ -265,17 +264,6 @@ export default function PurchaseOrderTable() {
                     >
                       <Send className="h-4 w-4" />
                     </button>
-                    <div className="relative">
-                      <button
-                        className="text-gray-500 hover:text-gray-700"
-                        onClick={() => {
-                          // In a real app, you would implement a dropdown menu here
-                          alert("More options would appear here");
-                        }}
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
-                    </div>
                   </div>
                 </td>
               </tr>

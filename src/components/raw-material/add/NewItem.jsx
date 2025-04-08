@@ -122,13 +122,13 @@ const NewItem = () => {
     if (!validateForm()) return;
 
     try {
-      console.log("product", product);
       await addRawMaterial(product);
       setToast({
         open: true,
         severity: "success",
         message: "Raw material added successfully",
       });
+      // Reset all form fields
       setProduct({
         productName: "",
         productType: "",
@@ -151,11 +151,12 @@ const NewItem = () => {
   };
 
   const handleReset = () => {
+    // Reset all form fields
     setProduct({
       productName: "",
       productType: "",
       quantity: "",
-      supplier: null,
+      supplier: "",
       price: "",
       minimumStockLevel: "",
       description: "",
@@ -173,7 +174,7 @@ const NewItem = () => {
             onClick={handleAddNewItem}
             aria-label="Submit form"
           >
-            Submit
+            Save
           </button>
           <Button
             variant="outlined"

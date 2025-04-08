@@ -384,7 +384,9 @@ const RawMaterialList = () => {
                 onClick={() => handleHistoryClick(raw)}
               >
                 <td className="px-6 py-4 whitespace-nowrap">{raw.rawId}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{raw.rawName}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-blue-500 hover:text-blue-700">
+                  {raw.rawName}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">{raw.rawType}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {raw.rawQuantity}

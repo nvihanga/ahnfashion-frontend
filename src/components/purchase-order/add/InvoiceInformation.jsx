@@ -432,7 +432,7 @@ function InvoiceInformation() {
         <div className="w-full max-w-xs">
           <div className="flex justify-between py-2">
             <span>Sub Total:</span>
-            <span>Rs.{subTotal.toFixed(2)}</span>
+            <span>{subTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>
