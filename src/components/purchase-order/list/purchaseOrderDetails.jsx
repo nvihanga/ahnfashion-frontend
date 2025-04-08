@@ -164,11 +164,11 @@ export default function InvoiceDetailsModal({ isOpen, onClose, invoice }) {
                     <tr key={item.rawId}>
                       <td className="px-4 py-3">{item.rawName}</td>
                       <td className="px-4 py-3 text-right">
-                        ${item.rawUnitPrice.toFixed(2)}
+                        Rs.{item.rawUnitPrice.toFixed(2)}
                       </td>
                       <td className="px-4 py-3 text-right">{item.rawUnits}</td>
                       <td className="px-4 py-3 text-right">
-                        ${item.itemTotal.toFixed(2)}
+                        Rs.{item.itSemTotal.toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -182,7 +182,7 @@ export default function InvoiceDetailsModal({ isOpen, onClose, invoice }) {
             <div className="w-64 ml-auto">
               <div className="flex justify-between py-2 border-t">
                 <span className="font-bold">Total:</span>
-                <span className="font-bold">${subTotal.toFixed(2)}</span>
+                <span className="font-bold">Rs.{subTotal.toFixed(2)}</span>
               </div>
             </div>
           </div>

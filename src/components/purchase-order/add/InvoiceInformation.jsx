@@ -294,13 +294,13 @@ function InvoiceInformation() {
 
   return (
     <div className="w-full mx-auto p-6 bg-white rounded-lg shadow">
-      <h1 className="text-2xl font-bold mb-6 px-5">Add New Invoice Details</h1>
+      <h1 className="text-2xl font-bold mb-6 px-5">Add New Purchase Order</h1>
 
       <div className="bg-blue-50 py-6 rounded-lg mb-8 px-5">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
             <label className="block font-medium mb-2">
-              Invoice No <span className="text-red-500">*</span>
+              Purchase Order No <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
