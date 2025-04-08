@@ -63,7 +63,7 @@ const Header = () => {
                     </IconButton>
                     <div className='relative'>
                         <div className='rounded-full w-[35px] h-[35px] overflow-hidden cursor-pointer' onClick={handleClickMyAcc}>
-                            <img src="https://www.w3schools.com/howto/img_avatar.png" alt="profile" className='w-full h-full object-cover' />
+                            <img src="https://www.w3schools.com/howto/img_avatar.png" alt="profile" className='object-cover w-full h-full' />
                         </div>
                         <Menu
                             anchorEl={anchorMyAcc}
@@ -105,7 +105,7 @@ const Header = () => {
                             <MenuItem onClick={handleCloseMyAcc} className='bg-white'>
                                 <div className='flex items-center gap-3'>
                                     <div className='rounded-full w-[35px] h-[35px] overflow-hidden cursor-pointer'>
-                                        <img src="https://www.w3schools.com/howto/img_avatar.png" alt="profile" className='w-full h-full object-cover' />
+                                        <img src="https://www.w3schools.com/howto/img_avatar.png" alt="profile" className='object-cover w-full h-full' />
                                     </div>
                                     <div className='info'>
                                         <h3 className='text-[14px] leading-5'>{user?.username || 'Guest'}</h3>
