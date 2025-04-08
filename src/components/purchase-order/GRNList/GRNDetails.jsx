@@ -1,25 +1,31 @@
 import { format } from "date-fns";
 import PropTypes from "prop-types";
+import { X, Download } from "lucide-react";
+import html2pdf from "html2pdf.js";
+import { useRef } from "react";
 
 GRNDetails.propTypes = {
   showDetailsModal: PropTypes.bool.isRequired,
   selectedGRN: PropTypes.shape({
-    grnNumber: PropTypes.string.isRequired,
-    date: PropTypes.instanceOf(Date).isRequired,
-    supplier: PropTypes.string.isRequired,
-    poNumber: PropTypes.string.isRequired,
-    items: PropTypes.arrayOf(
+    purchaseOrderId: PropTypes.number.isRequired,
+    invoiceNumber: PropTypes.string.isRequired,
+    purchaseOrderDate: PropTypes.string.isRequired,
+    purchaseOrderTotal: PropTypes.number.isRequired,
+    supplierId: PropTypes.number.isRequired,
+    supplierName: PropTypes.string.isRequired,
+    purchaseOrderItems: PropTypes.arrayOf(
       PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
-        quantity: PropTypes.number.isRequired,
-        unitPrice: PropTypes.number.isRequired,
-        totalPrice: PropTypes.number.isRequired,
+        rawId: PropTypes.number.isRequired,
+        rawName: PropTypes.string.isRequired,
+        rawUnitPrice: PropTypes.number.isRequired,
+        rawUnits: PropTypes.number.isRequired,
+        itemTotal: PropTypes.number.isRequired,
       })
     ).isRequired,
-    totalAmount: PropTypes.number.isRequired,
-    paymentMethod: PropTypes.string,
-  }).isRequired,
+    sendCreated: PropTypes.bool,
+    grnCreated: PropTypes.bool,
+    paymentType: PropTypes.string,
+  }),
   closeModal: PropTypes.func.isRequired,
   handlePaymentClick: PropTypes.func.isRequired,
 };
@@ -30,166 +36,158 @@ export default function GRNDetails({
   closeModal,
   handlePaymentClick,
 }) {
+  const contentRef = useRef(null);
+
+  const generatePDF = () => {
+    const element = contentRef.current;
+    const opt = {
+      margin: 1,
+      filename: `grn-${selectedGRN?.invoiceNumber}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    };
+
+    html2pdf().set(opt).from(element).save();
+  };
+
   if (!showDetailsModal || !selectedGRN) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-      <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 my-8">
-        <div className="flex justify-between items-center mb-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6 border-b pb-4">
           <h2 className="text-2xl font-bold">GRN Details</h2>
-          <button
-            onClick={closeModal}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          <div className="flex gap-2">
+            <button
+              onClick={generatePDF}
+              className="p-2 hover:bg-blue-100 rounded-full text-blue-600"
+              title="Download PDF"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+              <Download className="h-5 w-5" />
+            </button>
+            <button
+              onClick={closeModal}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <div className="mb-4">
-              <span className="block text-sm font-medium text-gray-500">
-                GRN Number
-              </span>
-              <span className="block text-lg">{selectedGRN.grnNumber}</span>
-            </div>
-            <div className="mb-4">
-              <span className="block text-sm font-medium text-gray-500">
-                Date
-              </span>
-              <span className="block text-lg">
-                {format(selectedGRN.date, "MMMM dd, yyyy")}
-              </span>
-            </div>
+        {/* PDF Content */}
+        <div ref={contentRef}>
+          {/* Status */}
+          <div className="mb-6">
+            <label className="block text-sm text-gray-600 mb-1">
+              Gren Created
+            </label>
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                !selectedGRN.grnCreated
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-green-100 text-green-800"
+              }`}
+            >
+              {!selectedGRN.grnCreated ? "Pending" : "Completed"}
+            </span>
           </div>
-          <div>
-            <div className="mb-4">
-              <span className="block text-sm font-medium text-gray-500">
+
+          {/* Invoice Info */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-blue-50 p-4 rounded-lg mb-6">
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">
+                Invoice Number
+              </label>
+              <div className="font-medium">{selectedGRN.invoiceNumber}</div>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Date</label>
+              <div className="font-medium">
+                {format(
+                  new Date(selectedGRN.purchaseOrderDate),
+                  "MMMM dd, yyyy"
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">
                 Supplier
-              </span>
-              <span className="block text-lg">{selectedGRN.supplier}</span>
-            </div>
-            <div className="mb-4">
-              <span className="block text-sm font-medium text-gray-500">
-                Purchase Order
-              </span>
-              <span className="block text-lg">{selectedGRN.poNumber}</span>
+              </label>
+              <div className="font-medium">{selectedGRN.supplierName}</div>
             </div>
           </div>
-        </div>
 
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-3">Items</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Item
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Quantity
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Unit Price
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Total
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {selectedGRN.items.map((item) => (
-                  <tr key={item.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {item.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.quantity}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.unitPrice.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      Rs.{item.totalPrice.toFixed(2)}
-                    </td>
+          {/* Items Table */}
+          <div className="mb-6">
+            <h3 className="text-lg font-medium mb-3">Items</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full border rounded-lg">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Raw Material
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      Unit Price
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      Units
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      Total
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {selectedGRN.purchaseOrderItems.map((item) => (
+                    <tr key={item.rawId}>
+                      <td className="px-4 py-3">{item.rawName}</td>
+                      <td className="px-4 py-3 text-right">
+                        Rs. {item.rawUnitPrice.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-right">{item.rawUnits}</td>
+                      <td className="px-4 py-3 text-right">
+                        Rs. {item.itemTotal.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
 
-        <div className="flex flex-col items-end mb-6">
-          <div className="flex justify-between w-64 border-t pt-2">
-            <span className="font-medium">Total Amount:</span>
-            <span className="font-bold">
-              Rs.{selectedGRN.totalAmount.toFixed(2)}
-            </span>
-          </div>
-          <div className="flex justify-between w-64 mt-2">
-            <span className="font-medium">Payment Status:</span>
-            <span>
-              {selectedGRN.paymentMethod ? (
-                <span
-                  className={`px-2 py-1 text-sm rounded-full ${
-                    selectedGRN.paymentMethod === "Cash"
-                      ? "bg-green-100 text-green-800"
-                      : selectedGRN.paymentMethod === "Credit"
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
-                >
-                  {selectedGRN.paymentMethod}
+          {/* Totals */}
+          <div className="border-t pt-4">
+            <div className="w-64 ml-auto">
+              <div className="flex justify-between py-2 border-t">
+                <span className="font-bold">Total:</span>
+                <span className="font-bold">
+                  Rs. {selectedGRN.purchaseOrderTotal.toFixed(2)}
                 </span>
-              ) : (
-                <span className="text-red-500">Not Paid</span>
-              )}
-            </span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="flex justify-end">
+        {/* Actions */}
+        <div className="flex justify-end mt-6">
           <button
             onClick={() => {
               closeModal();
-              if (!selectedGRN.paymentMethod) {
+              if (!selectedGRN.paymentType) {
                 handlePaymentClick(selectedGRN);
               }
             }}
             className={`px-4 py-2 mr-2 rounded-md ${
-              selectedGRN.paymentMethod
+              selectedGRN.paymentType
                 ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                 : "bg-blue-500 text-white hover:bg-blue-600"
             }`}
-            disabled={selectedGRN.paymentMethod !== ""}
+            disabled={selectedGRN.paymentType !== ""}
           >
-            {selectedGRN.paymentMethod ? "Already Paid" : "Make Payment"}
+            {selectedGRN.paymentType ? "Already Paid" : "Make Payment"}
           </button>
           <button
             onClick={closeModal}
