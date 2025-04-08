@@ -12,7 +12,7 @@ export const getPurchaseOrders = async () => {
 };
 
 export const getPurchaseOrderById = async (id) => {
-  const response = await purchaseOrderApi.get(`/get/${id}`);
+  const response = await purchaseOrderApi.get(`/getById/${id}`);
   return response.data;
 };
 

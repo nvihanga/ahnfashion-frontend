@@ -20,35 +20,22 @@ const RawMaterialResponsiveBarChart = ({ data, title, dateRange }) => {
         {dateRange}
       </p>
       <ResponsiveContainer>
-        <BarChart
-          data={data}
-          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="product" />
-          <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-          {isRawMaterial ? null : (
-            <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
-          )}
-          <Tooltip />
-          <Legend />
-          <Bar
-            yAxisId="left"
-            dataKey="sold"
-            name={isRawMaterial ? "Quantity Used" : "Units Sold"}
-            fill="#8884d8"
-            barSize={30}
-          />
-          {isRawMaterial ? null : (
-            <Bar
-              yAxisId="right"
-              dataKey="revenue"
-              name="Revenue"
-              fill="#82ca9d"
-              barSize={30}
-            />
-          )}
-        </BarChart>
+      <BarChart
+    data={data}
+    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+>
+    <CartesianGrid strokeDasharray="3 3" />
+    <XAxis dataKey="material" />
+    <YAxis />
+    <Tooltip />
+    <Legend />
+    <Bar
+        dataKey="used"
+        name="Quantity Used"
+        fill="#8884d8"
+        barSize={30}
+    />
+</BarChart>
       </ResponsiveContainer>
     </div>
   );
