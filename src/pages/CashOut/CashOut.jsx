@@ -7,7 +7,7 @@ import { format } from "date-fns";
 const initialCashOutState = {
   reason: "",
   amount: "",
-  date: format(new Date(), "yyyy-MM-dd"),
+  placeDate: format(new Date(), "yyyy-MM-dd"), // format date for input type="date"
 };
 
 const CashOutForm = ({ refreshList }) => {
@@ -25,7 +25,7 @@ const CashOutForm = ({ refreshList }) => {
     if (!cashOut.reason.trim()) errs.reason = "Reason is required";
     if (!cashOut.amount || isNaN(cashOut.amount))
       errs.amount = "Valid amount is required";
-    if (!cashOut.date) errs.date = "Date is required";
+    if (!cashOut.placeDate) errs.placeDate = "Date is required";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -36,8 +36,10 @@ const CashOutForm = ({ refreshList }) => {
     const cashOutData = {
       reason: cashOut.reason.trim(),
       amount: parseFloat(cashOut.amount),
-      date: cashOut.date,
+      placeDate: new Date(cashOut.placeDate).toISOString().split("T")[0], // format as yyyy-MM-dd
     };
+
+    console.log("Sending CashOut data:", cashOutData); // For debugging
 
     try {
       await axios.post("http://localhost:8085/api/v1/cashout", cashOutData);
@@ -45,10 +47,15 @@ const CashOutForm = ({ refreshList }) => {
         variant: "success",
       });
       setCashOut(initialCashOutState);
-      refreshList && refreshList();
+      if (refreshList) refreshList();
     } catch (error) {
       console.error("Cash out error:", error);
-      enqueueSnackbar("Failed to save cash out", { variant: "error" });
+      enqueueSnackbar(
+        error.response?.data?.message || "Failed to save cash out",
+        {
+          variant: "error",
+        }
+      );
     }
   };
 
@@ -83,9 +90,10 @@ const CashOutForm = ({ refreshList }) => {
         error={!!errors.reason}
         helperText={errors.reason || "Enter reason"}
       />
+
       <TextField
         name="amount"
-        label="Amount (LKR)"
+        label="Amount (Rs)"
         fullWidth
         type="number"
         value={cashOut.amount}
@@ -94,18 +102,19 @@ const CashOutForm = ({ refreshList }) => {
         helperText={errors.amount || "Enter amount"}
         InputProps={{
           inputProps: { min: 0 },
-          startAdornment: <span style={{ marginRight: 4 }}>රු</span>,
+          startAdornment: <span style={{ marginRight: 4 }}>Rs</span>,
         }}
       />
+
       <TextField
-        name="date"
+        name="placeDate"
         label="Date"
         type="date"
         fullWidth
-        value={cashOut.date}
+        value={cashOut.placeDate}
         onChange={handleChange}
-        error={!!errors.date}
-        helperText={errors.date || "Select date"}
+        error={!!errors.placeDate}
+        helperText={errors.placeDate || "Select date"}
         InputLabelProps={{ shrink: true }}
         inputProps={{ max: format(new Date(), "yyyy-MM-dd") }}
       />
@@ -114,3 +123,4 @@ const CashOutForm = ({ refreshList }) => {
 };
 
 export default CashOutForm;
+//updated
