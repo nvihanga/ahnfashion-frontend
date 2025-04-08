@@ -233,11 +233,11 @@ export default function PurchaseOrderTable() {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  ${order.purchaseOrderTotal.toLocaleString()}
+                  Rs{order.purchaseOrderTotal.toLocaleString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <div className="flex justify-end space-x-2">
-                    {order.sendCreated === true && (
+                    {order.sendCreated === false && (
                       <button
                         className="text-blue-500 hover:text-blue-700"
                         onClick={() => handleEditClick(order)}
