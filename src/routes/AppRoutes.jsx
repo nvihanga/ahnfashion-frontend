@@ -136,20 +136,13 @@ const AppRoutes = () => {
                 element={<SupplierList />}
               />
 
-              <Route
-                path={ROUTES.PROTECTED.CUSTOMERS.LIST}
-                element={<CustomerList />}
-              />
-
+              
               <Route
                 path={ROUTES.PROTECTED.SUPPLIERS.ADD}
                 element={<SuppiersAdd />}
               />
 
-              <Route
-                path={ROUTES.PROTECTED.CUSTOMERS.ADD}
-                element={<CustomerForm />}
-              />
+              
 
               <Route
                 path={ROUTES.PROTECTED.CASH.CASHOUT}
@@ -232,6 +225,14 @@ const AppRoutes = () => {
               <Route
                 path={ROUTES.PROTECTED.DASHBOARD.SALES}
                 element={<SalesDashboard />}
+              />
+              <Route
+                path={ROUTES.PROTECTED.CUSTOMERS.LIST}
+                element={<CustomerList />}
+              />
+              <Route
+                path={ROUTES.PROTECTED.CUSTOMERS.ADD}
+                element={<CustomerForm />}
               />
             </Route>
 

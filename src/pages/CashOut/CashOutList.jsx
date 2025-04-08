@@ -1,3 +1,4 @@
+import cashOutApi from "../../api/cashOutApi";
 import {
     Table,
     TableBody,
@@ -33,8 +34,7 @@ import {
     const [deleteId, setDeleteId] = useState(null);
   
     const fetchCashOuts = () => {
-      axios
-        .get("http://localhost:8085/api/v1/cashout")
+      cashOutApi.getAll()
         .then((res) => {
           setCashOuts(res.data);
         })
@@ -54,8 +54,7 @@ import {
     };
   
     const confirmDelete = () => {
-      axios
-        .delete(`http://localhost:8085/api/v1/cashout/${deleteId}`)
+      cashOutApi.delete(deleteId)
         .then(() => {
           setCashOuts((prev) => prev.filter((co) => co.id !== deleteId));
           setOpenDialog(false); // Close the dialog after deleting
@@ -79,8 +78,7 @@ import {
         placeDate: editForm.placeDate,
       };
   
-      axios
-        .put(`http://localhost:8085/api/v1/cashout/${id}`, updatedData)
+      cashOutApi.update(id, updatedData)
         .then(() => {
           fetchCashOuts();
           setEditingId(null);

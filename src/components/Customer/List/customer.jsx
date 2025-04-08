@@ -1,3 +1,4 @@
+import customerApi from "../../../api/customerApi.js";
 import {
     IconButton,
     Table,
@@ -35,7 +36,7 @@ const CustomerList = () => {
     }, []);
 
     const fetchCustomers = () => {
-        axios.get("http://localhost:8085/api/v1/customer/all")
+        customerApi.getAll()
             .then((response) => {
                 const formattedCustomers = response.data.map(customer => ({
                     customerId: customer.id,
@@ -66,8 +67,7 @@ const CustomerList = () => {
     const confirmDelete = () => {
         if (!customerToDelete) return;
 
-        axios
-            .delete(`http://localhost:8085/api/v1/customer/delete/${customerToDelete.customerId}`)
+        customerApi.delete(customerToDelete.customerId)
             .then(() => {
                 setCustomers(customers.filter((c) => c.customerId !== customerToDelete.customerId));
                 setDeleteDialogOpen(false);
@@ -100,7 +100,7 @@ const CustomerList = () => {
             notes: updatedCustomer.customerNote
         };
 
-        axios.put(`http://localhost:8085/api/v1/customer/update/${updatedCustomer.customerId}`, backendData)
+        customerApi.update(updatedCustomer.customerId, backendData)
             .then(() => {
                 fetchCustomers();
                 setDrawerOpen(false);

@@ -1,7 +1,7 @@
 import { Button, TextField, IconButton, Snackbar, Alert } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { useState } from "react";
-import axios from "axios";
+import customerApi from '../../../api/customerApi'; // import customerApi
 
 const initialCustomerState = {
     customerName: "",
@@ -60,7 +60,7 @@ const CustomerForm = () => {
         };
 
         try {
-            await axios.post("http://localhost:8085/api/v1/customer/create", customerData);
+            await customerApi.create(customerData); // Use the API method here
             setSuccess(true);
             setCustomer(initialCustomerState);
         } catch (error) {

@@ -2,6 +2,7 @@ import React from 'react'
 // import DashboardBoxes from '../../components/dahboardBoxes'
 import { MdWavingHand } from "react-icons/md";
 import image from '../../assets/images/first.jpg'
+import ProductPerformance from '../../components/dashboard/ProductPerformance'
 
 const SalesDashboard = () => {
   return (
@@ -21,6 +22,9 @@ const SalesDashboard = () => {
         {/* <img src={image} className='w-[200px] rounded-full'/> */}
       </div>
       {/* <DashboardBoxes/> */}
+      <div>
+        <ProductPerformance/>
+      </div>
     </>
   )
 }

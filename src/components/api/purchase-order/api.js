@@ -1,57 +1,32 @@
-import axios from "axios";
-
-export const baseUrl = "http://localhost:8085";
-
-const headers = {
-  "Content-Type": "application/json",
-};
+import createApi from '../../../api/index';
+import { purchaseOrderApi } from '../../../api/purchaseOrderApi';
 
 export const addPurchaseOrder = async (purchaseOrder) => {
-  const response = await axios.post(
-    `${baseUrl}/api/v1/purchaseOrder/save`,
-    purchaseOrder,
-    { headers }
-  );
+  const response = await purchaseOrderApi.post('/save', purchaseOrder);
   return response.data;
 };
 
 export const getPurchaseOrders = async () => {
-  const response = await axios.get(`${baseUrl}/api/v1/purchaseOrder/getAll`, {
-    headers,
-  });
+  const response = await purchaseOrderApi.get('/getAll');
   return response.data;
 };
 
 export const getPurchaseOrderById = async (id) => {
-  const response = await axios.get(
-    `${baseUrl}/api/v1/purchaseOrder/getById/${id}`,
-    { headers }
-  );
+  const response = await purchaseOrderApi.get(`/getById/${id}`);
   return response.data;
 };
 
 export const sendPurchaseOrderEmail = async (invoiceNo) => {
-  const response = await axios.post(
-    `${baseUrl}/api/v1/purchaseOrder/sendEmail/${invoiceNo}`,
-    null,
-    { headers }
-  );
+  const response = await purchaseOrderApi.post(`/sendEmail/${invoiceNo}`);
   return response.data;
 };
 
 export const updatePurchaseOrder = async (purchaseOrder) => {
-  const response = await axios.put(
-    `${baseUrl}/api/v1/purchaseOrder/update`,
-    purchaseOrder,
-    { headers }
-  );
+  const response = await purchaseOrderApi.put('/update', purchaseOrder);
   return response.data;
 };
 
 export const deletePurchaseOrder = async (id) => {
-  const response = await axios.delete(
-    `${baseUrl}/api/v1/purchaseOrder/delete/${id}`,
-    { headers }
-  );
+  const response = await purchaseOrderApi.delete(`/delete/${id}`);
   return response.data;
 };
