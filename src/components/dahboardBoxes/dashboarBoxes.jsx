@@ -5,7 +5,7 @@ import { RiBankFill, RiExchangeDollarFill } from "react-icons/ri";
 import { useWebSocket } from '../../context/WebSocketContext';
 
 const DashboardBoxes = () => {
-    const { totalRevenue } = useWebSocket();
+    const { totalRevenue, totalExpenses } = useWebSocket();
     return (
         <div className="px-4 mb-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -22,8 +22,10 @@ const DashboardBoxes = () => {
                 <div className='p-4 bg-white hover:bg-gray-50 rounded-md border border-gray-200 flex items-center gap-3'>
                     <GiExpense className='text-2xl text-[#3F00FF]' />
                     <div className='info'>
-                        <h3 className='text-sm text-gray-600'>Total Expenses</h3>
-                        <b className='text-lg font-semibold text-gray-900'>Rs.385 000</b>
+                        <h3 className='text-sm text-gray-600'>Total External Expenses</h3>
+                        <b className='text-lg font-semibold text-gray-900'>
+                            Rs.{isNaN(totalExpenses) ? '0' : totalExpenses.toLocaleString()}
+                        </b>
                     </div>
                 </div>
 

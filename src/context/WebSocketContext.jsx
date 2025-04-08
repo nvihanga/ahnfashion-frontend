@@ -13,6 +13,8 @@ export const WebSocketProvider = ({ children }) => {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [productPerformance, setProductPerformance] = useState([]);
   const [rawMaterialUsage, setRawMaterialUsage] = useState([]);
+  const [totalExpenses, setTotalExpenses] = useState(0);
+
   const { user } = useAuth();
   const location = useLocation();
 
@@ -62,11 +64,16 @@ export const WebSocketProvider = ({ children }) => {
           const usageData = JSON.parse(message.body);
           setRawMaterialUsage(usageData);
         });
+        client.subscribe('/topic/total-expenses', (message) => {
+          const expenses = parseFloat(message.body);
+          setTotalExpenses(expenses);
+      });
 
         // Request initial data
         client.publish({ destination: '/app/request-total-revenue' });
         client.publish({ destination: '/app/request-product-performance' });
         client.publish({ destination: '/app/request-raw-material-usage' }); 
+        client.publish({ destination: '/app/request-total-expenses' });
       };
 
       client.activate();
@@ -85,6 +92,7 @@ export const WebSocketProvider = ({ children }) => {
       totalRevenue,
       productPerformance,
       rawMaterialUsage,
+      totalExpenses,
       stompClient
     }}>
       {children}
