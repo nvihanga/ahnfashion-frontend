@@ -188,7 +188,7 @@ export default function PurchaseOrderEdit({
       <div className="bg-white p-6 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6 border-b pb-4">
-          <h2 className="text-2xl font-bold">Edit Invoice</h2>
+          <h2 className="text-2xl font-bold">Edit Purchase Order</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full"
@@ -309,11 +309,11 @@ export default function PurchaseOrderEdit({
           <div className="w-64 ml-auto">
             <div className="flex justify-between py-2">
               <span className="text-gray-600">Sub Total:</span>
-              <span className="font-medium">${subTotal.toFixed(2)}</span>
+              <span className="font-medium">Rs.{subTotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between py-2 border-t">
               <span className="font-bold">Grand Total:</span>
-              <span className="font-bold">${grandTotal.toFixed(2)}</span>
+              <span className="font-bold">Rs.{grandTotal.toFixed(2)}</span>
             </div>
           </div>
         </div>
