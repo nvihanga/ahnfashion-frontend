@@ -4,9 +4,7 @@ import PropTypes from "prop-types";
 export default function GRNTable({
   filteredGRNs,
   handleGRNClick,
-
   handleDeleteClick,
-  getPaymentStatus,
   getPaymentAction,
 }) {
   return (
@@ -39,7 +37,7 @@ export default function GRNTable({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {filteredGRNs.map((grn) => (
-            <tr key={grn.id} className="hover:bg-gray-50">
+            <tr key={grn.purchaseOrderId} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap">
                 <button
                   className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
@@ -49,26 +47,29 @@ export default function GRNTable({
                 </button>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                {grn.supplier}
+                {grn.supplierName}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                Rs. {grn.totalAmount.toFixed(2)}
+                Rs. {grn.purchaseOrderTotal.toFixed(2)}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">{grn.toPay}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                {grn.paymentType || "-"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                {getPaymentStatus(grn)}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {grn.paymentMethod || "-"}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {format(grn.date, "yyyy-MM-dd")}
+                {format(new Date(grn.purchaseOrderDate), "yyyy-MM-dd")}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex space-x-4">
                   {getPaymentAction(grn)}
-                  {grn.paidAmount === 0 && (
+                  {!grn.sendCreated && !grn.paymentType && (
                     <button
-                      onClick={() => handleDeleteClick(grn)}
+                      onClick={() =>
+                        handleDeleteClick({
+                          id: grn.purchaseOrderId,
+                          grnNumber: grn.grnNumber,
+                        })
+                      }
                       className="text-red-600 hover:text-red-800"
                     >
                       <svg
@@ -100,17 +101,18 @@ export default function GRNTable({
 GRNTable.propTypes = {
   filteredGRNs: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
+      purchaseOrderId: PropTypes.number.isRequired,
+      purchaseOrderDate: PropTypes.string.isRequired,
+      purchaseOrderTotal: PropTypes.number.isRequired,
       grnNumber: PropTypes.string.isRequired,
-      supplier: PropTypes.string.isRequired,
-      totalAmount: PropTypes.number.isRequired,
-      paymentMethod: PropTypes.string,
-      date: PropTypes.instanceOf(Date).isRequired,
-      paidAmount: PropTypes.number.isRequired,
+      supplierName: PropTypes.string.isRequired,
+      paymentType: PropTypes.string,
+      toPay: PropTypes.string,
+      sendCreated: PropTypes.bool.isRequired,
+      grnCreated: PropTypes.bool.isRequired,
     })
   ).isRequired,
   handleGRNClick: PropTypes.func.isRequired,
-  handlePaymentClick: PropTypes.func.isRequired,
   handleDeleteClick: PropTypes.func.isRequired,
   getPaymentStatus: PropTypes.func.isRequired,
   getPaymentAction: PropTypes.func.isRequired,

@@ -70,7 +70,7 @@ const NewType = () => {
         </div>
         <div className="flex gap-5">
           <Button variant="contained" onClick={handleSubmit}>
-            Submit
+            Save
           </Button>
           <Button variant="outlined" onClick={handleReset}>
             Reset
