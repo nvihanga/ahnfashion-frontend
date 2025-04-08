@@ -1,110 +1,90 @@
 import { Button, TextField, IconButton, Snackbar, Alert } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { useState } from "react";
-import supplierApi from '../../../api/supplierApi';  
+import customerApi from '../../../api/customerApi'; // import customerApi
 
-const initialSupplierState = {
-    supplierCode: "",
-    supplierName: "",
-    supplierEmail: "",
-    supplierPhoneNo: [""], 
-    supplierAddress: "",
-    supplierNote: "",
+const initialCustomerState = {
+    customerName: "",
+    email: "",
+    phoneNumbers: [""],
+    address: "",
+    notes: "",
 };
 
-const SupplierForm = () => {
-    const [supplier, setSupplier] = useState(initialSupplierState);
+const CustomerForm = () => {
+    const [customer, setCustomer] = useState(initialCustomerState);
     const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setSupplier((prev) => ({ ...prev, [name]: value }));
+        setCustomer((prev) => ({ ...prev, [name]: value }));
     };
 
     const handlePhoneChange = (index, value) => {
-        const updatedPhones = [...supplier.supplierPhoneNo];
+        const updatedPhones = [...customer.phoneNumbers];
         updatedPhones[index] = value;
-        setSupplier((prev) => ({ ...prev, supplierPhoneNo: updatedPhones }));
+        setCustomer((prev) => ({ ...prev, phoneNumbers: updatedPhones }));
     };
 
     const addPhoneNumber = () => {
-        setSupplier((prev) => ({ 
-            ...prev, 
-            supplierPhoneNo: [...prev.supplierPhoneNo, ""] 
-        }));
+        setCustomer((prev) => ({ ...prev, phoneNumbers: [...prev.phoneNumbers, ""] }));
     };
 
     const removePhoneNumber = (index) => {
-        setSupplier((prev) => ({
+        setCustomer((prev) => ({
             ...prev,
-            supplierPhoneNo: prev.supplierPhoneNo.filter((_, i) => i !== index),
+            phoneNumbers: prev.phoneNumbers.filter((_, i) => i !== index),
         }));
     };
 
     const validateForm = () => {
         let errors = {};
-        if (!supplier.supplierCode) errors.supplierCode = "Supplier Code is required";
-        if (!supplier.supplierName) errors.supplierName = "Name is required";
-        if (!supplier.supplierEmail) errors.supplierEmail = "Email Address is required";
-        if (supplier.supplierPhoneNo.some((phone) => !phone)) errors.supplierPhoneNo = "Phone Number is required";
-        if (!supplier.supplierAddress) errors.supplierAddress = "Address is required";
+        if (!customer.customerName) errors.customerName = "Name is required";
+        if (!customer.email) errors.email = "Email Address is required";
+        if (customer.phoneNumbers.some((phone) => !phone)) errors.phoneNumbers = "Phone Number is required";
+        if (!customer.address) errors.address = "Address is required";
         setErrors(errors);
         return Object.keys(errors).length === 0;
     };
 
-    const handleSaveSupplier = async () => {
+    const handleSaveCustomer = async () => {
         if (!validateForm()) return;
 
-        const supplierData = {
-            supplierCode: supplier.supplierCode,
-            supplierName: supplier.supplierName,
-            supplierEmail: supplier.supplierEmail,
-            supplierAddress: supplier.supplierAddress,
-            supplierPhoneNo: supplier.supplierPhoneNo.filter(phone => phone !== ""),
-            supplierNote: supplier.supplierNote || "",
+        const customerData = {
+            customerName: customer.customerName,
+            email: customer.email,
+            phoneNumbers: customer.phoneNumbers,
+            address: customer.address,
+            notes: customer.notes,
         };
 
         try {
-            const exists = await supplierApi.checkCodeExists(supplier.supplierCode);  // Check if code exists
-
-            if (exists) {
-                setErrors(prev => ({ ...prev, supplierCode: "Supplier Code already exists" }));
-                return;
-            }
-
-            await supplierApi.create(supplierData);  // Save the supplier data
+            await customerApi.create(customerData); // Use the API method here
             setSuccess(true);
-            setSupplier(initialSupplierState);
+            setCustomer(initialCustomerState);
         } catch (error) {
-            console.error("Error saving supplier:", error);
-            if (error.response?.status === 401) {
-                setErrorMessage("Unauthorized: Please log in.");
-            } else {
-                setErrorMessage("Failed to save supplier. Please try again.");
-            }
+            console.error("Error saving customer:", error);
+            alert("Failed to save customer");
         }
     };
 
     const handleReset = () => {
-        setSupplier(initialSupplierState);
+        setCustomer(initialCustomerState);
         setErrors({});
-        setErrorMessage('');
     };
 
     const handleCloseSnackbar = () => {
         setSuccess(false);
-        setErrorMessage('');
     };
 
     return (
         <>
             <div className="w-full mt-10 px-10 space-y-5">
                 <div className="flex flex-row justify-between items-center">
-                    <h1 className="font-bold">Add Supplier</h1>
+                    <h1 className="font-bold">Add Customer</h1>
                     <div className="flex gap-5">
-                        <Button variant="contained" onClick={handleSaveSupplier}>
+                        <Button variant="contained" onClick={handleSaveCustomer}>
                             Submit
                         </Button>
                         <Button variant="outlined" onClick={handleReset}>Reset</Button>
@@ -112,40 +92,29 @@ const SupplierForm = () => {
                 </div>
 
                 <TextField
-                    name="supplierCode"
-                    label="Supplier Code"
-                    variant="outlined"
-                    fullWidth
-                    value={supplier.supplierCode}
-                    onChange={handleChange}
-                    error={!!errors.supplierCode}
-                    helperText={errors.supplierCode}
-                />
-
-                <TextField
-                    name="supplierName"
+                    name="customerName"
                     label="Name"
                     variant="outlined"
                     fullWidth
-                    value={supplier.supplierName}
+                    value={customer.customerName}
                     onChange={handleChange}
-                    error={!!errors.supplierName}
-                    helperText={errors.supplierName}
+                    error={!!errors.customerName}
+                    helperText={errors.customerName}
                 />
 
                 <TextField
-                    name="supplierEmail"
+                    name="email"
                     label="Email Address"
                     type="email"
                     variant="outlined"
                     fullWidth
-                    value={supplier.supplierEmail}
+                    value={customer.email}
                     onChange={handleChange}
-                    error={!!errors.supplierEmail}
-                    helperText={errors.supplierEmail}
+                    error={!!errors.email}
+                    helperText={errors.email}
                 />
 
-                {supplier.supplierPhoneNo.map((phone, index) => (
+                {customer.phoneNumbers.map((phone, index) => (
                     <div className="flex items-center gap-2" key={index}>
                         <TextField
                             label={`Phone Number ${index + 1}`}
@@ -153,13 +122,13 @@ const SupplierForm = () => {
                             fullWidth
                             value={phone}
                             onChange={(e) => handlePhoneChange(index, e.target.value)}
-                            error={!!errors.supplierPhoneNo}
-                            helperText={errors.supplierPhoneNo}
+                            error={!!errors.phoneNumbers}
+                            helperText={errors.phoneNumbers}
                         />
                         <IconButton color="primary" onClick={addPhoneNumber}>
                             <Add />
                         </IconButton>
-                        {supplier.supplierPhoneNo.length > 1 && (
+                        {customer.phoneNumbers.length > 1 && (
                             <IconButton color="secondary" onClick={() => removePhoneNumber(index)}>
                                 <Remove />
                             </IconButton>
@@ -168,47 +137,47 @@ const SupplierForm = () => {
                 ))}
 
                 <TextField
-                    name="supplierAddress"
+                    name="address"
                     label="Address"
                     variant="outlined"
                     fullWidth
                     multiline
                     rows={2}
-                    value={supplier.supplierAddress}
+                    value={customer.address}
                     onChange={handleChange}
-                    error={!!errors.supplierAddress}
-                    helperText={errors.supplierAddress}
+                    error={!!errors.address}
+                    helperText={errors.address}
                 />
 
                 <TextField
-                    name="supplierNote"
+                    name="notes"
                     label="Notes"
                     variant="outlined"
                     fullWidth
                     multiline
                     rows={3}
-                    value={supplier.supplierNote}
+                    value={customer.notes}
                     onChange={handleChange}
                 />
             </div>
 
             <Snackbar
-                open={success || !!errorMessage}
+                open={success}
                 autoHideDuration={4000}
                 onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
                 <Alert
                     onClose={handleCloseSnackbar}
-                    severity={errorMessage ? "error" : "success"}
+                    severity="success"
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    {errorMessage || "Supplier added successfully!"}
+                    Customer added successfully!
                 </Alert>
             </Snackbar>
         </>
     );
 };
 
-export default SupplierForm;
+export default CustomerForm;

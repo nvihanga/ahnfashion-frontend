@@ -5,6 +5,8 @@ import { MdWavingHand } from "react-icons/md";
 import image from '../../assets/images/first.jpg'
 import ProductPerformance from '../../components/dashboard/ProductPerformance';
 import OutstandingBalances from '../../components/dashboard/OutstandingBalances';
+import RawMaterialUsage from '../../components/dashboard/RawMaterialUsage';
+
 
 const AdminDashboard = () => {  
   return (
@@ -30,7 +32,9 @@ const AdminDashboard = () => {
           <div className='py-8'>
           <OutstandingBalances/>
           </div>
-          
+          <div className='py-8'>
+          <RawMaterialUsage/>
+          </div>
         </>
   )
 }

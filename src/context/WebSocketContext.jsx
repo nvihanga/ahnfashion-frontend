@@ -12,6 +12,7 @@ export const WebSocketProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [productPerformance, setProductPerformance] = useState([]);
+  const [rawMaterialUsage, setRawMaterialUsage] = useState([]);
   const { user } = useAuth();
   const location = useLocation();
 
@@ -32,6 +33,7 @@ export const WebSocketProvider = ({ children }) => {
       });
 
       client.onConnect = () => {
+        console.log("WebSocket connected successfully");
         // Existing subscriptions
         client.subscribe('/topic/notifications', (message) => {
           const newNotification = JSON.parse(message.body);
@@ -56,9 +58,15 @@ export const WebSocketProvider = ({ children }) => {
           setProductPerformance(performanceData);
         });
 
+        client.subscribe('/topic/raw-material-usage', (message) => {
+          const usageData = JSON.parse(message.body);
+          setRawMaterialUsage(usageData);
+        });
+
         // Request initial data
         client.publish({ destination: '/app/request-total-revenue' });
         client.publish({ destination: '/app/request-product-performance' });
+        client.publish({ destination: '/app/request-raw-material-usage' }); 
       };
 
       client.activate();
@@ -76,6 +84,7 @@ export const WebSocketProvider = ({ children }) => {
       setNotifications,
       totalRevenue,
       productPerformance,
+      rawMaterialUsage,
       stompClient
     }}>
       {children}
