@@ -1,19 +1,22 @@
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, Snackbar, Alert } from "@mui/material";
 import { useState } from "react";
+import axios from "axios";
 import { useSnackbar } from "notistack";
 import { format } from "date-fns";
-import cashOutApi from '../../api/cashOutApi'; 
+import cashOutApi from "../../api/cashOutApi"; 
 
 const initialCashOutState = {
   reason: "",
   amount: "",
-  placeDate: format(new Date(), "yyyy-MM-dd"), // format date for input type="date"
+  placeDate: format(new Date(), "yyyy-MM-dd"),
 };
 
 const CashOutForm = ({ refreshList }) => {
   const [cashOut, setCashOut] = useState(initialCashOutState);
   const [errors, setErrors] = useState({});
   const { enqueueSnackbar } = useSnackbar();
+  const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,13 +39,17 @@ const CashOutForm = ({ refreshList }) => {
     const cashOutData = {
       reason: cashOut.reason.trim(),
       amount: parseFloat(cashOut.amount),
-      placeDate: new Date(cashOut.placeDate).toISOString().split("T")[0], // format as yyyy-MM-dd
+      placeDate: new Date(cashOut.placeDate).toISOString().split("T")[0], 
     };
 
-    console.log("Sending CashOut data:", cashOutData); // For debugging
+    console.log("Sending CashOut data:", cashOutData); 
 
     try {
-      await cashOutApi.create(cashOutData); // Use the API's create method
+      await cashOutApi.create(cashOutData);
+
+      setSuccessMessage(`Process successful! Rs ${parseFloat(cashOut.amount).toLocaleString()} cash out recorded.`);
+      setSuccess(true);
+      
       enqueueSnackbar("Cash out recorded successfully!", {
         variant: "success",
       });
@@ -57,6 +64,10 @@ const CashOutForm = ({ refreshList }) => {
         }
       );
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSuccess(false);
   };
 
   return (
@@ -102,7 +113,7 @@ const CashOutForm = ({ refreshList }) => {
         helperText={errors.amount || "Enter amount"}
         InputProps={{
           inputProps: { min: 0 },
-          startAdornment: <span style={{ marginRight: 4 }}>Rs.</span>,
+          startAdornment: <span style={{ marginRight: 4 }}>Rs</span>,
         }}
       />
 
@@ -118,9 +129,24 @@ const CashOutForm = ({ refreshList }) => {
         InputLabelProps={{ shrink: true }}
         inputProps={{ max: format(new Date(), "yyyy-MM-dd") }}
       />
+
+      <Snackbar
+        open={success}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {successMessage || "Process is successful!"}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
 
 export default CashOutForm;
-//updated

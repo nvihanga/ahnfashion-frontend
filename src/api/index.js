@@ -40,3 +40,4 @@ export const authApi = createApi('auth');
 export const userApi = createApi('user');
 export const finishedGoodApi = createApi('finishedGood');
 export const stockApi = createApi('stock');
+export const salesOrderApi = createApi('salesorders');

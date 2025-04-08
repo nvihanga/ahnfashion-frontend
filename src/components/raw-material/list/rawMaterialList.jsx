@@ -10,7 +10,7 @@ import {
   getSuppliers,
   getRawMaterials,
   editRawMaterial,
-  deleteRawMaterial
+  deleteRawMaterial,
 } from '../../api/rawmaterial/api';
 import Toast from "../../common/Toast";
 import StockHistoryDrawer from "./stockHistoryDrawer";
