@@ -7,18 +7,30 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import {
+import { 
   addRawMaterial,
   getRawMaterialTypes,
   getSuppliers,
-} from "../../api/rawmaterial/api";
+  getRawMaterials,
+  editRawMaterial,
+  deleteRawMaterial
+} from '../../api/rawmaterial/api';
 import Toast from "../../common/Toast";
 
 const NewItem = () => {
-  const [product, setProduct] = useState({});
+  //const [product, setProduct] = useState({});
   const [errors, setErrors] = useState({});
   const [rawTypes, setRawTypes] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [product, setProduct] = useState({
+    productName: "",
+    productType: "",
+    quantity: "",
+    supplier: "",
+    price: "",
+    minimumStockLevel: "",
+    description: "",
+  });
 
   const [toast, setToast] = useState({
     open: false,
@@ -203,13 +215,9 @@ const NewItem = () => {
           <Autocomplete
             options={rawTypes}
             getOptionLabel={(option) => option.rawTypeName}
-            value={
-              product.productType
-                ? rawTypes.find(
-                    (type) => type.rawTypeId === product.productType
-                  )
-                : null
-            }
+            value={rawTypes.find(
+              (type) => type.rawTypeId === product.productType
+            ) || null}
             onChange={(event, newValue) => {
               setProduct((prev) => ({
                 ...prev,
@@ -259,13 +267,11 @@ const NewItem = () => {
       <div className="mt-5">
         <FormControl fullWidth error={!!errors.supplier}>
           <Autocomplete
-            options={suppliers}
+            options={suppliers || []}
             getOptionLabel={(option) => option.supplierName}
-            value={
-              product.supplier
-                ? suppliers.find((type) => type.supplierId === product.supplier)
-                : null
-            }
+            value={suppliers.find(
+              (type) => type.supplierId === product.supplier
+            ) || null}
             onChange={(event, newValue) => {
               setProduct((prev) => ({
                 ...prev,

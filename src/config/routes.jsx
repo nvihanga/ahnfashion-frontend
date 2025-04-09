@@ -19,7 +19,6 @@ export const ROUTES = {
             LIST: '/finished-goods/list',
             ADD: '/finished-goods/add',
             STOCK_ADD: '/finished-goods/stock-add',
-            HISTORY: '/finished-goods/history',
         },
         CUSTOMERS: {
             LIST: '/customers/list',
@@ -42,8 +41,8 @@ export const ROUTES = {
             
         },
         REPORTS: {
-            DAILY: '/reports/daily',
-            MONTHLY: '/reports/monthly',
+            SUPPLIER: '/reports/supplier',
+            CUSTOMERS: '/reports/customers',
         },
         CASH: {
             CASHOUT: '/cash/cashout',

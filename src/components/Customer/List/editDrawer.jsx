@@ -10,6 +10,7 @@ import {
     Stack,
     Snackbar,
     Alert,
+    FormHelperText,
 } from "@mui/material";
 import { MdClose } from "react-icons/md";
 
@@ -23,6 +24,7 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
         customerNote: "",
     });
     const [success, setSuccess] = useState(false);
+    const [phoneErrors, setPhoneErrors] = useState([]);
 
     useEffect(() => {
         if (item) {
@@ -32,6 +34,11 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
                     ? [...item.customerPhoneNo] 
                     : [item.customerPhoneNo || ""],
             });
+            // Initialize phone errors array with empty strings
+            setPhoneErrors(Array.isArray(item.customerPhoneNo) 
+                ? Array(item.customerPhoneNo.length).fill("") 
+                : [""]
+            );
         }
     }, [item]);
 
@@ -44,8 +51,27 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
     };
 
     const handlePhoneChange = (index, value) => {
+        // Only allow digits
+        const numericValue = value.replace(/\D/g, '');
+        
+        // Limit to 10 digits (standard Sri Lankan format)
+        const limitedValue = numericValue.slice(0, 10);
+        
         const updatedPhones = [...formData.customerPhoneNo];
-        updatedPhones[index] = value;
+        updatedPhones[index] = limitedValue;
+        
+        // Update phone errors - Sri Lankan mobile numbers should have 10 digits starting with 0
+        const updatedErrors = [...phoneErrors];
+        
+        if (limitedValue.length === 0) {
+            updatedErrors[index] = "";
+        } else if (limitedValue.length !== 10) {
+            updatedErrors[index] = "Phone number must be exactly 10 digits";
+        } else {
+            updatedErrors[index] = "";
+        }
+            
+        setPhoneErrors(updatedErrors);
         setFormData({
             ...formData,
             customerPhoneNo: updatedPhones,
@@ -57,33 +83,68 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
             ...formData,
             customerPhoneNo: [...formData.customerPhoneNo, ""],
         });
+        setPhoneErrors([...phoneErrors, ""]);
     };
 
     const removePhoneField = (index) => {
         if (formData.customerPhoneNo.length > 1) {
             const updatedPhones = formData.customerPhoneNo.filter((_, i) => i !== index);
+            const updatedErrors = phoneErrors.filter((_, i) => i !== index);
+            
             setFormData({
                 ...formData,
                 customerPhoneNo: updatedPhones
             });
-            // Note: We don't call onSave here anymore, and we don't close the drawer
-            // The changes will be saved only when clicking "Save Changes"
+            setPhoneErrors(updatedErrors);
         }
+    };
+
+    const isFormValid = () => {
+        // Check if any phone error exists
+        const hasPhoneError = phoneErrors.some(error => error !== "");
+        
+        // Check if any phone number is invalid (not empty and either not 10 digits or doesn't start with 0)
+        const hasInvalidPhone = formData.customerPhoneNo.some(phone => 
+            phone.length > 0 && (phone.length !== 10 || !phone.startsWith('0'))
+        );
+        
+        return !hasPhoneError && !hasInvalidPhone;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            await onSave(formData);
-            setSuccess(true);
-            onClose(); // Close drawer only after successful save
-        } catch (error) {
-            console.error("Error saving customer data:", error);
+        
+        
+        const newPhoneErrors = formData.customerPhoneNo.map(phone => {
+            if (phone.length === 0) return "";
+            if (phone.length !== 10) return "Phone number must be exactly 10 digits";
+            if (!phone.startsWith('0')) return "Sri Lankan phone number must start with 0";
+            return "";
+        });
+        
+        setPhoneErrors(newPhoneErrors);
+        
+        if (isFormValid()) {
+            try {
+                await onSave(formData);
+                setSuccess(true);
+                onClose(); 
+            } catch (error) {
+                console.error("Error saving customer data:", error);
+            }
         }
     };
 
     const handleCloseSnackbar = () => {
         setSuccess(false);
+    };
+
+    
+    const formatPhoneForDisplay = (phone) => {
+        if (phone.length === 10) {
+            return `${phone.slice(0, 3)} ${phone.slice(3, 6)} ${phone.slice(6, 10)}`;
+        }
+        return phone;
     };
 
     return (
@@ -133,22 +194,35 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
                         <Box>
                             <Typography variant="subtitle2" sx={{ mb: 1 }}>Phone Numbers</Typography>
                             {formData.customerPhoneNo.map((phone, index) => (
-                                <Box key={index} sx={{ display: "flex", mb: 1 }}>
-                                    <TextField
-                                        value={phone}
-                                        onChange={(e) => handlePhoneChange(index, e.target.value)}
-                                        fullWidth
-                                        label={`Phone ${index + 1}`}
-                                        sx={{ mr: 1 }}
-                                    />
-                                    <Button
-                                        variant="outlined"
-                                        color="error"
-                                        onClick={() => removePhoneField(index)}
-                                        disabled={formData.customerPhoneNo.length <= 1}
-                                    >
-                                        Remove
-                                    </Button>
+                                <Box key={index} sx={{ display: "flex", flexDirection: "column", mb: 1 }}>
+                                    <Box sx={{ display: "flex" }}>
+                                        <TextField
+                                            value={phone}
+                                            onChange={(e) => handlePhoneChange(index, e.target.value)}
+                                            fullWidth
+                                            label={`Phone ${index + 1}`}
+                                            sx={{ mr: 1 }}
+                                            error={!!phoneErrors[index]}
+                                            helperText={phoneErrors[index]}
+                                            inputProps={{
+                                                maxLength: 10,
+                                                inputMode: 'numeric',
+                                            }}
+                                        />
+                                        <Button
+                                            variant="outlined"
+                                            color="error"
+                                            onClick={() => removePhoneField(index)}
+                                            disabled={formData.customerPhoneNo.length <= 1}
+                                        >
+                                            Remove
+                                        </Button>
+                                    </Box>
+                                    {phone.length === 10 && phone.startsWith('0') && (
+                                        <FormHelperText sx={{ ml: 1 }}>
+                                            Formatted: {formatPhoneForDisplay(phone)}
+                                        </FormHelperText>
+                                    )}
                                 </Box>
                             ))}
                             <Button
@@ -184,7 +258,12 @@ const EditDrawer = ({ open, onClose, item, onSave }) => {
                             <Button variant="outlined" onClick={onClose}>
                                 Cancel
                             </Button>
-                            <Button type="submit" variant="contained" color="primary">
+                            <Button 
+                                type="submit" 
+                                variant="contained" 
+                                color="primary"
+                                disabled={!isFormValid()}
+                            >
                                 Save Changes
                             </Button>
                         </Box>

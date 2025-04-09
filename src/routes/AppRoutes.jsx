@@ -65,6 +65,8 @@ const Setting = lazy(() => import("../pages/settings/Setting"));
 
 const SalesOrderInvoice = lazy(() => import("../pages/SalesOrder/Invoice"));
 
+const SupplierReport = lazy(() => import("../pages/reports/supplier/SupplierReportPage"));
+
 const PrivateRoutesWrapper = () => {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -136,20 +138,13 @@ const AppRoutes = () => {
                 element={<SupplierList />}
               />
 
-              <Route
-                path={ROUTES.PROTECTED.CUSTOMERS.LIST}
-                element={<CustomerList />}
-              />
-
+              
               <Route
                 path={ROUTES.PROTECTED.SUPPLIERS.ADD}
                 element={<SuppiersAdd />}
               />
 
-              <Route
-                path={ROUTES.PROTECTED.CUSTOMERS.ADD}
-                element={<CustomerForm />}
-              />
+              
 
               <Route
                 path={ROUTES.PROTECTED.CASH.CASHOUT}
@@ -225,6 +220,10 @@ const AppRoutes = () => {
                 element={<AdminDashboard />}
               />
               <Route path={ROUTES.PROTECTED.SETTING} element={<Setting />} />
+              <Route
+                path={ROUTES.PROTECTED.REPORTS.SUPPLIER}
+                element={<SupplierReport />}
+              />
             </Route>
 
             {/* Shared Sales/Admin Routes */}
@@ -232,6 +231,14 @@ const AppRoutes = () => {
               <Route
                 path={ROUTES.PROTECTED.DASHBOARD.SALES}
                 element={<SalesDashboard />}
+              />
+              <Route
+                path={ROUTES.PROTECTED.CUSTOMERS.LIST}
+                element={<CustomerList />}
+              />
+              <Route
+                path={ROUTES.PROTECTED.CUSTOMERS.ADD}
+                element={<CustomerForm />}
               />
             </Route>
 

@@ -4,13 +4,14 @@ import EditDrawer from "./editDrawer";
 import { useEffect, useState } from "react";
 import DialogBox from "./dialogBox";
 import { Edit, Trash2 } from "lucide-react";
-import {
-  deleteRawMaterial,
-  editRawMaterial,
-  getRawMaterials,
+import { 
+  addRawMaterial,
   getRawMaterialTypes,
   getSuppliers,
-} from "../../api/rawmaterial/api";
+  getRawMaterials,
+  editRawMaterial,
+  deleteRawMaterial,
+} from '../../api/rawmaterial/api';
 import Toast from "../../common/Toast";
 import StockHistoryDrawer from "./stockHistoryDrawer";
 import { getRawMaterialStock } from "../../api/rawmaterial-stock/api";
@@ -378,7 +379,7 @@ const RawMaterialList = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {newRawMaterial.map((raw) => (
               <tr
-                key={raw.id}
+                key={raw.rawId}
                 className="hover:bg-gray-50 cursor-pointer"
                 onClick={() => handleHistoryClick(raw)}
               >

@@ -1,4 +1,5 @@
 import React from 'react';
+import salesOrderApi from '../../api/salesOrderApi';
 import {
   Dialog,
   DialogTitle,
@@ -46,35 +47,18 @@ const InvoiceModal = ({ open, onClose, invoiceData, orders, paymentDetails }) =>
 
   const handleSendEmail = async () => {
     try {
-      if (!invoiceData?.orderId) {
-        alert("Error: Order ID is missing.");
-        return;
-      }
+      const response = await salesOrderApi.sendInvoice(invoiceData.orderId, {
+        email: invoiceData.customerEmail,
+        invoiceData,
+        orders,
+        paymentDetails,
+      });
   
-      const response = await fetch(
-        `http://localhost:8085/api/salesorders/send-invoice/${invoiceData.orderId}`, 
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: invoiceData.customerEmail,
-            invoiceData,
-            orders,
-            paymentDetails,
-          }),
-        }
-      );
-  
-      if (response.ok) {
+      if (response.status === 200) {
         alert("Invoice sent successfully!");
-      } else {
-        const errorMessage = await response.text(); // Get error message from backend
-        throw new Error(errorMessage || "Failed to send email");
       }
     } catch (error) {
-      alert("Error sending email: " + error.message);
+      alert("Error sending email: " + (error.response?.data?.message || error.message));
     }
   };
   

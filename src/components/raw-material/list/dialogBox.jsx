@@ -28,18 +28,17 @@ export default function DialogBox({
       >
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white  rounded-lg max-w-md w-full">
-            <DialogTitle>
-              <h3 className="text-lg font-medium mb-2">Are You Sure?</h3>
+            <DialogTitle className="text-lg font-medium mb-2">
+              Are You Sure?
             </DialogTitle>
             <DialogContent>
-              <DialogContentText>
-                <p className="text-gray-500 mb-4">
+              <DialogContentText className="text-gray-500 mb-4">
+                
                   This will delete the{" "}
                   <span className="text-black font-bold">
                     {selectedItemProp ? selectedItemProp.productName : ""}
                   </span>{" "}
                   permanently and cannot be undone.
-                </p>
               </DialogContentText>
             </DialogContent>
             <DialogActions>

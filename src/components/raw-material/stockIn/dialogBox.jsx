@@ -30,18 +30,18 @@ const DialogBox = ({
       >
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg max-w-md w-full">
-            <DialogTitle>
-              <h3 className="text-lg font-medium mb-2">Are you sure?</h3>
+            <DialogTitle className="text-lg font-medium mb-2">
+              Are you sure?
             </DialogTitle>
             <DialogContent>
-              <DialogContentText>
-                <p className="text-gray-500 mb-4">
+              <DialogContentText className="text-gray-500 mb-4">
+                
                   Are you sure you want to remove{" "}
                   <span className="text-black font-bold">
                     {selectedItemProp ? selectedItemProp.productName : ""}
                   </span>{" "}
                   from list
-                </p>
+                
               </DialogContentText>
             </DialogContent>
             <DialogActions>

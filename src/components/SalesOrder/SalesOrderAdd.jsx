@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../config/routes";
 import FinishedGoodForm from '../finished-good/add/NewItem';
+import customerApi from '../../api/customerApi';
 import {
   Container,
   Paper,
@@ -45,7 +46,7 @@ const SalesOrderAdd = () => {
 
   //  Fetch customers from backend
   useEffect(() => {
-    axios.get('http://localhost:8085/api/v1/customer/all')
+    customerApi.getAll()
       .then(response => {
         setCustomers(response.data);
       })
@@ -129,7 +130,7 @@ const SalesOrderAdd = () => {
         )}
       />
 
-      <Typography variant="h6" sx={{ mb: 2 }}>Finished Good</Typography>
+      <Typography variant="h6" sx={{ mb: 2 }}>Add New Finished Good</Typography>
       <Button
         variant="contained"
         color="primary"

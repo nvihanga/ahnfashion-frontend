@@ -27,8 +27,8 @@ const DialogBox = ({ openProp, onCloseProp, handleCancelProp }) => {
           <p className="text-red-950 font-semibold">Are You sure?</p>
         </DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            <p className="font-semibold">Are you sure you want to clear all</p>
+          <DialogContentText className="font-semibold">
+            Are you sure you want to clear all
           </DialogContentText>
         </DialogContent>
         <DialogActions>

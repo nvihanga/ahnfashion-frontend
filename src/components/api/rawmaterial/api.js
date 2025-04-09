@@ -1,80 +1,56 @@
-import axios from "axios";
+import { rawMaterialApi, rawMaterialTypeApi } from '../../../api/rawMaterialApi';
+import { supplierApi } from '../../../api/supplierApi';
 
-export const baseUrl = "http://localhost:8085";
-
-const headers = {
-  "Content-Type": "application/json",
-};
 
 export const addRawMaterialType = async (rawTypeName) => {
-  const response = await axios.post(
-    `${baseUrl}/api/v1/rawMaterialType/save`,
-    { rawTypeName },
-    { headers }
-  );
+  const response = await rawMaterialTypeApi.post('/save', { rawTypeName });
   return response.data;
 };
 
 export const getRawMaterialTypes = async () => {
-  const response = await axios.get(`${baseUrl}/api/v1/rawMaterialType/list`, {
-    headers,
-  });
+  const response = await rawMaterialTypeApi.get('/list');
   return response.data;
 };
 
 export const addRawMaterial = async (rawMaterial) => {
-  const response = await axios.post(
-    `${baseUrl}/api/v1/rawMaterial/save`,
-    {
-      rawName: rawMaterial.productName,
-      rawQuantity: rawMaterial.quantity,
-      rawPrice: rawMaterial.price,
-      rawTypeId: rawMaterial.productType,
-      rawDescription: rawMaterial.description || "",
-      rawMinimumStockLevel: rawMaterial.minimumStockLevel || 0,
-      supplierId: [rawMaterial.supplier],
-    },
-    { headers }
-  );
+  const response = await rawMaterialApi.post('/save', {
+    rawName: rawMaterial.productName,
+    rawQuantity: rawMaterial.quantity,
+    rawPrice: rawMaterial.price,
+    rawTypeId: rawMaterial.productType,
+    rawDescription: rawMaterial.description || "",
+    rawMinimumStockLevel: rawMaterial.minimumStockLevel || 0,
+    supplierId: [rawMaterial.supplier],
+  });
   return response.data;
 };
 
 export const getSuppliers = async () => {
-  const response = await axios.get(`${baseUrl}/api/v1/supplier/all`, {
-    headers,
-  });
+  const response = await supplierApi.get('/all'); 
   return response.data;
 };
 
 export const getRawMaterials = async () => {
-  const response = await axios.get(`${baseUrl}/api/v1/rawMaterial/list`, {
-    headers,
-  });
+  const response = await rawMaterialApi.get('/list');
   return response.data;
 };
 
 export const editRawMaterial = async (rawMaterial) => {
-  const response = await axios.put(
-    `${baseUrl}/api/v1/rawMaterial/update`,
-    {
-      rawId: rawMaterial.rawId,
-      rawName: rawMaterial.rawName,
-      rawQuantity: rawMaterial.rawQuantity,
-      rawPrice: rawMaterial.rawPrice,
-      rawTypeId: rawMaterial.rawTypeId,
-      rawDescription: rawMaterial.description || "",
-      rawMinimumStockLevel: rawMaterial.minimumStockLevel || 0,
-      supplierId: rawMaterial.supplierId,
-    },
-    { headers }
-  );
+  const response = await rawMaterialApi.put('/update', {
+    rawId: rawMaterial.rawId,
+    rawName: rawMaterial.rawName,
+    rawQuantity: rawMaterial.rawQuantity,
+    rawPrice: rawMaterial.rawPrice,
+    rawTypeId: rawMaterial.rawTypeId,
+    rawDescription: rawMaterial.description || "",
+    rawMinimumStockLevel: rawMaterial.minimumStockLevel || 0,
+    supplierId: rawMaterial.supplierId,
+  });
   return response.data;
 };
 
 export const deleteRawMaterial = async (rawId) => {
-  const response = await axios.delete(
-    `${baseUrl}/api/v1/rawMaterial/delete/${rawId}`,
-    { headers }
-  );
+  const response = await rawMaterialApi.delete(`/delete/${rawId}`);
   return response.data;
 };
+
