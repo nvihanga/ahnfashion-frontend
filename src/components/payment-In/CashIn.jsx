@@ -28,20 +28,20 @@ const CashIn = () => {
 
   // Sample data - replace with your actual data
   const summaryData = {
-    totalPaidAmount: 'Rs. 50,000',
-    totalInvoices: 30,
+    // totalPaidAmount: 'Rs. 50,000',
+    // totalInvoices: 30,
   };
 
   const [paymentData] = useState([
     {
-      id1: 1,
-      supplier1: 'Ambiga Textiles',
-      toPay1: 'Rs. 2,000',
-      placeDate1: '2024-02-12',
-      id2: 2,
-      supplier2: 'Chathura Enterprises',
-      toPay2: 'Rs. 4,000',
-      placeDate2: '2024-02-10'
+      // id1: 1,
+      // supplier1: 'Ambiga Textiles',
+      // toPay1: 'Rs. 2,000',
+      // placeDate1: '2024-02-12',
+      // id2: 2,
+      // supplier2: 'Chathura Enterprises',
+      // toPay2: 'Rs. 4,000',
+      // placeDate2: '2024-02-10'
     }
   ]);
   

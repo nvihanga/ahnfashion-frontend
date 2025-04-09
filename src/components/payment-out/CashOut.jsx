@@ -34,14 +34,14 @@ const CashOut = () => {
 
   const [paymentData] = useState([
     {
-      id1: 1,
-      supplier1: 'Ambiga Textiles',
-      toPay1: 'Rs. 2,000',
-      placeDate1: '2024-02-12',
-      id2: 2,
-      supplier2: 'Chathura Enterprises',
-      toPay2: 'Rs. 4,000',
-      placeDate2: '2024-02-10'
+      // id1: 1,
+      // supplier1: 'Ambiga Textiles',
+      // toPay1: 'Rs. 2,000',
+      // placeDate1: '2024-02-12',
+      // id2: 2,
+      // supplier2: 'Chathura Enterprises',
+      // toPay2: 'Rs. 4,000',
+      // placeDate2: '2024-02-10'
     }
   ]);
   

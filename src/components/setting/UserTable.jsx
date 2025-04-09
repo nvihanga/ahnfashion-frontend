@@ -63,12 +63,13 @@ const UserTable = ({
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
+                  {user.username !== 'admin' &&
                   <button 
                     onClick={() => handleDelete(user)}
                     className="p-1 text-red-600 hover:bg-red-50 rounded"
                   >
                     <Trash className="h-4 w-4" />
-                  </button>
+                  </button>}
                 </div>
               </td>
             </tr>

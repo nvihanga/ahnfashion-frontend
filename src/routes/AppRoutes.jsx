@@ -200,18 +200,7 @@ const AppRoutes = () => {
               element={<CreditIn />}
             />
 
-            <Route
-              path={ROUTES.PROTECTED.PAYMENT_OUT.CASH}
-              element={<CashOutSup />}
-            />
-            <Route
-              path={ROUTES.PROTECTED.PAYMENT_OUT.CHEQUE}
-              element={<ChequeOut />}
-            />
-            <Route
-              path={ROUTES.PROTECTED.PAYMENT_OUT.CREDIT}
-              element={<CreditOut />}
-            />
+            
 
             {/* Admin-only Routes */}
             <Route element={<AdminRoute />}>
