@@ -18,10 +18,19 @@ import {
 import Toast from "../../common/Toast";
 
 const NewItem = () => {
-  const [product, setProduct] = useState({});
+  //const [product, setProduct] = useState({});
   const [errors, setErrors] = useState({});
   const [rawTypes, setRawTypes] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [product, setProduct] = useState({
+    productName: "",
+    productType: "",
+    quantity: "",
+    supplier: "",
+    price: "",
+    minimumStockLevel: "",
+    description: "",
+  });
 
   const [toast, setToast] = useState({
     open: false,

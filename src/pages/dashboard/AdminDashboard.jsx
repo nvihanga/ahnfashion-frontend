@@ -26,13 +26,14 @@ const AdminDashboard = () => {
             {/* <img src={image} className='w-[200px] rounded-full'/> */}
           </div>
           <DashboardBoxes/>
-          
+          <div className='py-20'>
           <ProductPerformance/>
-          
-          <div className='py-8'>
-          <OutstandingBalances/>
           </div>
-          <div className='py-8'>
+          
+          {/* <div className='py-8'>
+          <OutstandingBalances/>
+          </div> */}
+          <div className='py-10'>
           <RawMaterialUsage/>
           </div>
         </>

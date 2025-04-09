@@ -21,6 +21,11 @@ const InventoryDashboard = () => {
         {/* <img src={image} className='w-[200px] rounded-full'/> */}
       </div>
       {/* <DashboardBoxes/> */}
+      <div>
+          <div className='py-8'>
+          <RawMaterialUsage/>
+          </div>
+      </div>
     </>
   )
 }

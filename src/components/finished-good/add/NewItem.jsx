@@ -9,6 +9,8 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Snackbar,
+  Alert
 } from "@mui/material";
 import { useState, useEffect } from "react";
 
@@ -38,6 +40,12 @@ const FinishedGoodForm = () => {
   const [finishedGood, setFinishedGood] = useState(initialFinishedGoodState);
   const [errors, setErrors] = useState({});
   const [nextStyleNumber, setNextStyleNumber] = useState(1);
+  // Add state for snackbar
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success"
+  });
 
   useEffect(() => {
     finishedGoodApi.getAll()
@@ -72,6 +80,14 @@ const FinishedGoodForm = () => {
     return Object.keys(tempErrors).length === 0;
   };
 
+  // Handler for closing the snackbar
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   const handleAddFinishedGood = async () => {
     if (!validateForm()) return;
 
@@ -80,7 +96,11 @@ const FinishedGoodForm = () => {
     );
 
     if (validSizes.length === 0) {
-      alert("At least one size must have a non-zero unit price.");
+      setSnackbar({
+        open: true,
+        message: "At least one size must have a non-zero unit price.",
+        severity: "error"
+      });
       return;
     }
 
@@ -104,16 +124,26 @@ const FinishedGoodForm = () => {
     try {
       const response = await finishedGoodApi.create(finishedGoodData);
 
-
       if (response.status === 200 || response.status === 201) {
-        alert("Finished Good added successfully!");
+        // Show success snackbar instead of alert
+        setSnackbar({
+          open: true,
+          message: "Finished Good added successfully!",
+          severity: "success"
+        });
+        
         setNextStyleNumber(nextStyleNumber + 1);
         setFinishedGood(initialFinishedGoodState);
         setErrors({});
       }
     } catch (error) {
       console.error("Error saving finished good:", error);
-      alert("Error adding Finished Good: " + (error.response?.data?.message || error.message));
+      // Show error snackbar instead of alert
+      setSnackbar({
+        open: true,
+        message: "Error adding Finished Good: " + (error.response?.data?.message || error.message),
+        severity: "error"
+      });
     }
   };
 
@@ -216,6 +246,28 @@ const FinishedGoodForm = () => {
           </Table>
         </TableContainer>
       </div>
+
+      {/* Snackbar for notifications - now positioned top center */}
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={6000} 
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        sx={{ 
+          width: { xs: '90%', sm: '400px' },
+          left: '50%',
+          transform: 'translateX(-50%)'
+        }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity} 
+          sx={{ width: '100%' }}
+          variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

@@ -117,12 +117,7 @@ const Sidebar = () => {
             label: "Stock Add",
             path: ROUTES.PROTECTED.FINISHED_GOODS.STOCK_ADD,
             icon: <ImPlus className="text-[13px]" />,
-          },
-          {
-            label: "History",
-            path: ROUTES.PROTECTED.FINISHED_GOODS.HISTORY,
-            icon: <ImPlus className="text-[13px]" />,
-          },
+          }
         ],
       },
       {
@@ -214,13 +209,13 @@ const Sidebar = () => {
         roles: ["admin", "sales"],
         subItems: [
           {
-            label: "Daily",
-            path: ROUTES.PROTECTED.REPORTS.DAILY,
+            label: "Supplier",
+            path: ROUTES.PROTECTED.REPORTS.SUPPLIER,
             icon: <BsCalendar2DayFill className="text-[13px]" />,
           },
           {
-            label: "Monthly",
-            path: ROUTES.PROTECTED.REPORTS.MONTHLY,
+            label: "Customer",
+            path: ROUTES.PROTECTED.REPORTS.CUSTOMER,
             icon: <FaCalendarAlt className="text-[13px]" />,
           },
         ],
