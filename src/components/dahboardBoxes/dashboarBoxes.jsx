@@ -8,7 +8,8 @@ const DashboardBoxes = () => {
     const { totalRevenue, totalExpenses } = useWebSocket();
     return (
         <div className="px-4 mb-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* First Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 {/* Box 1 - Total Sales Revenue */}
                 <div className='p-4 bg-white hover:bg-gray-50 rounded-md border border-gray-200 flex items-center gap-3'>
                     <BsGraphUpArrow className='text-2xl text-[#0096FF]' />
@@ -28,35 +29,9 @@ const DashboardBoxes = () => {
                         </b>
                     </div>
                 </div>
-
-                {/* Box 3 - Cheque */}
-                <div className='p-4 bg-white hover:bg-gray-50 rounded-md border border-gray-200 flex items-center gap-3'>
-                    <RiBankFill className='text-2xl text-[#7928ca]' />
-                    <div className='info'>
-                        <div className='flex items-center gap-2 mb-1'>
-                            <h3 className='text-sm text-gray-600'>Cheque</h3>
-                            <span className='bg-gray-100 rounded-full text-xs px-2 py-1'>
-                                Today
-                            </span>
-                        </div>
-                        <b className='text-lg font-semibold text-gray-900'>Rs.185 000</b>
-                    </div>
-                </div>
-
-                {/* Box 4 - Credit */}
-                <div className='p-4 bg-white hover:bg-gray-50 rounded-md border border-gray-200 flex items-center gap-3'>
-                    <RiExchangeDollarFill className='text-2xl text-[#39e75f]' />
-                    <div className='info'>
-                        <div className='flex items-center gap-2 mb-1'>
-                            <h3 className='text-sm text-gray-600'>Credit</h3>
-                            <span className='bg-gray-100 rounded-full text-xs px-2 py-1'>
-                                Today
-                            </span>
-                        </div>
-                        <b className='text-lg font-semibold text-gray-900'>Rs.180 000</b>
-                    </div>
-                </div>
             </div>
+
+            
         </div>
     )
 }
