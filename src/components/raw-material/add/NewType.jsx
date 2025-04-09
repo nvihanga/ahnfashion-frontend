@@ -1,9 +1,10 @@
 import { Button, FormControl, TextField } from "@mui/material";
 import { useState } from "react";
+import PropTypes from "prop-types";
 import { addRawMaterialType } from "../../api/rawmaterial/api";
 import Toast from "../../common/Toast";
 
-const NewType = () => {
+const NewType = ({ refresh }) => {
   const [addNewType, setAddNewType] = useState("");
   const [errors, setErrors] = useState({});
 
@@ -36,6 +37,7 @@ const NewType = () => {
       });
       setAddNewType("");
       setErrors({});
+      refresh();
     } catch (error) {
       setToast({
         open: true,
@@ -95,6 +97,10 @@ const NewType = () => {
       <div></div>
     </div>
   );
+};
+
+NewType.propTypes = {
+  refresh: PropTypes.func.isRequired,
 };
 
 export default NewType;

@@ -159,7 +159,10 @@ export default function PurchaseOrderTable() {
     <div className="w-full  mx-auto p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Purchase Orders</h1>
-        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={() => (window.location.href = "/purchase-order/add")}
+        >
           Create New Order
         </button>
       </div>
