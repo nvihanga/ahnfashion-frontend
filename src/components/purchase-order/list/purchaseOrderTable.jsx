@@ -253,12 +253,14 @@ export default function PurchaseOrderTable() {
                         <Edit className="h-4 w-4" />
                       </button>
                     )}
-                    <button
-                      className="text-red-500 hover:text-red-700"
-                      onClick={() => setConfirmDelete(order.purchaseOrderId)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    {order.sendCreated === false && (
+                      <button
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => setConfirmDelete(order.purchaseOrderId)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                     <button
                       className={`flex items-center ${
                         isSendingEmail || order.sendCreated
