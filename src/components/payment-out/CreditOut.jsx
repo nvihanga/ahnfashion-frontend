@@ -30,13 +30,13 @@ const CreditOut = () => {
   
   // Sample invoice data
   const [invoices, setInvoices] = useState([
-    { id: '450', customer: 'customer1', netTotal: 4000.00, toPay: 0, date: '2024-12-18', paymentMethod: 'Cash', status: 'Paid' },
-    { id: '3', customer: 'customer2', netTotal: 990.00, toPay: 0, date: '2024-11-29', paymentMethod: 'Cash', status: 'Paid' },
-    { id: 'INV7863', customer: 'customer3', netTotal: 331.50, toPay: 331.50, date: '2024-10-26', paymentMethod: '', status: 'Unpaid' },
-    { id: 'INV7786', customer: 'customer4', netTotal: 18066.75, toPay: 596.75, date: '2024-10-22', paymentMethod: 'Credit', status: 'Partial' },
-    { id: 'INV95', customer: 'customer5', netTotal: 18665.36, toPay: 18665.36, date: '2024-10-22', paymentMethod: '', status: 'Unpaid' },
-    { id: 'INV7780', customer: 'customer6', netTotal: 7977.25, toPay: 0, date: '2024-10-22', paymentMethod: 'Cheque', status: 'Paid' },
-    { id: 'INV87', customer: 'customer7', netTotal: 4267.50, toPay: 267.50, date: '2024-10-21', paymentMethod: 'Credit', status: 'Partial' }
+    // { id: '450', customer: 'customer1', netTotal: 4000.00, toPay: 0, date: '2024-12-18', paymentMethod: 'Cash', status: 'Paid' },
+    // { id: '3', customer: 'customer2', netTotal: 990.00, toPay: 0, date: '2024-11-29', paymentMethod: 'Cash', status: 'Paid' },
+    // { id: 'INV7863', customer: 'customer3', netTotal: 331.50, toPay: 331.50, date: '2024-10-26', paymentMethod: '', status: 'Unpaid' },
+    // { id: 'INV7786', customer: 'customer4', netTotal: 18066.75, toPay: 596.75, date: '2024-10-22', paymentMethod: 'Credit', status: 'Partial' },
+    // { id: 'INV95', customer: 'customer5', netTotal: 18665.36, toPay: 18665.36, date: '2024-10-22', paymentMethod: '', status: 'Unpaid' },
+    // { id: 'INV7780', customer: 'customer6', netTotal: 7977.25, toPay: 0, date: '2024-10-22', paymentMethod: 'Cheque', status: 'Paid' },
+    // { id: 'INV87', customer: 'customer7', netTotal: 4267.50, toPay: 267.50, date: '2024-10-21', paymentMethod: 'Credit', status: 'Partial' }
   ]);
 
   // Format currency

@@ -1,5 +1,4 @@
 import NewItem from "../../components/raw-material/add/NewItem";
-import NewType from "../../components/raw-material/add/NewType";
 
 const AddList = () => {
   return (
@@ -28,13 +27,9 @@ const AddList = () => {
       {/* <DashboardBoxes/> */}
       <div>
         <NewItem />
-        <NewType />
       </div>
     </>
   );
 };
 
 export default AddList;
-
-
-

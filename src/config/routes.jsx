@@ -53,11 +53,7 @@ export const ROUTES = {
             CREDIT: '/payment-in/credit',
             CHEQUE: '/payment-in/cheque',
         },
-        PAYMENT_OUT: {
-            CASH: '/payment-out/cash',
-            CREDIT: '/payment-out/credit',
-            CHEQUE: '/payment-out/cheque',
-        },
+        
         SETTING: '/setting',
 
 

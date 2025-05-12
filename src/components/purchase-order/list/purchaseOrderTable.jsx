@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Edit,
 } from "lucide-react";
+import { CircularProgress } from "@mui/material"; // Import CircularProgress
 
 import PurchaseOrderEdit from "./purchaseOrderEdit";
 import InvoiceDetailsModal from "./purchaseOrderDetails";
@@ -32,6 +33,7 @@ export default function PurchaseOrderTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editInvoice, setEditInvoice] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false); // Add loading state
 
   const [toast, setToast] = useState({
     open: false,
@@ -103,6 +105,7 @@ export default function PurchaseOrderTable() {
   };
 
   const handleSendInvoice = async (order) => {
+    setIsSendingEmail(true); // Set loading state to true
     try {
       await sendPurchaseOrderEmail(order.invoiceNumber);
       setPurchaseOrders(
@@ -115,13 +118,15 @@ export default function PurchaseOrderTable() {
         severity: "success",
         message: "Purchase order email sent successfully",
       });
-      setSendEmail(null);
+      setSendEmail(null); // Close the dialog
     } catch (error) {
       setToast({
         open: true,
         severity: "error",
         message: "Failed to send purchase order email: " + error.message,
       });
+    } finally {
+      setIsSendingEmail(false); // Reset loading state
     }
   };
 
@@ -159,7 +164,10 @@ export default function PurchaseOrderTable() {
     <div className="w-full  mx-auto p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Purchase Orders</h1>
-        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={() => (window.location.href = "/purchase-order/add")}
+        >
           Create New Order
         </button>
       </div>
@@ -245,22 +253,26 @@ export default function PurchaseOrderTable() {
                         <Edit className="h-4 w-4" />
                       </button>
                     )}
+                    {order.sendCreated === false && (
+                      <button
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => setConfirmDelete(order.purchaseOrderId)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                     <button
-                      className="text-red-500 hover:text-red-700"
-                      onClick={() => setConfirmDelete(order.purchaseOrderId)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                    <button
-                      className={`${
-                        order.sendCreated === true
+                      className={`flex items-center ${
+                        isSendingEmail || order.sendCreated
                           ? "text-gray-400 cursor-not-allowed"
                           : "text-blue-500 hover:text-blue-700"
                       }`}
                       onClick={() =>
-                        order.status !== "sent" && setSendEmail(order)
+                        !isSendingEmail &&
+                        order.status !== "sent" &&
+                        setSendEmail(order)
                       }
-                      disabled={order.sendCreated === true}
+                      disabled={isSendingEmail || order.sendCreated}
                     >
                       <Send className="h-4 w-4" />
                     </button>
@@ -312,14 +324,20 @@ export default function PurchaseOrderTable() {
               <button
                 className="px-4 py-2 border rounded-md hover:bg-gray-100"
                 onClick={() => setSendEmail(null)}
+                disabled={isSendingEmail} // Disable cancel button while sending
               >
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center"
                 onClick={() => handleSendInvoice(sendEmail)}
+                disabled={isSendingEmail} // Disable send button while sending
               >
-                Send
+                {isSendingEmail ? (
+                  <CircularProgress size={16} className="mr-2" />
+                ) : (
+                  "Send"
+                )}
               </button>
             </div>
           </div>
@@ -374,7 +392,7 @@ export default function PurchaseOrderTable() {
           setIsModalOpen(false);
           setSelectedInvoiceId(null);
         }}
-        invoice={selectedInvoiceId} // Changed from purchaseOrderId to invoice
+        invoice={selectedInvoiceId || null} // Ensure valid invoice ID is passed
       />
 
       {/* Edit Invoice Modal */}

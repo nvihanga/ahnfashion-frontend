@@ -36,12 +36,12 @@ import {
 const ChequeOut = () => {
   // Sample data
   const [cheques, setCheques] = useState([
-    { id: '901134', amount: 15116.40, status: 'pending', reason: 'INV7341 direct cheque payment', placeDate: '2024-09-25', chequeDate: '2024-10-16' },
-    { id: '013740', amount: 7610.13, status: 'pending', reason: 'INV7454 direct cheque payment', placeDate: '2024-10-04', chequeDate: '2024-10-18' },
-    { id: '103116', amount: 10562.10, status: 'pending', reason: 'INV6873 Credit cheque payment', placeDate: '2024-10-10', chequeDate: '2024-10-20' },
-    { id: '956500', amount: 16213.75, status: 'pending', reason: 'INV7299 Credit cheque payment', placeDate: '2024-09-27', chequeDate: '2024-10-21' },
-    { id: '776555', amount: 7594.54, status: 'pending', reason: 'INV54 Credit cheque payment', placeDate: '2024-10-21', chequeDate: '2024-10-21' },
-    { id: '353808', amount: 9593.10, status: 'pending', reason: 'INV7371 direct cheque payment', placeDate: '2024-10-09', chequeDate: '2024-10-23' },
+    // { id: '901134', amount: 15116.40, status: 'pending', reason: 'INV7341 direct cheque payment', placeDate: '2024-09-25', chequeDate: '2024-10-16' },
+    // { id: '013740', amount: 7610.13, status: 'pending', reason: 'INV7454 direct cheque payment', placeDate: '2024-10-04', chequeDate: '2024-10-18' },
+    // { id: '103116', amount: 10562.10, status: 'pending', reason: 'INV6873 Credit cheque payment', placeDate: '2024-10-10', chequeDate: '2024-10-20' },
+    // { id: '956500', amount: 16213.75, status: 'pending', reason: 'INV7299 Credit cheque payment', placeDate: '2024-09-27', chequeDate: '2024-10-21' },
+    // { id: '776555', amount: 7594.54, status: 'pending', reason: 'INV54 Credit cheque payment', placeDate: '2024-10-21', chequeDate: '2024-10-21' },
+    // { id: '353808', amount: 9593.10, status: 'pending', reason: 'INV7371 direct cheque payment', placeDate: '2024-10-09', chequeDate: '2024-10-23' },
   ]);
 
   // State for search query

@@ -162,13 +162,15 @@ export default function InvoiceDetailsModal({ isOpen, onClose, invoice }) {
                 <tbody className="divide-y divide-gray-200">
                   {items.map((item) => (
                     <tr key={item.rawId}>
-                      <td className="px-4 py-3">{item.rawName}</td>
+                      <td className="px-4 py-3">{item.rawName || "N/A"}</td>
                       <td className="px-4 py-3 text-right">
-                        Rs.{item.rawUnitPrice.toFixed(2)}
+                        Rs.{item.rawUnitPrice?.toFixed(2) || "0.00"}
                       </td>
-                      <td className="px-4 py-3 text-right">{item.rawUnits}</td>
                       <td className="px-4 py-3 text-right">
-                        Rs.{item.itSemTotal.toFixed(2)}
+                        {item.rawUnits || 0}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        Rs.{item.itSemTotal?.toFixed(2) || "0.00"}
                       </td>
                     </tr>
                   ))}

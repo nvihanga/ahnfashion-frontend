@@ -243,29 +243,7 @@ const Sidebar = () => {
           },
         ],
       },
-      {
-        type: "submenu",
-        label: "Payment Out",
-        icon: <FaMoneyCheckDollar className="text-[13px]" />,
-        roles: ["admin"],
-        subItems: [
-          {
-            label: "Cash",
-            path: ROUTES.PROTECTED.PAYMENT_OUT.CASH,
-            icon: <FaHandHoldingDollar className="text-[13px]" />,
-          },
-          {
-            label: "Credit",
-            path: ROUTES.PROTECTED.PAYMENT_OUT.CREDIT,
-            icon: <BsBank2 className="text-[13px]" />,
-          },
-          {
-            label: "Cheque",
-            path: ROUTES.PROTECTED.PAYMENT_OUT.CHEQUE,
-            icon: <FaMoneyCheckDollar className="text-[13px]" />,
-          },
-        ],
-      },
+      
       {
         type: "submenu",
         label: "Cash",
@@ -397,29 +375,7 @@ const Sidebar = () => {
           },
         ],
       },
-      {
-        type: "submenu",
-        label: "Payment Out",
-        icon: <FaMoneyCheckDollar className="text-[13px]" />,
-        roles: ["admin"],
-        subItems: [
-          {
-            label: "Cash",
-            path: ROUTES.PROTECTED.PAYMENT_OUT.CASH,
-            icon: <FaHandHoldingDollar className="text-[13px]" />,
-          },
-          {
-            label: "Credit",
-            path: ROUTES.PROTECTED.PAYMENT_OUT.CREDIT,
-            icon: <BsBank2 className="text-[13px]" />,
-          },
-          {
-            label: "Cheque",
-            path: ROUTES.PROTECTED.PAYMENT_OUT.CHEQUE,
-            icon: <FaMoneyCheckDollar className="text-[13px]" />,
-          },
-        ],
-      },
+      
     ],
     sales: [
       {

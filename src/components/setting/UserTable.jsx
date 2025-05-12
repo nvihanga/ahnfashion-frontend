@@ -36,12 +36,13 @@ const UserTable = ({
           {displayedUsers.map(user => (
             <tr key={user.id} className="border-t">
               <td className="py-3 px-4">
+              {user.username !== 'admin' &&
                 <input
                   type="checkbox"
                   className="rounded border-gray-300"
                   checked={selectedUsers.includes(user.id)}
                   onChange={() => handleSelectUser(user.id)}
-                />
+                />}
               </td>
               <td className="py-3 px-4">{user.id}</td>
               <td className="py-3 px-4">{user.username}</td>
@@ -57,18 +58,22 @@ const UserTable = ({
                   >
                     <Eye className="h-4 w-4" />
                   </button>
+                  {user.username !== 'admin' &&
+                  <>
                   <button 
                     onClick={() => handleEdit(user)}
                     className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-                  >
+                    >
                     <Pencil className="h-4 w-4" />
                   </button>
                   <button 
                     onClick={() => handleDelete(user)}
                     className="p-1 text-red-600 hover:bg-red-50 rounded"
-                  >
+                    >
                     <Trash className="h-4 w-4" />
                   </button>
+                    </>
+                  }
                 </div>
               </td>
             </tr>

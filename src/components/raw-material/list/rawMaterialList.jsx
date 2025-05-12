@@ -410,12 +410,12 @@ const RawMaterialList = () => {
                     >
                       <Edit className="h-4 w-4" />
                     </button>
-                    <button
+                    {/* <button
                       className="text-red-500 hover:text-red-700"
                       onClick={() => handleDialogBoxOpen(raw)}
                     >
                       <Trash2 className="h-4 w-4" />
-                    </button>
+                    </button> */}
                   </div>
                 </td>
               </tr>
