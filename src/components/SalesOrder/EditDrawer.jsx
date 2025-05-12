@@ -1,6 +1,4 @@
-
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   Drawer,
   Box,
@@ -9,49 +7,59 @@ import {
   Select,
   MenuItem,
   Button,
-  Autocomplete
-} from '@mui/material';
+  Autocomplete,
+} from "@mui/material";
 
-const EditDrawer = ({ 
-  open, 
-  onClose, 
-  order, 
+const EditDrawer = ({
+  open,
+  onClose,
+  order,
   finishedGoods, // Updated prop name
-  styleNumbers, 
-  onUpdate 
+  styleNumbers,
+  onUpdate,
 }) => {
   const [editFormData, setEditFormData] = useState({
-    styleNo: '',
-    description: '',
-    size: '',
-    qty: '',
-    rate: ''
+    styleNo: "",
+    description: "",
+    size: "",
+    qty: "",
+    rate: "",
   });
-  const [editInputValue, setEditInputValue] = useState('');
-  const [editAvailableDescriptions, setEditAvailableDescriptions] = useState([]);
+  const [editInputValue, setEditInputValue] = useState("");
+  const [editAvailableDescriptions, setEditAvailableDescriptions] = useState(
+    []
+  );
   const [editAvailableSizes, setEditAvailableSizes] = useState([]);
-  
+
   const initializedOrderRef = useRef(null);
 
-  // Initialize form when drawer opens with a valid order
   useEffect(() => {
-    if (!order || !open) return; // Exit if no order or drawer is closed
+    if (!order || !open) return;
 
-    if (initializedOrderRef.current !== `${order.styleNo}${order.qty}${order.size}`) {
+    if (
+      initializedOrderRef.current !==
+      `${order.styleNo}${order.qty}${order.size}`
+    ) {
       setEditFormData({
-        styleNo: order.styleNo || '',
-        description: order.description || '',
-        size: order.size || '',
-        qty: order.qty || '',
-        rate: order.rate ? order.rate.toString() : ''
+        styleNo: order.styleNo || "",
+        description: order.description || "",
+        size: order.size || "",
+        qty: order.qty || "",
+        rate: order.rate ? order.rate.toString() : "",
       });
 
       // Find the selected finished good
-      const selectedGood = finishedGoods.find(good => good.finishId === order.styleNo);
+      const selectedGood = finishedGoods.find(
+        (good) => good.finishId === order.styleNo
+      );
       if (selectedGood) {
-        setEditInputValue(`Style ${selectedGood.finishId} - ${selectedGood.finishName}`);
+        setEditInputValue(
+          `Style ${selectedGood.finishId} - ${selectedGood.finishName}`
+        );
         setEditAvailableDescriptions([selectedGood.finishDescription]);
-        setEditAvailableSizes(selectedGood.finishedGoodVariants.map(variant => variant.size));
+        setEditAvailableSizes(
+          selectedGood.finishedGoodVariants.map((variant) => variant.size)
+        );
       }
 
       initializedOrderRef.current = `${order.styleNo}${order.qty}${order.size}`;
@@ -63,13 +71,13 @@ const EditDrawer = ({
     if (!open) {
       initializedOrderRef.current = null;
       setEditFormData({
-        styleNo: '',
-        description: '',
-        size: '',
-        qty: '',
-        rate: ''
+        styleNo: "",
+        description: "",
+        size: "",
+        qty: "",
+        rate: "",
       });
-      setEditInputValue('');
+      setEditInputValue("");
       setEditAvailableDescriptions([]);
       setEditAvailableSizes([]);
     }
@@ -78,10 +86,14 @@ const EditDrawer = ({
   // Update descriptions and sizes when style number changes
   useEffect(() => {
     if (editFormData.styleNo) {
-      const selectedGood = finishedGoods.find(good => good.finishId === editFormData.styleNo);
+      const selectedGood = finishedGoods.find(
+        (good) => good.finishId === editFormData.styleNo
+      );
       if (selectedGood) {
         setEditAvailableDescriptions([selectedGood.finishDescription]);
-        setEditAvailableSizes(selectedGood.finishedGoodVariants.map(variant => variant.size));
+        setEditAvailableSizes(
+          selectedGood.finishedGoodVariants.map((variant) => variant.size)
+        );
       } else {
         setEditAvailableDescriptions([]);
         setEditAvailableSizes([]);
@@ -91,40 +103,47 @@ const EditDrawer = ({
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-    setEditFormData(prev => ({
+    setEditFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleEditStyleChange = (event, newValue) => {
-    const newStyleNo = newValue ? newValue.id : '';
-    setEditFormData(prev => ({
+    const newStyleNo = newValue ? newValue.id : "";
+    setEditFormData((prev) => ({
       ...prev,
       styleNo: newStyleNo,
-      description: prev.styleNo !== newStyleNo ? '' : prev.description,
-      size: prev.styleNo !== newStyleNo ? '' : prev.size
+      description: prev.styleNo !== newStyleNo ? "" : prev.description,
+      size: prev.styleNo !== newStyleNo ? "" : prev.size,
     }));
-    setEditInputValue(newValue ? newValue.label : '');
+    setEditInputValue(newValue ? newValue.label : "");
   };
 
   const handleUpdateOrder = () => {
-    if (!editFormData.qty || !editFormData.styleNo || !editFormData.description || !editFormData.size) {
-      alert('Please fill in all required fields');
+    if (
+      !editFormData.qty ||
+      !editFormData.styleNo ||
+      !editFormData.description ||
+      !editFormData.size
+    ) {
+      alert("Please fill in all required fields");
       return;
     }
 
-    const selectedGood = finishedGoods.find(good => good.finishId === editFormData.styleNo);
+    const selectedGood = finishedGoods.find(
+      (good) => good.finishId === editFormData.styleNo
+    );
     if (!selectedGood) {
-      alert('Selected style not found');
+      alert("Selected style not found");
       return;
     }
 
     const selectedVariant = selectedGood.finishedGoodVariants.find(
-      variant => variant.size === editFormData.size
+      (variant) => variant.size === editFormData.size
     );
     if (!selectedVariant) {
-      alert('Selected size not found for this style');
+      alert("Selected size not found for this style");
       return;
     }
 
@@ -138,7 +157,7 @@ const EditDrawer = ({
       size: editFormData.size,
       qty: editFormData.qty,
       rate: rate,
-      price: `Rs. ${totalPrice}`
+      price: `Rs. ${totalPrice}`,
     };
 
     onUpdate(updatedOrder);
@@ -147,15 +166,22 @@ const EditDrawer = ({
 
   const filterOptions = (options, { inputValue }) => {
     if (!inputValue) return [];
-    
-    const filtered = options.filter(option => 
-      option.id.toString().toLowerCase().includes(inputValue.toLowerCase()) ||
-      option.label.toLowerCase().includes(inputValue.toLowerCase())
+
+    const filtered = options.filter(
+      (option) =>
+        option.id.toString().toLowerCase().includes(inputValue.toLowerCase()) ||
+        option.label.toLowerCase().includes(inputValue.toLowerCase())
     );
 
     return filtered.sort((a, b) => {
-      const aStartsWithInput = a.id.toString().toLowerCase().startsWith(inputValue.toLowerCase());
-      const bStartsWithInput = b.id.toString().toLowerCase().startsWith(inputValue.toLowerCase());
+      const aStartsWithInput = a.id
+        .toString()
+        .toLowerCase()
+        .startsWith(inputValue.toLowerCase());
+      const bStartsWithInput = b.id
+        .toString()
+        .toLowerCase()
+        .startsWith(inputValue.toLowerCase());
       if (aStartsWithInput && !bStartsWithInput) return -1;
       if (!aStartsWithInput && bStartsWithInput) return 1;
       return 0;
@@ -168,18 +194,24 @@ const EditDrawer = ({
       open={open}
       onClose={onClose}
       sx={{
-        '& .MuiDrawer-paper': { 
-          width: '400px',
-          padding: '20px'
+        "& .MuiDrawer-paper": {
+          width: "400px",
+          padding: "20px",
         },
       }}
     >
       <Box sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 3 }}>Edit Order Item</Typography>
-        
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Typography variant="h6" sx={{ mb: 3 }}>
+          Edit Order Item
+        </Typography>
+
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Autocomplete
-            value={styleNumbers.find(option => option.id === editFormData.styleNo) || null}
+            value={
+              styleNumbers.find(
+                (option) => option.id === editFormData.styleNo
+              ) || null
+            }
             onChange={handleEditStyleChange}
             inputValue={editInputValue}
             onInputChange={(event, newInputValue) => {
@@ -201,35 +233,39 @@ const EditDrawer = ({
             isOptionEqualToValue={(option, value) => option.id === value?.id}
             blurOnSelect
           />
-          
+
           <Select
             value={editFormData.description}
             onChange={handleEditInputChange}
             name="description"
             displayEmpty
             disabled={!editFormData.styleNo}
-            sx={{ width: '100%' }}
+            sx={{ width: "100%" }}
           >
             <MenuItem value="">Description</MenuItem>
             {editAvailableDescriptions.map((desc, index) => (
-              <MenuItem key={index} value={desc}>{desc}</MenuItem>
+              <MenuItem key={index} value={desc}>
+                {desc}
+              </MenuItem>
             ))}
           </Select>
-          
+
           <Select
             value={editFormData.size}
             onChange={handleEditInputChange}
             name="size"
             displayEmpty
             disabled={!editFormData.styleNo}
-            sx={{ width: '100%' }}
+            sx={{ width: "100%" }}
           >
             <MenuItem value="">Size</MenuItem>
             {editAvailableSizes.map((size, index) => (
-              <MenuItem key={index} value={size}>{size}</MenuItem>
+              <MenuItem key={index} value={size}>
+                {size}
+              </MenuItem>
             ))}
           </Select>
-          
+
           <TextField
             label="Qty"
             variant="outlined"
@@ -239,7 +275,7 @@ const EditDrawer = ({
             onChange={handleEditInputChange}
             inputProps={{ min: "1" }}
           />
-          
+
           <TextField
             label="Rate"
             variant="outlined"
@@ -253,16 +289,13 @@ const EditDrawer = ({
             }}
             disabled // Rate is now fetched from backend
           />
-          
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-            <Button 
-              variant="outlined" 
-              onClick={onClose}
-            >
+
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+            <Button variant="outlined" onClick={onClose}>
               Cancel
             </Button>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               color="primary"
               onClick={handleUpdateOrder}
             >

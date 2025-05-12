@@ -72,12 +72,12 @@ const NewType = () => {
           <Button variant="contained" onClick={handleSubmit}>
             Save
           </Button>
-          <Button variant="outlined" onClick={handleReset}>
+          <Button variant="outlined
             Reset
           </Button>
         </div>
       </div>
-      <div className="mt-5">
+      <div className="mt-8">
         <FormControl fullWidth id="text area">
           <div className="flex gap-5 flex-col">
             <TextField
