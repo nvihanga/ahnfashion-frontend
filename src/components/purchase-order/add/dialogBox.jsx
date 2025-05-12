@@ -38,6 +38,7 @@ const DialogBox = ({ openProp, onCloseProp, handleCancelProp }) => {
           <Button variant="contained" color="error" onClick={handleCancelProp}>
             Yes
           </Button>
+          <div></div>
         </DialogActions>
       </Dialog>
     </>
